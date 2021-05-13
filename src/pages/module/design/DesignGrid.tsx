@@ -5,8 +5,8 @@ import {
   getAllleafRowids,
 } from '@/pages/datamining/utils';
 import { apply, uuid } from '@/utils/utils';
-import { EditOutlined, FileOutlined, SaveOutlined } from '@ant-design/icons';
-import { Card, Col, message, Modal, Row, Space, Tree } from 'antd';
+import { EditOutlined, FileOutlined, MenuFoldOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Col, message, Modal, Row, Space, Tooltip, Tree } from 'antd';
 import type { Key } from 'antd/es/table/interface';
 import { fetchGridDetails, fetchModuleFields, saveGridSchemeDetails } from '../service';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
@@ -202,6 +202,22 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
             setModalVisible(true);
           }}
         />
+        {node.children && node.children.length ? (
+          <Tooltip title="把所有子节点放在上级节点下">
+            <MenuFoldOutlined
+              className="editbutton"
+              onClick={() => {
+                const pchildren: any[] = node.parent.children;
+                const index = pchildren.findIndex((r: any) => r === node);
+                node.children.forEach((rec: any) => {
+                  apply(rec, { parent: node.parent });
+                });
+                pchildren.splice(index, 1, ...node.children);
+                setDetails((v) => [...v]);
+              }}
+            />
+          </Tooltip>
+        ) : null}
       </>
     );
   };
