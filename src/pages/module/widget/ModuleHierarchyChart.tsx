@@ -15,6 +15,7 @@ interface ModuleHierarchyChartProps {
   moduleName: string;
   onClick?: Function; // 单击了某个模块
   onSelect?: Function; // 需要选中返回
+  defaultFieldahead?: string; // 默认选中的值
   ref: any;
 }
 
@@ -32,7 +33,7 @@ const changeTextToName = (object: any) => {
 };
 
 export const ModuleHierarchyChart: React.FC<ModuleHierarchyChartProps> = forwardRef(
-  ({ moduleName, onClick, onSelect }, ref) => {
+  ({ moduleName, onClick, onSelect, defaultFieldahead }, ref) => {
     const [parentTree, setParentTree] = useState<any>({});
     const [childTree, setChildTree] = useState<any>({});
     const [activeKey, setActiveKey] = useState<'parent' | 'child'>('parent');
@@ -98,7 +99,14 @@ export const ModuleHierarchyChart: React.FC<ModuleHierarchyChartProps> = forward
         c.title = '基准模块';
         c.children = c.children.filter((child: any) => child.isChild);
         setChildTree(c);
-        setCurrModule(p);
+        if (defaultFieldahead) {
+          const plist = getAllTreeRecord(p.children);
+          const clist = getAllTreeRecord(c.children);
+          setCurrModule(
+            plist.find((rec) => rec.itemId === defaultFieldahead) ||
+              clist.find((rec) => rec.itemId === defaultFieldahead),
+          );
+        } else setCurrModule(p);
       });
     }, [moduleName]);
 

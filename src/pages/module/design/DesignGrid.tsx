@@ -8,14 +8,14 @@ import { apply, uuid } from '@/utils/utils';
 import { EditOutlined, FileOutlined, SaveOutlined } from '@ant-design/icons';
 import { Card, Col, message, Modal, Row, Space, Tree } from 'antd';
 import type { Key } from 'antd/es/table/interface';
-import { fetchFormDetails, fetchModuleFields, saveFormSchemeDetails } from '../service';
+import { fetchGridDetails, fetchModuleFields, saveGridSchemeDetails } from '../service';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
-import { FormFieldDesignForm } from './DesignFormField';
+import { GridFieldDesignForm } from './DesignGridField';
 import './designForm.css';
 import { getAllTreeRecord } from '../moduleUtils';
 
-interface DesignFormProps {
-  formScheme: any;
+interface DesignGridProps {
+  gridScheme: any;
 }
 
 const getTitle = (node: any, text?: string) => {
@@ -24,25 +24,16 @@ const getTitle = (node: any, text?: string) => {
 };
 
 const farray = [
-  'xtype',
-  'layout',
-  'region',
-  'rows',
-  'cols',
-  'widths',
-  'rowspan',
-  'colspan',
-  'separatelabel',
-  'hiddenlabel',
-  'width',
-  'height',
-  'fieldahead',
-  'subdataobjecttitle',
-  'collapsible',
-  'collapsed',
-  'othersetting',
-  'remark',
-  'showdetailtip',
+  'tf_title',
+  'tf_hidden',
+  'tf_locked',
+  'tf_showdetailtip',
+  'tf_width',
+  'tf_minwidth',
+  'tf_maxwidth',
+  'tf_flex',
+  'tf_autosizetimes',
+  'tf_otherSetting',
 ];
 
 const getChildNodesArray = (pnode: any) => {
@@ -51,26 +42,26 @@ const getChildNodesArray = (pnode: any) => {
     const nodedata: any = {
       text: node.text,
     };
-    if (node.udftitle) nodedata.title = node.udftitle;
-    if (!node.children && node.itemId) nodedata.itemId = node.itemId;
+    if (!node.children && node.itemId) nodedata.tf_itemId = node.itemId;
     farray.forEach((f) => {
       if (node[f]) nodedata[f] = node[f];
     });
     if (node.children && node.children.length) nodedata.children = getChildNodesArray(node);
-    result.push(nodedata);
+    // 空的合并表头不要
+    if (node.itemId || (node.children && node.children.length)) result.push(nodedata);
   });
   return result;
 };
 
-const saveFormScheme = (details: any[], formScheme: any) => {
-  saveFormSchemeDetails({
-    dataObjectId: formScheme['FDataobject.objectid'],
-    formSchemeId: formScheme.formschemeid,
-    formSchemeName: formScheme.schemename,
+const saveGridScheme = (details: any[], gridScheme: any) => {
+  saveGridSchemeDetails({
+    dataObjectId: gridScheme['FDataobject.objectid'],
+    gridSchemeId: gridScheme.gridschemeid,
+    gridSchemeName: gridScheme.schemename,
     schemeDefine: JSON.stringify(getChildNodesArray(details[0])),
   }).then((response) => {
     if (response.success) {
-      message.success(`表单方案『${formScheme.schemename}』已保存。`);
+      message.success(`表单方案『${gridScheme.schemename}』已保存。`);
     } else {
       Modal.error({
         title: `表单方案保存失败！`,
@@ -102,9 +93,9 @@ const loop = (data: any[], key: string, callback: callbackFunc) => {
   }
 };
 
-export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
-  const moduleName = formScheme['FDataobject.objectid'];
-  const { formschemeid } = formScheme;
+export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
+  const moduleName = gridScheme['FDataobject.objectid'];
+  const { gridschemeid } = gridScheme;
   const hierarchyRef: any = useRef();
   const form: any = useRef();
   const [canSelectTree, setCanSelectTree] = useState<any[]>([]);
@@ -203,7 +194,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
   const getEditTitle = (node: any, text?: string) => {
     return (
       <>
-        <span className={node.cls}>{text || node.udftitle || node.text}</span>
+        <span className={node.cls}>{text || node.tf_title || node.text}</span>
         <EditOutlined
           className="editbutton"
           onClick={() => {
@@ -222,7 +213,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
     } else if (Object.prototype.toString.call(object) === '[object Object]') {
       if (object.key !== 'root') {
         if (object.title) {
-          apply(object, { udftitle: object.title });
+          apply(object, { tf_title: object.title });
         }
         apply(object, { title: getEditTitle(object) });
       }
@@ -273,7 +264,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
             snodeParent = {
               key: uuid(),
               text: node.parent.text || node.parent.title,
-              udftitle: node.parent.text || node.parent.title,
+              tf_title: node.parent.text || node.parent.title,
               leaf: false,
               expanded: true,
               xtype: 'fieldset',
@@ -312,8 +303,8 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
   }, [canSelectTree]);
 
   useEffect(() => {
-    fetchFormDetails({
-      formSchemeId: formschemeid,
+    fetchGridDetails({
+      gridSchemeId: gridschemeid,
     }).then((response) => {
       const ds = [
         {
@@ -376,7 +367,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
                   onClick={() => {
                     const newNode: any = {
                       key: uuid(),
-                      udftitle: '新增的字段组',
+                      tf_title: '新增的字段组',
                       xtype: 'fieldset',
                       parent: details[0],
                     };
@@ -391,7 +382,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
                   删除
                 </a>
                 <span></span>
-                <a href="#" onClick={() => saveFormScheme(details, formScheme)}>
+                <a href="#" onClick={() => saveGridScheme(details, gridScheme)}>
                   保存
                 </a>
               </Space>
@@ -425,8 +416,8 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
               // onDragEnter = {(info) => {console.log(info)}}
               onDrop={(info: any) => {
                 const oinfo = {
-                  dragText: info.dragNode.udftitle || info.dragNode.text || info.dragNode.title,
-                  targetText: info.node.udftitle || info.node.text || info.node.title,
+                  dragText: info.dragNode.tf_title || info.dragNode.text || info.dragNode.title,
+                  targetText: info.node.tf_title || info.node.text || info.node.title,
                   dropPosition: info.dropPosition,
                   dropToGap: info.dropToGap,
                 };
@@ -468,7 +459,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
       </Row>
       <Modal
         width={820}
-        title={`编辑表单字段：${editRecord.udftitle || editRecord.text}`}
+        title={`编辑表单字段：${editRecord.tf_title || editRecord.text}`}
         visible={modalVisible}
         onCancel={() => {
           setModalVisible(false);
@@ -479,7 +470,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
           </>
         }
         onOk={() => {
-          const { othersetting } = form.current.getValues();
+          const { tf_otherSetting: othersetting } = form.current.getValues();
           if (othersetting) {
             try {
               // eslint-disable-next-line
@@ -495,7 +486,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
           // 如果不是字段
           if (!editRecord.itemId) {
             apply(editRecord, {
-              text: editRecord.udftitle,
+              text: editRecord.tf_title,
             });
           }
           apply(editRecord, {
@@ -504,7 +495,7 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
           setDetails([...details]);
         }}
       >
-        <FormFieldDesignForm ref={form} moduleName={moduleName} init={{ ...editRecord }} />
+        <GridFieldDesignForm ref={form} moduleName={moduleName} init={{ ...editRecord }} />
       </Modal>
     </>
   );

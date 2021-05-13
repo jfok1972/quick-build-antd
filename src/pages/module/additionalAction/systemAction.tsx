@@ -18,7 +18,8 @@ import { businessActions } from './businessAction';
 import { importTableAndView, refreshFields } from './importTableAndView';
 import { breakDataSource, testDataSource, importSchema } from './dataSource';
 import { dataSourceImportTableAndView } from './dataSourceImportTableAndView';
-import { DesignForm } from '../form/DesignForm';
+import { DesignForm } from '../design/DesignForm';
+import { DesignGrid } from '../design/DesignGrid';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -317,6 +318,10 @@ const deployWorkFlow = (params: ActionParamsModal) => {
   });
 };
 
+/**
+ * 设计form
+ * @param params
+ */
 const designForm = (params: ActionParamsModal) => {
   const { record } = params;
   setGlobalDrawerProps({
@@ -324,19 +329,38 @@ const designForm = (params: ActionParamsModal) => {
     zIndex: 120,
     destroyOnClose: true,
     visible: true,
-    centered: true,
-    okText: '保存',
-    // onOk: handleSave,
     width: '100%',
-    style: { height: '100%' },
     title: (
       <>
         <EditOutlined />
         {` 设计${record['FDataobject.title']}的『${record.schemename}』表单方案`}
       </>
     ),
-    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#EEEEEE' },
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
     children: <DesignForm formScheme={record} />,
+  });
+};
+
+/**
+ * 设计表单列
+ * @param params
+ */
+const designGrid = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalDrawerProps({
+    onClose: () => setGlobalDrawerProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '100%',
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计${record['FDataobject.title']}的『${record.schemename}』列表方案`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignGrid gridScheme={record} />,
   });
 };
 
@@ -391,6 +415,7 @@ export const systemActions: ActionStore = apply(
     // 更新模块附加功能
     updatetocompanymodulefunction: updateToCompanyModuleFunction,
     designform: designForm,
+    designGrid,
   },
   businessActions,
 ) as ActionStore;

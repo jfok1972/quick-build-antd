@@ -1,12 +1,12 @@
 import { SelectOutlined } from '@ant-design/icons';
 import { Popover } from 'antd';
 import React, { useRef, useState } from 'react';
-import { ModuleHierarchyChart } from '../../widget/ModuleHierarchyChart';
+import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
 
 interface SelectChildModuleProps {
   title: string;
   moduleName: string;
-  defaultModule?: string;
+  defaultFieldahead?: string;
   callback: Function;
 }
 
@@ -14,9 +14,11 @@ export const SelectChildModule: React.FC<SelectChildModuleProps> = ({
   title,
   moduleName,
   callback,
+  defaultFieldahead,
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
   const ref = useRef();
+  console.log(defaultFieldahead);
   return (
     <Popover
       visible={visible}
@@ -32,6 +34,7 @@ export const SelectChildModule: React.FC<SelectChildModuleProps> = ({
       content={
         <ModuleHierarchyChart
           moduleName={moduleName}
+          defaultFieldahead={defaultFieldahead}
           ref={ref}
           onSelect={(node: any) => {
             setVisible(false);

@@ -282,6 +282,17 @@ export const saveFormSchemeDetails = async (params: any) => {
   });
 };
 
+export const fetchGridDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/grid/getdetailsforedit.do`, {
+    params,
+  });
+};
+
+export const saveGridSchemeDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/grid/updatedetails.do`, {
+    params,
+  });
+};
 /**
  * 下载grid表单的excel或pdf文件
  * @param params 

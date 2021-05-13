@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { AutoComplete, Checkbox, Col, Form, Input, InputNumber, message, Row, Select } from 'antd';
 import { getDictionary } from '../dictionary/dictionarys';
 import { CloseOutlined } from '@ant-design/icons';
-import { SelectChildModule } from './component/SelectChildModule';
+import { SelectChildModule } from './SelectChildModule';
 
 const xtypeOptions = [
   {
@@ -179,6 +179,7 @@ export const FormFieldDesignForm: React.FC<Prpos> = forwardRef(({ init, moduleNa
                 <SelectChildModule
                   moduleName={moduleName}
                   title="选择子模块"
+                  defaultFieldahead={init.fieldahead}
                   callback={(node: any) => {
                     if (node.itemId && node.itemId.indexOf('.with.') !== -1) {
                       form.setFieldsValue({
@@ -197,15 +198,6 @@ export const FormFieldDesignForm: React.FC<Prpos> = forwardRef(({ init, moduleNa
 
         <Col span={24}>
           <Form.Item label="附加设置" name="othersetting">
-            <Input.TextArea
-              autoSize={{ maxRows: 10 }}
-              placeholder="附加设置格式: 属性 : 值, 属性 : 值"
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24}>
-          <Form.Item label="备注" name="remark">
             <Input.TextArea
               autoSize={{ maxRows: 10 }}
               placeholder="附加设置格式: 属性 : 值, 属性 : 值"
