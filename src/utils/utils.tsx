@@ -52,6 +52,27 @@ export const getLocalMonetaryPosition = () => {
   return (localStorage.getItem('settings-monetaryPosition') as any) || 'behindnumber';
 };
 
+interface callbackFunc {
+  (record: any, pos: number, data: any[]): void;
+}
+/**
+ * 在树形结构中找到key的记录，并执行相应的callback
+ * @param data
+ * @param key
+ * @param callback
+ */
+export const loop = (data: any[], key: string, callback: callbackFunc) => {
+  for (let i = 0; i < data.length; i += 1) {
+    if (data[i].key === key) {
+      callback(data[i], i, data);
+      return;
+    }
+    if (data[i].children) {
+      loop(data[i].children, key, callback);
+    }
+  }
+};
+
 const digitsFormat: string[] = [
   '0,0',
   '0,0.0',

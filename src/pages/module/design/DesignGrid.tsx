@@ -4,7 +4,7 @@ import {
   getAllLeafRecords,
   getAllleafRowids,
 } from '@/pages/datamining/utils';
-import { apply, uuid } from '@/utils/utils';
+import { apply, loop, uuid } from '@/utils/utils';
 import { EditOutlined, FileOutlined, MenuFoldOutlined, SaveOutlined } from '@ant-design/icons';
 import { Card, Col, message, Modal, Row, Space, Tooltip, Tree } from 'antd';
 import type { Key } from 'antd/es/table/interface';
@@ -61,36 +61,15 @@ const saveGridScheme = (details: any[], gridScheme: any) => {
     schemeDefine: JSON.stringify(getChildNodesArray(details[0])),
   }).then((response) => {
     if (response.success) {
-      message.success(`表单方案『${gridScheme.schemename}』已保存。`);
+      message.success(`列表方案『${gridScheme.schemename}』已保存。`);
     } else {
       Modal.error({
-        title: `表单方案保存失败！`,
+        title: `列表方案保存失败！`,
         width: 500,
         content: response.msg,
       });
     }
   });
-};
-
-interface callbackFunc {
-  (record: any, pos: number, data: any[]): void;
-}
-/**
- * 在树形结构中找到key的记录，并执行相应的callback
- * @param data
- * @param key
- * @param callback
- */
-const loop = (data: any[], key: string, callback: callbackFunc) => {
-  for (let i = 0; i < data.length; i += 1) {
-    if (data[i].key === key) {
-      callback(data[i], i, data);
-      return;
-    }
-    if (data[i].children) {
-      loop(data[i].children, key, callback);
-    }
-  }
 };
 
 export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
@@ -429,22 +408,10 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
                   );
                 }
               }}
-              // onDragEnter = {(info) => {console.log(info)}}
               onDrop={(info: any) => {
-                const oinfo = {
-                  dragText: info.dragNode.tf_title || info.dragNode.text || info.dragNode.title,
-                  targetText: info.node.tf_title || info.node.text || info.node.title,
-                  dropPosition: info.dropPosition,
-                  dropToGap: info.dropToGap,
-                };
-                let msg: string = '';
-                console.log(msg);
-                console.log(info);
-                console.log(oinfo);
                 const targetKey = info.node.key as string;
                 // 放在目标节点的下面
                 if ((info.dropToGap && targetKey !== 'root') || info.node.itemId) {
-                  msg = `把 ${oinfo.dragText} 放到 ${oinfo.targetText} 下面`;
                   loop(details, targetKey, (targetRecord, targetPos) => {
                     loop(details, info.dragNode.key as string, (dragRecord, dragPos) => {
                       dragRecord.parent.children.splice(dragPos, 1);
@@ -454,7 +421,6 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
                   });
                 } else {
                   // 放在目标节点的子节点的第一个位置
-                  msg = `把 ${oinfo.dragText} 放到 ${oinfo.targetText} 的子节点下面第一个`;
                   loop(details, targetKey, (targetRecord) => {
                     loop(details, info.dragNode.key as string, (dragRecord, dragPos) => {
                       dragRecord.parent.children.splice(dragPos, 1);
@@ -475,7 +441,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
       </Row>
       <Modal
         width={820}
-        title={`编辑表单字段：${editRecord.tf_title || editRecord.text}`}
+        title={`编辑表列字段：${editRecord.tf_title || editRecord.text}`}
         visible={modalVisible}
         onCancel={() => {
           setModalVisible(false);

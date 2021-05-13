@@ -293,6 +293,19 @@ export const saveGridSchemeDetails = async (params: any) => {
     params,
   });
 };
+
+export const fetchDefaultOrderDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/sort/getdefaultdetails.do`, {
+    params,
+  });
+};
+
+export const saveDefaultOrderSchemeDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/sort/updatedefaultdetails.do`, {
+    params,
+  });
+};
+
 /**
  * 下载grid表单的excel或pdf文件
  * @param params 

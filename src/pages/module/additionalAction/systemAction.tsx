@@ -20,6 +20,7 @@ import { breakDataSource, testDataSource, importSchema } from './dataSource';
 import { dataSourceImportTableAndView } from './dataSourceImportTableAndView';
 import { DesignForm } from '../design/DesignForm';
 import { DesignGrid } from '../design/DesignGrid';
+import { DesignDefaultOrder } from '../design/DesignDefaultOrder';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -364,6 +365,25 @@ const designGrid = (params: ActionParamsModal) => {
   });
 };
 
+const designDefaultOrder = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalDrawerProps({
+    onClose: () => setGlobalDrawerProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '100%',
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计『${record.title}』的默认排序方案`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignDefaultOrder objectRecord={record} />,
+  });
+};
+
 /**
  * 在iframe中可以进行界面和表单列表配置的extjs的程序
  * @param params
@@ -416,6 +436,7 @@ export const systemActions: ActionStore = apply(
     updatetocompanymodulefunction: updateToCompanyModuleFunction,
     designform: designForm,
     designGrid,
+    setdefaultorder: designDefaultOrder,
   },
   businessActions,
 ) as ActionStore;

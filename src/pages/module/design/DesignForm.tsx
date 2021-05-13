@@ -4,7 +4,7 @@ import {
   getAllLeafRecords,
   getAllleafRowids,
 } from '@/pages/datamining/utils';
-import { apply, uuid } from '@/utils/utils';
+import { apply, loop, uuid } from '@/utils/utils';
 import { EditOutlined, FileOutlined, SaveOutlined } from '@ant-design/icons';
 import { Card, Col, message, Modal, Row, Space, Tree } from 'antd';
 import type { Key } from 'antd/es/table/interface';
@@ -78,27 +78,6 @@ const saveFormScheme = (details: any[], formScheme: any) => {
       });
     }
   });
-};
-
-interface callbackFunc {
-  (record: any, pos: number, data: any[]): void;
-}
-/**
- * 在树形结构中找到key的记录，并执行相应的callback
- * @param data
- * @param key
- * @param callback
- */
-const loop = (data: any[], key: string, callback: callbackFunc) => {
-  for (let i = 0; i < data.length; i += 1) {
-    if (data[i].key === key) {
-      callback(data[i], i, data);
-      return;
-    }
-    if (data[i].children) {
-      loop(data[i].children, key, callback);
-    }
-  }
 };
 
 export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
@@ -421,22 +400,10 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
                   );
                 }
               }}
-              // onDragEnter = {(info) => {console.log(info)}}
               onDrop={(info: any) => {
-                const oinfo = {
-                  dragText: info.dragNode.udftitle || info.dragNode.text || info.dragNode.title,
-                  targetText: info.node.udftitle || info.node.text || info.node.title,
-                  dropPosition: info.dropPosition,
-                  dropToGap: info.dropToGap,
-                };
-                let msg: string = '';
-                console.log(msg);
-                console.log(info);
-                console.log(oinfo);
                 const targetKey = info.node.key as string;
                 // 放在目标节点的下面
                 if ((info.dropToGap && targetKey !== 'root') || info.node.itemId) {
-                  msg = `把 ${oinfo.dragText} 放到 ${oinfo.targetText} 下面`;
                   loop(details, targetKey, (targetRecord, targetPos) => {
                     loop(details, info.dragNode.key as string, (dragRecord, dragPos) => {
                       dragRecord.parent.children.splice(dragPos, 1);
@@ -446,7 +413,6 @@ export const DesignForm: React.FC<DesignFormProps> = ({ formScheme }) => {
                   });
                 } else {
                   // 放在目标节点的子节点的第一个位置
-                  msg = `把 ${oinfo.dragText} 放到 ${oinfo.targetText} 的子节点下面第一个`;
                   loop(details, targetKey, (targetRecord) => {
                     loop(details, info.dragNode.key as string, (dragRecord, dragPos) => {
                       dragRecord.parent.children.splice(dragPos, 1);
