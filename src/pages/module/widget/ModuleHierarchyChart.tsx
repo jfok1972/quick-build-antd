@@ -7,6 +7,20 @@ import './chartNode.css';
 
 const { TabPane } = Tabs;
 
+const moduleHierarchyData: Map<string, any> = new Map();
+
+const getModuleHierarchyData = (moduleName: string) => {
+  if (!moduleHierarchyData.has(moduleName)) {
+    moduleHierarchyData.set(
+      moduleName,
+      fetchModuleHierarchyData({
+        moduleName,
+      }),
+    );
+  }
+  return JSON.parse(JSON.stringify(moduleHierarchyData.get(moduleName)));
+};
+
 interface PropTypes {
   nodeData: any;
 }
@@ -31,6 +45,10 @@ const changeTextToName = (object: any) => {
     }
   }
 };
+
+// 在useState没有结束的时候，用这个来替代 parentTree,ChildTree
+let ptree: any;
+let ctree: any;
 
 export const ModuleHierarchyChart: React.FC<ModuleHierarchyChartProps> = forwardRef(
   ({ moduleName, onClick, onSelect, defaultFieldahead }, ref) => {
@@ -74,40 +92,46 @@ export const ModuleHierarchyChart: React.FC<ModuleHierarchyChartProps> = forward
       getNodeFromItemId: (path: string): Record<string, unknown> => {
         let curr: any = parentTree;
         if (path) {
-          const plist = getAllTreeRecord(parentTree.children[0].children);
-          const clist = getAllTreeRecord(childTree.children[0].children);
+          const plist = getAllTreeRecord(
+            parentTree.children ? parentTree.children[0].children : ptree.children[0].children,
+          );
+          const clist = getAllTreeRecord(
+            childTree.children ? childTree.children[0].children : ctree.children[0].children,
+          );
           curr =
             plist.find((rec) => rec.itemId === path) || clist.find((rec) => rec.itemId === path);
         }
         setCurrModule(curr);
         return curr;
       },
+      getCurrentModule: () => {
+        return currModule;
+      },
     }));
 
     useEffect(() => {
-      fetchModuleHierarchyData({
-        moduleName,
-      }).then((response) => {
-        changeTextToName(response);
-        const p = { ...response.children[0] };
-        p.name = p.moduleTitle;
-        p.title = '基准模块';
-        p.children = p.children.filter((child: any) => child.isParent);
-        setParentTree(p);
-        const c = { ...response.children[0] };
-        c.name = c.moduleTitle;
-        c.title = '基准模块';
-        c.children = c.children.filter((child: any) => child.isChild);
-        setChildTree(c);
-        if (defaultFieldahead) {
-          const plist = getAllTreeRecord(p.children);
-          const clist = getAllTreeRecord(c.children);
-          setCurrModule(
-            plist.find((rec) => rec.itemId === defaultFieldahead) ||
-              clist.find((rec) => rec.itemId === defaultFieldahead),
-          );
-        } else setCurrModule(p);
-      });
+      const data = getModuleHierarchyData(moduleName);
+      changeTextToName(data);
+      const p = { ...data.children[0] };
+      p.name = p.moduleTitle;
+      p.title = '基准模块';
+      p.children = p.children.filter((child: any) => child.isParent);
+      ptree = p;
+      setParentTree(p);
+      const c = { ...data.children[0] };
+      c.name = c.moduleTitle;
+      c.title = '基准模块';
+      c.children = c.children.filter((child: any) => child.isChild);
+      ctree = c;
+      setChildTree(c);
+      if (defaultFieldahead) {
+        const plist = getAllTreeRecord(p.children);
+        const clist = getAllTreeRecord(c.children);
+        setCurrModule(
+          plist.find((rec) => rec.itemId === defaultFieldahead) ||
+            clist.find((rec) => rec.itemId === defaultFieldahead),
+        );
+      } else setCurrModule(p);
     }, [moduleName]);
 
     useEffect(() => {

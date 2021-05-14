@@ -1,44 +1,180 @@
-import { SelectOutlined } from '@ant-design/icons';
-import { Popover } from 'antd';
-import React, { useRef, useState } from 'react';
+import { apply } from '@/utils/utils';
+import { FileOutlined, SelectOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Popover, Row, Tree } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { getModuleInfo } from '../modules';
+import { fetchModuleFields } from '../service';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
 
-interface SelectModuleFieldProps {
-  title: string;
+interface SelectModuleFieldPopoverProps {
   moduleName: string;
-  defaultField?: string;
+  defaultFieldId?: string;
   callback: Function;
 }
 
-export const SelectModuleField: React.FC<SelectModuleFieldProps> = ({
-  title,
+interface SelectModuleFieldProps extends SelectModuleFieldPopoverProps {
+  setVisible: Function;
+}
+
+const getTitle = (node: any, text?: string) => {
+  if (node.cls) return <span className={node.cls}>{text || node.text}</span>;
+  return text || node.text;
+};
+
+const SelectModuleField: React.FC<SelectModuleFieldProps> = ({
+  moduleName,
+  defaultFieldId,
+  callback,
+  setVisible,
+}) => {
+  const hierarchyRef: any = useRef();
+  const [canSelectTree, setCanSelectTree] = useState<any[]>([]);
+  const [canSelectTreeExpandKey, setCanSelectTreeExpandKey] = useState<string[]>([]);
+  const [canSelectTreeSelectedKey, setCanSelectTreeSelectedKey] = useState<string[]>([]);
+  const [selected, setSelected] = useState<any>(null);
+
+  const fetchSelectedModuleFields = (node: any) => {
+    if (node.moduleName)
+      fetchModuleFields({
+        moduleName: node.moduleName,
+        isChildModule: !!node.isChild,
+        modulePath: node.itemId,
+      }).then((response: any[]) => {
+        const ekeys: string[] = [];
+        response.forEach((rec) => {
+          apply(rec, {
+            key: rec.text,
+            title: getTitle(rec),
+          });
+          ekeys.push(rec.key);
+          // delete rec.text;
+          if (rec.children) {
+            (rec.children as any[]).forEach((crec) => {
+              apply(crec, {
+                key: crec.itemId,
+                title: getTitle(crec),
+                parent: rec,
+              });
+              // delete crec.text;
+              // 子模块的聚合字段
+              if (crec.children) {
+                ekeys.push(crec.key);
+                (crec.children as any[]).forEach((ccrec) => {
+                  apply(ccrec, {
+                    key: ccrec.itemId,
+                    title: getTitle(ccrec),
+                    parent: crec,
+                  });
+                  // delete ccrec.text;
+                });
+              }
+            });
+          }
+        });
+        setCanSelectTreeExpandKey(ekeys);
+        setCanSelectTree(response);
+        setCanSelectTreeSelectedKey(defaultFieldId ? [defaultFieldId] : []);
+      });
+  };
+
+  useEffect(() => {
+    // 获取当前默认选中字段的模块的所有值
+    if (defaultFieldId) {
+      const path = defaultFieldId.substring(0, defaultFieldId.indexOf('|'));
+      fetchSelectedModuleFields(
+        path ? hierarchyRef.current.getNodeFromItemId(path) : { moduleName },
+      );
+    } else fetchSelectedModuleFields({ moduleName });
+  }, []);
+
+  return (
+    <>
+      <Row gutter={16} style={{ height: '600px', width: '900px', overflow: 'auto' }}>
+        <Col span={16}>
+          <ModuleHierarchyChart
+            moduleName={moduleName}
+            defaultFieldahead={
+              defaultFieldId ? defaultFieldId.substring(0, defaultFieldId.indexOf('|')) : undefined
+            }
+            onClick={(node: any) => {
+              fetchSelectedModuleFields(node);
+            }}
+            ref={hierarchyRef}
+          />
+        </Col>
+        <Col span={8}>
+          <Card
+            title="可供选择的字段"
+            size="small"
+            extra={
+              <Button
+                type="primary"
+                disabled={!selected}
+                onClick={() => {
+                  callback({
+                    fieldid: selected.itemId,
+                    fieldname: selected.fieldname,
+                    title:
+                      (selected.itemId.indexOf('|') !== -1
+                        ? `${hierarchyRef.current.getCurrentModule().qtip}--`
+                        : '') +
+                      (selected.itemId.indexOf('.with.') !== -1
+                        ? `${selected.parent.text}--`
+                        : '') +
+                      selected.text,
+                  });
+                  setVisible(false);
+                }}
+              >
+                选中返回
+              </Button>
+            }
+          >
+            <Tree
+              style={{ height: '526px', overflow: 'auto' }}
+              showIcon
+              icon={(props: any) =>
+                props.iconCls ? <span className={props.iconCls}></span> : <FileOutlined />
+              }
+              treeData={canSelectTree}
+              expandedKeys={canSelectTreeExpandKey}
+              onExpand={(expandKeys) => setCanSelectTreeExpandKey(expandKeys as string[])}
+              selectedKeys={canSelectTreeSelectedKey}
+              onSelect={(selectedKeys, info) => {
+                setCanSelectTreeSelectedKey(selectedKeys as string[]);
+                setSelected(null);
+                if (info.selected && (info.selectedNodes[0] as any).itemId) {
+                  setSelected(info.selectedNodes[0]);
+                }
+              }}
+            ></Tree>
+          </Card>
+        </Col>
+      </Row>
+    </>
+  );
+};
+
+export const SelectModuleFieldPopover: React.FC<SelectModuleFieldPopoverProps> = ({
   moduleName,
   callback,
-  // defaultField,
+  defaultFieldId,
 }) => {
+  const moduleInfo = getModuleInfo(moduleName);
   const [visible, setVisible] = useState<boolean>(false);
-  const ref = useRef();
   return (
     <Popover
+      placement="left"
       visible={visible}
       onVisibleChange={(v) => setVisible(v)}
-      title={title}
+      title={`选择模块『${moduleInfo.title}』的关联字段`}
       trigger={['click']}
-      overlayStyle={{
-        maxWidth: '80%',
-        maxHeight: `${document.body.clientHeight - 200}px`,
-        minHeight: '300px',
-        overflow: 'auto',
-      }}
       content={
-        <ModuleHierarchyChart
+        <SelectModuleField
           moduleName={moduleName}
-          // defaultFieldahead={defaultFieldahead}
-          ref={ref}
-          onClick={(node: any) => {
-            setVisible(false);
-            callback(node);
-          }}
+          defaultFieldId={defaultFieldId}
+          callback={callback}
+          setVisible={setVisible}
         />
       }
     >

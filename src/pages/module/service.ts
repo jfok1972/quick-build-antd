@@ -243,8 +243,8 @@ export const fetchObjectComboTreePathData = (params: any) => {
  * @param params
  * @returns
  */
-export const fetchModuleHierarchyData = async (params: any) => {
-  return request(`${API_HEAD}/platform/module/getModuleHierarchyTree.do`, {
+export const fetchModuleHierarchyData = (params: any) => {
+  return syncRequest(`${API_HEAD}/platform/module/getModuleHierarchyTree.do`, {
     params,
   });
 };

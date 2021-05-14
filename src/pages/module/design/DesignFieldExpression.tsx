@@ -5,7 +5,7 @@ import { fetchFieldExpression } from '../service';
 import { apply, loop, uuid } from '@/utils/utils';
 import { getAllhasChildrenRowids } from '@/pages/datamining/utils';
 import { DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
-import { SelectModuleField } from './SelectModuleField';
+import { SelectModuleFieldPopover } from './SelectModuleField';
 
 interface DesignFieldExpressionProps {
   record: Record<string, unknown>;
@@ -20,6 +20,13 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
   const [detailsExpandKey, setDetailsExpandKey] = useState<string[]>([]);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
   const [editRecord, setEditRecord] = useState<any>(null);
+
+  const updateText = (rec: any) => {
+    if (rec) {
+      apply(rec, { text: rec.title || rec.fieldtitle || rec.text });
+      setDetails((v) => [...v]);
+    }
+  };
 
   // 从后台传过来的数据中，有title的表示是修改过后的，如果只有text,那就是默认的
   const changeTextToTitle = (object: any) => {
@@ -178,6 +185,7 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
           labelCol={{ flex: '0 0 120px' }}
           onValuesChange={(changedValues) => {
             apply(editRecord, changedValues);
+            updateText(editRecord);
           }}
         >
           <Row>
@@ -186,7 +194,20 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
                 <Input
                   readOnly
                   addonAfter={
-                    <SelectModuleField moduleName={moduleName} title="aa" callback={() => {}} />
+                    <SelectModuleFieldPopover
+                      moduleName={moduleName}
+                      defaultFieldId={editRecord && editRecord.fieldid}
+                      callback={(field: any) => {
+                        const val = {
+                          fieldtitle: field.title,
+                          fieldid: field.fieldid,
+                        };
+                        form.setFieldsValue(val);
+                        apply(editRecord, val);
+                        console.log(field);
+                        updateText(editRecord);
+                      }}
+                    />
                   }
                 />
               </Form.Item>
