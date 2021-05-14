@@ -5,8 +5,8 @@ import {
   getAllleafRowids,
 } from '@/pages/datamining/utils';
 import { apply, loop } from '@/utils/utils';
-import { FileOutlined, SaveOutlined } from '@ant-design/icons';
-import { Card, Col, message, Modal, Row, Space, Tree, Form, Input, Radio, Button } from 'antd';
+import { FileOutlined } from '@ant-design/icons';
+import { Card, Col, message, Modal, Row, Space, Tree, Form, Input, Radio, Select } from 'antd';
 import type { Key } from 'antd/es/table/interface';
 import {
   fetchDefaultOrderDetails,
@@ -14,12 +14,18 @@ import {
   saveDefaultOrderSchemeDetails,
 } from '../service';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
-// import { DefaultOrderFieldDesignForm } from './DesignDefaultOrderField';
 import './designForm.css';
+import { getModuleComboDataSource } from '../modules';
 
 interface DesignDefaultOrderProps {
   objectRecord: any;
 }
+
+export const getFunctionOptions = (): any =>
+  getModuleComboDataSource('FFunction').map(({ value, text }) => ({
+    value,
+    label: text,
+  }));
 
 const getTitle = (node: any, text?: string) => {
   if (node.cls) return <span className={node.cls}>{text || node.text}</span>;
@@ -212,6 +218,14 @@ export const DesignDefaultOrder: React.FC<DesignDefaultOrderProps> = ({ objectRe
     });
   }, []);
 
+  useEffect(() => {
+    form.setFieldsValue({
+      direction: editRecord.direction,
+      functionid: editRecord.functionid,
+      fieldfunction: editRecord.fieldfunction,
+    });
+  }, [editRecord]);
+
   return (
     <>
       <Row gutter={16} style={{ height: 'calc(100% )' }}>
@@ -287,7 +301,7 @@ export const DesignDefaultOrder: React.FC<DesignDefaultOrderProps> = ({ objectRe
                   const { itemId } = info.node as any;
                   setEditRecord({});
                   if (info.selected && itemId) {
-                    setEditRecord(info.node as any);
+                    setEditRecord(info.selectedNodes[0] as any);
                     const path = itemId.substring(0, itemId.indexOf('|'));
                     fetchSelectedModuleFields(
                       hierarchyRef.current.getNodeFromItemId(path),
@@ -325,21 +339,16 @@ export const DesignDefaultOrder: React.FC<DesignDefaultOrderProps> = ({ objectRe
               />
             </div>
             {editRecord.itemId ? (
-              <Card
-                title="排序字段属性"
-                size="small"
-                extra={
-                  <Button size="small" type="link">
-                    <SaveOutlined /> 保存
-                  </Button>
-                }
-              >
+              <Card title="排序字段属性" size="small">
                 <Form
                   className="moduleform"
                   form={form}
                   size="middle"
                   autoComplete="off"
                   labelCol={{ flex: '0 0 120px' }}
+                  onValuesChange={(changedValues) => {
+                    apply(editRecord, changedValues);
+                  }}
                 >
                   <Row>
                     <Col span={24}>
@@ -352,7 +361,18 @@ export const DesignDefaultOrder: React.FC<DesignDefaultOrderProps> = ({ objectRe
                     </Col>
                     <Col span={24}>
                       <Form.Item label="系统自定义函数" name="functionid">
-                        <Input />
+                        <Select
+                          allowClear
+                          showSearch={true}
+                          options={getFunctionOptions()}
+                          getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                          filterOption={(input, option: any) => {
+                            return (
+                              option.label &&
+                              option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            );
+                          }}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={24}>

@@ -3,18 +3,18 @@ import { Popover } from 'antd';
 import React, { useRef, useState } from 'react';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
 
-interface SelectChildModuleProps {
+interface SelectModuleFieldProps {
   title: string;
   moduleName: string;
-  defaultFieldahead?: string;
+  defaultField?: string;
   callback: Function;
 }
 
-export const SelectChildModule: React.FC<SelectChildModuleProps> = ({
+export const SelectModuleField: React.FC<SelectModuleFieldProps> = ({
   title,
   moduleName,
   callback,
-  defaultFieldahead,
+  // defaultField,
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
   const ref = useRef();
@@ -33,9 +33,9 @@ export const SelectChildModule: React.FC<SelectChildModuleProps> = ({
       content={
         <ModuleHierarchyChart
           moduleName={moduleName}
-          defaultFieldahead={defaultFieldahead}
+          // defaultFieldahead={defaultFieldahead}
           ref={ref}
-          onSelect={(node: any) => {
+          onClick={(node: any) => {
             setVisible(false);
             callback(node);
           }}

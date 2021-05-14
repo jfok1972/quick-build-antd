@@ -5,7 +5,7 @@ import { EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { DrawerProps } from 'antd/lib/drawer';
 import request, { API_HEAD } from '@/utils/request';
 import { apply, download } from '@/utils/utils';
-import { setGlobalDrawerProps } from '@/layouts/BasicLayout';
+import { setGlobalDrawerProps, setGlobalModalProps } from '@/layouts/BasicLayout';
 import type { ModuleModal, ModuleState, AdditionFunctionModal } from '../data';
 import {
   queryCreatePersonnelUser,
@@ -21,6 +21,7 @@ import { dataSourceImportTableAndView } from './dataSourceImportTableAndView';
 import { DesignForm } from '../design/DesignForm';
 import { DesignGrid } from '../design/DesignGrid';
 import { DesignDefaultOrder } from '../design/DesignDefaultOrder';
+import { DesignFieldExpression } from '../design/DesignFieldExpression';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -385,6 +386,29 @@ const designDefaultOrder = (params: ActionParamsModal) => {
 };
 
 /**
+ * 设置自定义字段的表达式
+ * @param params
+ */
+const setAdditionFieldExpression = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalModalProps({
+    onCancel: () => setGlobalModalProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '900px',
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计 ${record['FDataobject.title']} 附加字段『${record.title}』的表达式`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignFieldExpression record={record} />,
+  });
+};
+
+/**
  * 在iframe中可以进行界面和表单列表配置的extjs的程序
  * @param params
  */
@@ -437,6 +461,7 @@ export const systemActions: ActionStore = apply(
     designform: designForm,
     designGrid,
     setdefaultorder: designDefaultOrder,
+    setadditionfieldexpression: setAdditionFieldExpression,
   },
   businessActions,
 ) as ActionStore;
