@@ -397,6 +397,7 @@ const setAdditionFieldExpression = (params: ActionParamsModal) => {
     destroyOnClose: true,
     visible: true,
     width: '900px',
+    footer: null,
     title: (
       <>
         <EditOutlined />

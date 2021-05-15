@@ -1,15 +1,77 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Form, Input, message, Row, Select, Tree } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Tooltip,
+  Tree,
+} from 'antd';
 import { getFunctionOptions } from './DesignDefaultOrder';
-import { fetchFieldExpression } from '../service';
+import { fetchFieldExpression, updateFieldExpression, testAdditionField } from '../service';
 import { apply, loop, uuid } from '@/utils/utils';
 import { getAllhasChildrenRowids } from '@/pages/datamining/utils';
-import { DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { SelectModuleFieldPopover } from './SelectModuleField';
 
 interface DesignFieldExpressionProps {
   record: Record<string, unknown>;
 }
+
+const farray = ['fieldtitle', 'fieldid', 'title', 'functionid', 'userfunction', 'remark'];
+
+const getChildNodesArray = (pnode: any) => {
+  const result: any[] = [];
+  pnode.children.forEach((node: any) => {
+    const nodedata: any = {};
+    farray.forEach((f) => {
+      if (node[f]) nodedata[f] = node[f];
+    });
+    if (node.children && node.children.length) nodedata.children = getChildNodesArray(node);
+    result.push(nodedata);
+  });
+  return result;
+};
+
+const saveFieldExpression = (details: any[], record: any) => {
+  updateFieldExpression({
+    additionfieldid: record.additionfieldid,
+    expression: JSON.stringify(getChildNodesArray(details[0])),
+  }).then((response) => {
+    if (response.success) {
+      message.success(`附加字段『${record.title}』的定义已保存。`);
+    } else {
+      Modal.error({
+        title: `附加字段定义保存失败！`,
+        width: 500,
+        content: response.msg,
+      });
+    }
+  });
+};
+
+const testFieldExpressiion = (record: any) => {
+  testAdditionField({
+    objectid: record['FDataobject.objectid'],
+    additionFieldId: record.additionfieldid,
+  }).then((response) => {
+    if (response.success) {
+      message.success(`附加字段可以使用。表达式为：${response.msg}`);
+    } else {
+      Modal.error({
+        title: `字段表达式不能解析！`,
+        width: 500,
+        content: response.msg,
+      });
+    }
+  });
+};
 
 export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ record }) => {
   const moduleName = record['FDataobject.objectid'] as string;
@@ -82,10 +144,9 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
         size="small"
         title="已经设置的条件表达式"
         extra={
-          <>
+          <Space>
             <Button
               size="small"
-              type="link"
               onClick={() => {
                 details[0].children.push({
                   text: '新增的字段组',
@@ -99,7 +160,6 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
             </Button>
             <Button
               size="small"
-              type="link"
               onClick={() => {
                 if (selectedKey.length === 1) {
                   loop(details, selectedKey[0], (srecord) => {
@@ -119,14 +179,27 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
             >
               <DeleteOutlined />
             </Button>
-            <Button size="small" type="link">
-              测试表达式
-            </Button>
-            <Button size="small" type="link">
+            <Tooltip title="如果修改过表达式，请先保存再测试">
+              <Button
+                size="small"
+                onClick={() => {
+                  testFieldExpressiion(record);
+                }}
+              >
+                测试表达式
+              </Button>
+            </Tooltip>
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => {
+                saveFieldExpression(details, record);
+              }}
+            >
               <SaveOutlined />
               保存
             </Button>
-          </>
+          </Space>
         }
       >
         <Tree
@@ -193,6 +266,19 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
               <Form.Item label="模块字段" name="fieldtitle">
                 <Input
                   readOnly
+                  suffix={
+                    <CloseOutlined
+                      onClick={() => {
+                        const val = {
+                          fieldtitle: undefined,
+                          fieldid: undefined,
+                        };
+                        form.setFieldsValue(val);
+                        apply(editRecord, val);
+                        updateText(editRecord);
+                      }}
+                    />
+                  }
                   addonAfter={
                     <SelectModuleFieldPopover
                       moduleName={moduleName}
@@ -204,7 +290,6 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
                         };
                         form.setFieldsValue(val);
                         apply(editRecord, val);
-                        console.log(field);
                         updateText(editRecord);
                       }}
                     />
@@ -212,7 +297,7 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
                 />
               </Form.Item>
             </Col>
-            <Col span={24}>
+            <Col span={24} style={{ display: 'none' }}>
               <Form.Item label="模块字段" name="fieldid">
                 <Input readOnly />
               </Form.Item>

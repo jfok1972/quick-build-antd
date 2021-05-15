@@ -318,6 +318,23 @@ export const fetchFieldExpression = async (params: any) => {
 };
 
 /**
+ * 读取一个附加字段的定义
+ * @param params
+ * @returns
+ */
+export const updateFieldExpression = async (params: any) => {
+  return request(`${API_HEAD}/platform/dataobjectfield/updateexpression.do`, {
+    params,
+  });
+};
+
+export const testAdditionField = async (params: any) => {
+  return request(`${API_HEAD}/platform/dataobjectfield/testadditionfield.do`, {
+    params,
+  });
+};
+
+/**
  * 下载grid表单的excel或pdf文件
  * @param params 
  *          moduleName: moduleName,
