@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import OrganizationChart from '@dabeng/react-orgchart';
+import OrganizationChart from '@madnessxd/react-orgchart';
 import { fetchModuleHierarchyData } from '../service';
 import { Button, Card, Tabs } from 'antd';
 import { getAllTreeRecord } from '../moduleUtils';
