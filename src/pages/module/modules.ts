@@ -332,7 +332,11 @@ export const getSortSchemes = (moduleInfo: ModuleModal): any[] => {
  * @param moduleInfo
  */
 export const hasInsert = (moduleInfo: ModuleModal): boolean => {
-  return moduleInfo.moduleLimit.hasinsert && moduleInfo.userLimit.new;
+  return (
+    moduleInfo.moduleLimit.hasinsert &&
+    moduleInfo.userLimit.new &&
+    moduleInfo.modulename !== 'FDataobjectattachment'
+  );
 };
 
 /**
@@ -503,11 +507,15 @@ export const canMoveRowToChangeRecno = (moduleState: ModuleState) => {
 };
 
 /**
- * 判断模块数据是否有删除的权限
+ * 判断模块数据是否有删除的权限,如果是附件模块，只能在grid前面的附件按钮之中新增和删除，在修改的时候不允许删除
  * @param moduleInfo
  */
 export const hasDelete = (moduleInfo: ModuleModal): boolean => {
-  return moduleInfo.moduleLimit.hasdelete && moduleInfo.userLimit.delete;
+  return (
+    moduleInfo.moduleLimit.hasdelete &&
+    moduleInfo.userLimit.delete &&
+    moduleInfo.modulename !== 'FDataobjectattachment'
+  );
 };
 
 /**

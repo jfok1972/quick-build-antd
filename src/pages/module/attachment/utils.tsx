@@ -12,6 +12,7 @@ import {
   FilePdfOutlined,
   SelectOutlined,
   CloseOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import {
   Button,
@@ -24,6 +25,7 @@ import {
   Drawer,
   Menu,
   Dropdown,
+  Modal,
 } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { IStaticSetParams } from 'react-zmage';
@@ -36,6 +38,7 @@ import type { AttachmentModal, ModuleModal } from '../data';
 import styles from '../grid/columnFactory.less';
 import { canAttachmentInsert, canAttachmentDelete } from '../modules';
 import { attachmentPdfOpenPreview } from './preview';
+import { AttachmentGrid } from './grid';
 
 const ImageMime = {
   bmp: 'image/bmp',
@@ -116,6 +119,7 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
     filename: '',
     ispdf: false,
   });
+  const [gridVisible, setGridVisible] = useState<boolean>(false);
   // const [uploadParamData, setUploadParamData] = useState({ atype: null });   // 上传附件时的附加参数
   const [atype, setAtype] = useState('99'); // 附件类型
   if (!record) return null;
@@ -303,14 +307,12 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
     if (file.previewmode === 'image') {
       const images: IStaticSetParams[] = currFileList
         .filter((afile: any) => afile.previewmode === 'image')
-        .map(
-          (bfile: any): IStaticSetParams => {
-            return {
-              src: `${baseurl}/preview.do?attachmentid=${bfile.uid}`,
-              alt: bfile.filename,
-            };
-          },
-        );
+        .map((bfile: any): IStaticSetParams => {
+          return {
+            src: `${baseurl}/preview.do?attachmentid=${bfile.uid}`,
+            alt: bfile.filename,
+          };
+        });
       let defaultPage = currFileList
         .filter((cfile: any) => cfile.previewmode === 'image')
         .findIndex((afile) => afile.uid === file.uid);
@@ -474,6 +476,17 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
                     }}
                   />
                 </Tooltip>
+                {attachment.edit ? (
+                  <Tooltip title="附件所有属性">
+                    <EditOutlined
+                      onClick={() => {
+                        setVisible(false);
+                        setGridVisible(true);
+                      }}
+                    />
+                  </Tooltip>
+                ) : null}
+                <span></span>
                 <CloseOutlined
                   onClick={() => {
                     refreshRecord();
@@ -547,6 +560,30 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
           title="drawepdfpreview"
         />
       </Drawer>
+
+      <Modal
+        visible={gridVisible}
+        destroyOnClose
+        onCancel={() => {
+          setGridVisible(false);
+        }}
+        title={
+          <>
+            {' '}
+            <PaperClipOutlined />
+            {` ${record[namefield]}的附件列表`}
+          </>
+        }
+        footer={false}
+        width={'80%'}
+      >
+        <AttachmentGrid
+          moduleName={moduleName}
+          idvalue={record[moduleInfo.primarykey]}
+          titlevalue={record[moduleInfo.namefield]}
+          readOnly={!attachment.edit}
+        />
+      </Modal>
     </>
   );
 };
