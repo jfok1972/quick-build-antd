@@ -372,6 +372,7 @@ const Description = ({
   };
   return (
     <Card
+      size="default"
       title={
         disableTitle ? null : (
           <Space>

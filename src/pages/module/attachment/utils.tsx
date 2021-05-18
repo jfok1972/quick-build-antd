@@ -11,8 +11,7 @@ import {
   FileImageOutlined,
   FilePdfOutlined,
   SelectOutlined,
-  CloseOutlined,
-  EditOutlined,
+  MenuOutlined,
 } from '@ant-design/icons';
 import {
   Button,
@@ -273,12 +272,8 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
               apply(f, getFile(response.msg));
             }
           });
-          // console.log(currFileList);
         }
       }
-      // else if (status === 'removed') {
-      //     ;
-      // }
     },
     showUploadList: {
       showRemoveIcon: !!attachment.delete && !readonly && canAttachmentDelete(moduleInfo, record),
@@ -293,7 +288,6 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
     window.location.href = `${baseurl}/downloadall.do?moduleName=${moduleName}&idkey=${record[primarykey]}`;
   };
   const onPreview = (pfile: UploadFile<any>) => {
-    // console.log(file)
     const file = pfile as OwnUploadFile;
     if (file.status === 'uploading') {
       message.warn('文件正在上传中，请稍候预览...');
@@ -430,8 +424,6 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
         onVisibleChange={(v: boolean) => {
           // 如果附件有过变动了，在退出的时候刷新
           setVisible(holding || v); // 如果在图片或pdf预览，则不关闭
-          // console.log('visible changed', visible, attachmentChanged)
-          //! (holding || visible) &&  // 如果要在退出时才刷新记录，则加上此句，在预览时刷新，就不用加
           refreshRecord();
         }}
         content={
@@ -476,23 +468,15 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
                     }}
                   />
                 </Tooltip>
-                {attachment.edit ? (
-                  <Tooltip title="附件所有属性">
-                    <EditOutlined
-                      onClick={() => {
-                        setVisible(false);
-                        setGridVisible(true);
-                      }}
-                    />
-                  </Tooltip>
-                ) : null}
-                <span></span>
-                <CloseOutlined
-                  onClick={() => {
-                    refreshRecord();
-                    setVisible(false);
-                  }}
-                />
+                <Tooltip title="附件所有属性">
+                  <MenuOutlined
+                    onClick={() => {
+                      refreshRecord();
+                      setVisible(false);
+                      setGridVisible(true);
+                    }}
+                  />
+                </Tooltip>
               </Space>
             }
           >
