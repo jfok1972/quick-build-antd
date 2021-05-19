@@ -8,6 +8,7 @@ export default {
   'user-login.login.message-invalid-code-5': '当前用户名已被注销,无法登录!',
   'user-login.login.message-invalid-code-6': '当前用户所在公司已被注销,无法登录!',
   'user-login.login.message-invalid-code-7': '当前用户已经在线，不允许重复登录!',
+  'user-login.login.message-invalid-code-8': '用户密码录入错误太频繁，请稍候再试!',
   'user-login.login.message-invalidate-title': '确定替换登录用户',
   'user-login.login.message-invalidate': '当前用户已经在线，确定强制登录吗？',
   'user-login.login.tab-login-credentials': '账户密码登录',
