@@ -1,7 +1,7 @@
 import type { Effect } from 'dva';
 import type { Reducer } from 'redux';
 
-import { query as querySystemInfo } from '@/services/systeminfo';
+import { querySystemInfo } from '@/services/systeminfo';
 import { apply } from '@/utils/utils';
 
 export interface SystemInfo {
@@ -20,6 +20,7 @@ export interface SystemInfo {
     alwaysneedidentifingcode?: boolean; // 始终需要验证码
     needidentifingcode?: boolean; // 需要验证码
     needreplaceinitialpassword?: boolean; // 需要更改初始密码
+    loginslatkey: string; // 密码生成时的loginslatkey
   };
   systeminfo: {
     systemname: string; // 系统名称
@@ -51,9 +52,11 @@ export interface SystemInfoModelType {
   };
 }
 
+export const loginslatkey: string[] = [''];
+
 const emptySystemInfo = {
   company: {},
-  loginsettinginfo: {},
+  loginsettinginfo: { loginslatkey: '' },
   systeminfo: {
     systemname: '',
   },
@@ -71,8 +74,10 @@ const SystemInfoModel: SystemInfoModelType = {
   effects: {
     *fetch({ payload }, action) {
       const { call, put } = action;
-      const response = yield call(querySystemInfo);
-      const { systeminfo } = response;
+      const response: SystemInfo = yield call(querySystemInfo);
+      const { systeminfo, loginsettinginfo } = response;
+      // 登录密码加密的因子
+      loginslatkey[0] = loginsettinginfo.loginslatkey;
       let { systemname } = systeminfo;
       let pos = systemname.indexOf('(');
       if (pos === -1) pos = systemname.indexOf('（');

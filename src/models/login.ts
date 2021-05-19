@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import type { Effect } from 'dva';
-import { history } from 'umi';
+import { history, loginslatkey } from 'umi';
 // import { stringify } from 'querystring';
 import { fakeAccountLogin, fakeAccountLogout, getFakeCaptcha } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
@@ -53,9 +53,13 @@ const Model: LoginModelType = {
       // Login successfully
       if (response.success === true) {
         localStorage.setItem('login-user-code', payload.usercode);
-        if (localStorage.getItem('login-allow-save-pwd') === 'true')
+        if (localStorage.getItem('login-allow-save-pwd') === 'true') {
+          localStorage.setItem('login-user-loginslatkey', encryptString(loginslatkey[0]));
           localStorage.setItem('login-user-password', encryptString(payload.password));
-        else localStorage.removeItem('login-user-password');
+        } else {
+          localStorage.removeItem('login-user-loginslatkey');
+          localStorage.removeItem('login-user-password');
+        }
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params as { redirect: string };

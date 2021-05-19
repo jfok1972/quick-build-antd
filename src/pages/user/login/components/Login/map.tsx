@@ -36,7 +36,6 @@ export default {
       prefix: <LockTwoTone className={styles.prefixIcon} />,
       type: 'password',
       name: 'password',
-      // defaultValue : decryptString(localStorage.getItem('login-user-password') || ''),
     },
     rules: [
       {

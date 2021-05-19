@@ -1,5 +1,10 @@
 import request, { API_HEAD } from '@/utils/request';
+import { loginslatkey } from '@/models/systeminfo';
+import { apply } from '@/utils/utils';
 import { serialize } from 'object-to-formdata';
+
+// https://github.com/JuneAndGreen/sm-crypto
+const { sm4 } = require('sm-crypto');
 
 export interface LoginParamsType {
   usercode: string; // 用户名
@@ -18,6 +23,9 @@ export interface LoginParamsType {
  * @param params 登录参数
  */
 export async function fakeAccountLogin(params: LoginParamsType) {
+  apply(params, {
+    password: sm4.encrypt(params.password, loginslatkey[0]),
+  });
   return request(`${API_HEAD}/login/validate.do`, {
     method: 'POST',
     body: serialize(params),

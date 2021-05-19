@@ -15,6 +15,8 @@ import { API_HEAD } from '@/utils/request';
 import LoginFrom from './components/Login';
 import styles from './style.less';
 
+const { sm4 } = require('sm-crypto');
+
 const { Tab, UserCode, Password, Mobile, Captcha, Submit, IdentifingCode } = LoginFrom;
 interface LoginProps {
   dispatch: Dispatch<AnyAction>;
@@ -62,7 +64,10 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
 
   const changeSavePassword = (e: CheckboxChangeEvent) => {
     localStorage.setItem('login-allow-save-pwd', e.target.checked ? 'true' : 'false');
-    if (!e.target.checked) localStorage.removeItem('login-user-password');
+    if (!e.target.checked) {
+      localStorage.removeItem('login-user-loginslatkey');
+      localStorage.removeItem('login-user-password');
+    }
     setSavePassword(e.target.checked);
   };
 
@@ -77,9 +82,15 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
         from={form}
         initialValues={{
           usercode: localStorage.getItem('login-user-code') || undefined,
-          password: savePassword
-            ? decryptString(localStorage.getItem('login-user-password') || '')
-            : '',
+          password:
+            savePassword &&
+            localStorage.getItem('login-user-password') &&
+            localStorage.getItem('login-user-loginslatkey')
+              ? sm4.decrypt(
+                  decryptString(localStorage.getItem('login-user-password') as any),
+                  decryptString(localStorage.getItem('login-user-loginslatkey') as any),
+                )
+              : '',
         }}
       >
         <Tab key="account" tab={formatMessage({ id: 'user-login.login.tab-login-credentials' })}>
@@ -91,7 +102,6 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
             )}
           <UserCode
             name="usercode"
-            // defaultValue={localStorage.getItem('login-user-code') || undefined}   4.x这里无效应该是bug
             placeholder={formatMessage({ id: 'user-login.login.usercode' })}
             rules={[
               {
@@ -102,8 +112,6 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
           />
           <Password
             name="password"
-            // defaultValue={savePassword ? decryptString(localStorage.getItem('login-user-password') || '')
-            //  : ''}  4.x这里无效，应该是bug
             placeholder={formatMessage({ id: 'user-login.login.password' })}
             rules={[
               {
