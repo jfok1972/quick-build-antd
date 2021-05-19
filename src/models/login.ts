@@ -5,6 +5,7 @@ import { history, loginslatkey } from 'umi';
 import { fakeAccountLogin, fakeAccountLogout, getFakeCaptcha } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery, encryptString } from '@/utils/utils';
+import { LOGINSLATKEY, PASSWORD, SAVEPWD, USERCODE } from '@/pages/user/login';
 
 export interface StateType {
   status?: 'ok' | 'error' | 'warnning';
@@ -52,13 +53,13 @@ const Model: LoginModelType = {
       });
       // Login successfully
       if (response.success === true) {
-        localStorage.setItem('login-user-code', payload.usercode);
-        if (localStorage.getItem('login-allow-save-pwd') === 'true') {
-          localStorage.setItem('login-user-loginslatkey', encryptString(loginslatkey[0]));
-          localStorage.setItem('login-user-password', encryptString(payload.password));
+        localStorage.setItem(USERCODE, payload.usercode);
+        if (localStorage.getItem(SAVEPWD) === 'true') {
+          localStorage.setItem(LOGINSLATKEY, encryptString(loginslatkey[0]));
+          localStorage.setItem(PASSWORD, encryptString(payload.password));
         } else {
-          localStorage.removeItem('login-user-loginslatkey');
-          localStorage.removeItem('login-user-password');
+          localStorage.removeItem(LOGINSLATKEY);
+          localStorage.removeItem(PASSWORD);
         }
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();

@@ -13,7 +13,6 @@ export default {
     props: {
       size: 'large',
       name: 'usercode',
-      // defaultValue: localStorage.getItem('login-user-code') || undefined,
       prefix: (
         <UserOutlined
           style={{

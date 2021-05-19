@@ -3,6 +3,7 @@ import type { Reducer } from 'redux';
 
 import { querySystemInfo } from '@/services/systeminfo';
 import { apply } from '@/utils/utils';
+import { SAVEPWD } from '@/pages/user/login';
 
 export interface SystemInfo {
   company: {
@@ -100,7 +101,7 @@ const SystemInfoModel: SystemInfoModelType = {
   reducers: {
     saveSystemInfo(state, action) {
       if (action.payload.loginsettinginfo.allowsavepassword === false) {
-        localStorage.removeItem('login-allow-save-pwd');
+        localStorage.removeItem(SAVEPWD);
       }
       apply(systemInfo, action.payload);
       return {

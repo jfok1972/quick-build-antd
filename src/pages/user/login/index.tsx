@@ -17,6 +17,12 @@ import styles from './style.less';
 
 const { sm4 } = require('sm-crypto');
 
+export const LOGINSLATKEY = 'login-user-loginslatkey';
+export const PASSWORD = 'login-user-password';
+export const USERCODE = 'login-user-code';
+export const SAVEPWD = 'login-allow-save-pwd';
+export const VALIDATIONCODE = 'login_validation_code';
+
 const { Tab, UserCode, Password, Mobile, Captcha, Submit, IdentifingCode } = LoginFrom;
 interface LoginProps {
   dispatch: Dispatch<AnyAction>;
@@ -51,10 +57,9 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
   const { status, errorcode, type: loginType } = userLogin;
   const [type, setType] = useState<string>('account');
   const [savePassword, setSavePassword] = useState<boolean>(
-    localStorage.getItem('login-allow-save-pwd') === 'true',
+    localStorage.getItem(SAVEPWD) === 'true',
   );
   const [identifingcodeT] = useState<number>(new Date().getTime());
-  const loginValidationCodeId = 'login_validation_code';
   const handleSubmit = (values: LoginParamsType) => {
     dispatch({
       type: 'login/login',
@@ -63,10 +68,10 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
   };
 
   const changeSavePassword = (e: CheckboxChangeEvent) => {
-    localStorage.setItem('login-allow-save-pwd', e.target.checked ? 'true' : 'false');
+    localStorage.setItem(SAVEPWD, e.target.checked ? 'true' : 'false');
     if (!e.target.checked) {
-      localStorage.removeItem('login-user-loginslatkey');
-      localStorage.removeItem('login-user-password');
+      localStorage.removeItem(LOGINSLATKEY);
+      localStorage.removeItem(PASSWORD);
     }
     setSavePassword(e.target.checked);
   };
@@ -81,14 +86,12 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
         onSubmit={handleSubmit}
         from={form}
         initialValues={{
-          usercode: localStorage.getItem('login-user-code') || undefined,
+          usercode: localStorage.getItem(USERCODE) || undefined,
           password:
-            savePassword &&
-            localStorage.getItem('login-user-password') &&
-            localStorage.getItem('login-user-loginslatkey')
+            savePassword && localStorage.getItem(PASSWORD) && localStorage.getItem(LOGINSLATKEY)
               ? sm4.decrypt(
-                  decryptString(localStorage.getItem('login-user-password') as any),
-                  decryptString(localStorage.getItem('login-user-loginslatkey') as any),
+                  decryptString(localStorage.getItem(PASSWORD) as any),
+                  decryptString(localStorage.getItem(LOGINSLATKEY) as any),
                 )
               : '',
         }}
@@ -142,7 +145,7 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
               </Col>
               <Col span={7}>
                 <img
-                  id={loginValidationCodeId}
+                  id={VALIDATIONCODE}
                   alt=""
                   style={{ height: '38px', width: '100px', paddingLeft: 10 }}
                   src={`${API_HEAD}/login/validatecode.do?t=${identifingcodeT}`}
@@ -152,7 +155,7 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
                 <Button
                   type="link"
                   onClick={() => {
-                    const node: any = document.getElementById(loginValidationCodeId);
+                    const node: any = document.getElementById(VALIDATIONCODE);
                     node.src = `${API_HEAD}/login/validatecode.do?t=${new Date().getTime()}`;
                   }}
                 >
