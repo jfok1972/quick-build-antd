@@ -21,6 +21,7 @@ import { fetchObjectRecord, downloadRecordExcel, fetchObjectRecordSync } from '.
 import { getModuleInfo, addParentAdditionField, getFieldDefine } from '../modules';
 import { AttachemntRenderer } from '../attachment/utils';
 import styles from './index.less';
+import columnStyles from '../grid/columnFactory.less';
 import { getModuleNameFromOneToMany } from '../moduleUtils';
 import { isStartProcess, getApproveSteps, getApproveIconClass } from '../approve/utils';
 import DetailGrid from '../detailGrid';
@@ -464,7 +465,7 @@ const getManyToManyValue = (value: any[], field: ModuleFieldType, dispatch: Disp
   const records: any[] = value;
   const getTag = (record: any) => (
     <PopoverDescriptionWithId id={record.key} moduleInfo={moduleInfo} dispatch={dispatch}>
-      <Tag style={{ marginBottom: 4, marginTop: 4 }}>{record.title}</Tag>
+      <Tag className={columnStyles.manytomanytag}>{record.title}</Tag>
     </PopoverDescriptionWithId>
   );
   let result: any[] = [];

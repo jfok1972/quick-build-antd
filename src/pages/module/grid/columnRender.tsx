@@ -434,12 +434,7 @@ export const manyToManyFieldRender = (
   const moduleInfo = getModuleInfo(moduleName);
   const getTag = (record: any) => (
     <PopoverDescriptionWithId id={record.key} moduleInfo={moduleInfo} dispatch={dispatch}>
-      <Tag
-        color="default"
-        style={{ marginBottom: 4, marginTop: 4, borderRadius: '4px' }}
-        closable={false}
-        onClose={() => {}}
-      >
+      <Tag color="default" className={styles.manytomanytag} closable={false} onClose={() => {}}>
         {record.title}
       </Tag>
     </PopoverDescriptionWithId>
