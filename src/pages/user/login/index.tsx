@@ -1,5 +1,5 @@
 // import { AlipayCircleOutlined, TaobaoCircleOutlined, WeiboCircleOutlined } from '@ant-design/icons';
-import { Alert, Checkbox, Row, Col, Button, Popover, Modal, Form } from 'antd';
+import { Alert, Checkbox, Row, Col, Button, Popover, Modal, Form, Tooltip } from 'antd';
 import React, { useState } from 'react';
 import { useIntl } from 'umi';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
@@ -10,7 +10,7 @@ import type { LoginParamsType } from '@/services/login';
 import type { ConnectState } from '@/models/connect';
 import type { SystemInfo } from '@/models/systeminfo';
 import { decryptString } from '@/utils/utils';
-import { WarningOutlined } from '@ant-design/icons';
+import { QqOutlined, WarningOutlined, WechatOutlined } from '@ant-design/icons';
 import { API_HEAD } from '@/utils/request';
 import LoginFrom from './components/Login';
 import styles from './style.less';
@@ -239,15 +239,18 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
           </a>
         </div> */}
         <Submit loading={submitting}>登录</Submit>
-        {/* <div className={styles.other}>
-          其他登录方式
-          <AlipayCircleOutlined className={styles.icon} />
-          <TaobaoCircleOutlined className={styles.icon} />
-          <WeiboCircleOutlined className={styles.icon} />
-          <Link className={styles.register} to="/user/register">
+        <div className={styles.other} style={{ display: 'none' }}>
+          其他登录方式：
+          <Tooltip title="QQ扫码登录">
+            <QqOutlined className={styles.icon} />
+          </Tooltip>
+          <Tooltip title="微信扫码登录">
+            <WechatOutlined className={styles.icon} />
+          </Tooltip>
+          {/* <Link className={styles.register} to="/user/register">
             注册账户
-          </Link>
-        </div> */}
+          </Link> */}
+        </div>
       </LoginFrom>
 
       <Modal
