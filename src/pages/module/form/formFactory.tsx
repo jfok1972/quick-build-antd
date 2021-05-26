@@ -17,6 +17,7 @@ import {
   Rate,
   AutoComplete,
   Switch,
+  Slider,
 } from 'antd';
 import type { Dispatch } from 'redux';
 import {
@@ -605,15 +606,27 @@ const getFieldInput: React.FC<FormFieldProps> = (props) => {
     case 'percent': {
       // 默认是2位小数，百分比就是整数，设置4位小数，百分比小数位置是2位
       const digitslen = Math.max(fieldDefine.digitslen || 2, 2);
-      formField = (
-        <PercentField
-          {...fieldProps}
-          digitslen={digitslen}
-          style={{ width: '100px' }}
-          className="double"
-          name={name}
-        />
-      );
+      if (formFieldDefine.slider) {
+        formField = (
+          <Slider
+            tipFormatter={(value) => `${parseFloat(((value || 0) * 100).toFixed(digitslen - 2))}%`}
+            min={0}
+            max={1}
+            marks={{ 0: '0%', 1: '100%' }}
+            // 最小是0.001,再小无法控制了
+            step={digitslen >= 2 ? 0.001 : 0.01}
+          />
+        );
+      } else
+        formField = (
+          <PercentField
+            {...fieldProps}
+            digitslen={digitslen}
+            style={{ width: '100px' }}
+            className="double"
+            name={name}
+          />
+        );
       break;
     }
     case 'date':
@@ -749,7 +762,7 @@ const FormField = ({
   } = fieldDefine;
   const fieldtitle = getLastLevelLabel(fieldDefine.fieldtitle);
   let unittext = fieldDefine.unittext || (fieldDefine.isOneToMany ? '条' : fieldDefine.unittext);
-  if (!unittext && fieldDefine.fieldtype.toLowerCase() === 'percent') {
+  if (!unittext && fieldDefine.fieldtype.toLowerCase() === 'percent' && !formFieldDefine.slider) {
     unittext = '%';
   }
   let required = !!isrequired;
