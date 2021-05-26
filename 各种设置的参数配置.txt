@@ -50,6 +50,9 @@
 
     boolean 字段： switch : true,        开关样式
                   radio : true,         radio 选择是否
+                  radioButton : true,
+                  checkedText : '有效',
+                  uncheckedText : '无效‘,
 
     有字段列表属性和字段列表值的字段在其他设置中加入 multiMode : multiple | tags 可以进行多选 , 
     tags可以录入新的，multiple 只能使用设置好的
@@ -73,7 +76,8 @@
         visibleValue : 'value',                     //父字段值为'value'时可见
     }
 
-    manytomany设置时默认是select多选，在formfield中设置xtype : 'manytomanycheckboxgroup',可以改成checkbox多选
+    manytomany设置时默认是select多选，在formfield中设置xtype : 'manytomanycheckboxgroup',可以改成checkbox多选,
+            tagSelect 可以设置成tag 选择方式
 
 
 日期字段：moment提交的值与北京时间差8个小时，但是后台能读取到时间后会转换成正确的时间，这个暂时不管了。

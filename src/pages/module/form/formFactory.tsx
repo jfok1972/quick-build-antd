@@ -62,6 +62,7 @@ import { PopoverDescriptionWithId } from '../descriptions';
 import SelectGrid from '../detailGrid/selectGrid';
 import ImageField from './field/ImageField';
 import { PercentField } from './field/PercentField';
+import TagSelect from '../UserDefineFilter/TagSelect';
 
 const numeral = require('numeral');
 
@@ -231,6 +232,7 @@ const getPropertyInput: React.FC<FormFieldProps> = ({ fieldDefine, fieldProps })
  * 20	可录入关键字选择
  * 30	可录入代码和关键字选择      // 显示 代码值-名称
  * 40	在RadioGroup中进行选择
+ * 50 在RadioButton中进行选择
  * @param param0
  */
 const getDictionaryInput: React.FC<FormFieldProps> = ({
@@ -245,7 +247,7 @@ const getDictionaryInput: React.FC<FormFieldProps> = ({
   const { inputmethod, data } = dictionary;
   if (inputmethod === '40')
     return (
-      <Radio.Group {...fieldProps}>
+      <Radio.Group {...fieldProps} buttonStyle="solid">
         {data.map(({ value, text }) =>
           formFieldDefine.radioButton ? (
             <Radio.Button key={`key-${value}`} value={value}>
@@ -257,6 +259,16 @@ const getDictionaryInput: React.FC<FormFieldProps> = ({
             </Radio>
           ),
         )}
+      </Radio.Group>
+    );
+  if (inputmethod === '50')
+    return (
+      <Radio.Group {...fieldProps} buttonStyle="solid">
+        {data.map(({ value, text }) => (
+          <Radio.Button key={`key-${value}`} value={value}>
+            {text}
+          </Radio.Button>
+        ))}
       </Radio.Group>
     );
   return (
@@ -324,7 +336,12 @@ const getManyToOneInput: React.FC<FormFieldProps> = (params) => {
       ),
     );
     // 大于30个选项不能用radioGroup了
-    if (radioItems.length <= 30) return <Radio.Group {...fieldProps}>{radioItems}</Radio.Group>;
+    if (radioItems.length <= 30)
+      return (
+        <Radio.Group buttonStyle="solid" {...fieldProps}>
+          {radioItems}
+        </Radio.Group>
+      );
     mode = '20';
   }
   if (mode === '10' || mode === '20' || mode === '30') {
@@ -415,11 +432,28 @@ const getManyToOneInput: React.FC<FormFieldProps> = (params) => {
 };
 
 /**
- * manytomany的字段的修改，可以select,tagSelect
+ * manytomany的字段的修改，可以checkbox,select,tagSelect
  * @param params
  */
 const getManyToManyInput: React.FC<FormFieldProps> = (params) => {
   const { fieldDefine, formFieldDefine, fieldProps } = params;
+  if (formFieldDefine.tagSelect) {
+    return (
+      <TagSelect
+        hideCheckAll={!!formFieldDefine.hideCheckAll}
+        expandable={formFieldDefine.expandable}
+        expand={!formFieldDefine.expandable || formFieldDefine.expand}
+      >
+        {getModuleComboDataSource(getModuleNameFromOneToMany(fieldDefine.fieldtype)).map(
+          (rec: TextValue) => (
+            <TagSelect.Option key={rec.value} value={rec.value}>
+              {rec.text}
+            </TagSelect.Option>
+          ),
+        )}
+      </TagSelect>
+    );
+  }
   return formFieldDefine.xtype === 'manytomanycheckboxgroup' ? (
     <Checkbox.Group {...fieldProps}>
       {getModuleComboDataSource(getModuleNameFromOneToMany(fieldDefine.fieldtype)).map(
@@ -511,6 +545,8 @@ const getFieldInput: React.FC<FormFieldProps> = (props) => {
 
   const { fieldtype } = fieldDefine;
   let formField;
+  const checkedText = formFieldDefine.checkedText || '是';
+  const unCheckedText = formFieldDefine.uncheckedText || '否';
   switch (fieldtype.toLowerCase()) {
     case 'integer':
       if (fieldDefine.isRate) {
@@ -605,22 +641,31 @@ const getFieldInput: React.FC<FormFieldProps> = (props) => {
     }
     case 'boolean':
       if (formFieldDefine.switch)
-        // 开关样式的选择
+        // 开关样式
         formField = (
           <Switch
             {...fieldProps}
-            checkedChildren={<span style={{ margin: '2px' }}>是</span>}
-            unCheckedChildren={<span style={{ margin: '2px' }}>否</span>}
+            checkedChildren={<span style={{ margin: '2px' }}>{checkedText}</span>}
+            unCheckedChildren={<span style={{ margin: '2px' }}>{unCheckedText}</span>}
           />
         );
       else if (formFieldDefine.radio)
-        // radio样式的选择
+        // radio样式
         formField = (
           <Radio.Group {...fieldProps}>
-            <Radio value>是</Radio>
-            <Radio value={false}>否</Radio>
+            <Radio value>{checkedText}</Radio>
+            <Radio value={false}>{unCheckedText}</Radio>
           </Radio.Group>
         );
+      // radioButton样式
+      else if (formFieldDefine.radioButton)
+        formField = (
+          <Radio.Group {...fieldProps} buttonStyle="solid">
+            <Radio.Button value>{checkedText}</Radio.Button>
+            <Radio.Button value={false}>{unCheckedText}</Radio.Button>
+          </Radio.Group>
+        );
+      // 单个checkbox
       else formField = <Checkbox {...fieldProps} />;
       break;
     case 'image':
@@ -737,7 +782,8 @@ const FormField = ({
       label: <span dangerouslySetInnerHTML={{ __html: label }} />,
     });
   if (fieldtype.toLowerCase() === 'boolean') {
-    formItemProp.valuePropName = formFieldDefine.radio ? 'value' : 'checked';
+    formItemProp.valuePropName =
+      formFieldDefine.radio || formFieldDefine.radioButton ? 'value' : 'checked';
     // 所有的boolean字段都设置为不是required的，如果有问题，需要后台对boolean加入缺省值
     required = false;
   }
