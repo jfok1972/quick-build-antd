@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Switch, Row, Col, Radio, InputNumber, Card, Divider } from 'antd';
 import type { Dispatch } from 'redux';
 import type { ModuleState } from '../../data';
+import { SettingOutlined } from '@ant-design/icons';
 
 const SettingForm = ({
   moduleState,
@@ -17,13 +18,22 @@ const SettingForm = ({
     margin: 0,
   };
   return (
-    <Card title="列表导出设置" size="small" style={{ border: '0px' }}>
+    <Card
+      title={
+        <>
+          <SettingOutlined />
+          {' 列表导出设置'}
+        </>
+      }
+      size="small"
+      style={{ border: '0px' }}
+    >
       <Form
         form={form}
         autoComplete="off"
         className="moduleform"
         labelCol={{ flex: '1 1 120px' }}
-        style={{ width: '480px' }}
+        style={{ width: '460px' }}
         initialValues={setting}
         onValuesChange={() => {
           dispatch({

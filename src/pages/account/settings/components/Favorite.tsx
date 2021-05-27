@@ -12,8 +12,8 @@ interface FavoriteViewProps {
 
 const FavoriteView: React.FC<FavoriteViewProps> = ({ dispatch, settings }) => {
   const [form] = Form.useForm();
-  const dispatchChange = (key: string, value: string) => {
-    localStorage.setItem(`settings-${key}`, value);
+  const dispatchChange = (key: string, value: string | boolean) => {
+    localStorage.setItem(`settings-${key}`, value.toString());
     dispatch({
       type: 'settings/changeSetting',
       payload: {
@@ -72,7 +72,7 @@ const FavoriteView: React.FC<FavoriteViewProps> = ({ dispatch, settings }) => {
             <Switch
               checked={settings.fixedHeader}
               onChange={(value) => {
-                dispatchChange('fixedHeader', value ? 'true' : 'false');
+                dispatchChange('fixedHeader', value);
               }}
             />
           </Form.Item>
@@ -80,7 +80,7 @@ const FavoriteView: React.FC<FavoriteViewProps> = ({ dispatch, settings }) => {
             <Switch
               checked={settings.fixSiderbar}
               onChange={(value) => {
-                dispatchChange('fixSiderbar', value ? 'true' : 'false');
+                dispatchChange('fixSiderbar', value);
               }}
             />
           </Form.Item>

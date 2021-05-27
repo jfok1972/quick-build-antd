@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 
 import { Dropdown, Button, Menu, Tooltip } from 'antd';
-import { FileExcelOutlined, FilePdfOutlined, DownloadOutlined } from '@ant-design/icons';
+import {
+  FileExcelOutlined,
+  FilePdfOutlined,
+  DownloadOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import type { Dispatch } from 'redux';
 import type { ModuleState } from '../../data';
 
@@ -59,8 +64,10 @@ const ExportButton = ({
       {ExportGridScheme({ moduleState, setVisible, onlyselected: false })}
       {ExportRecordScheme({ moduleState, setVisible })}
       {PrintRecordScheme({ moduleState, setVisible })}
-      <SubMenu key="sub3" title="列表导出设置">
-        <SettingForm moduleState={moduleState} dispatch={dispatch} />
+      <SubMenu key="sub3" title="列表导出设置" icon={<SettingOutlined />}>
+        <Menu.Item style={{ padding: 0, margin: 0 }}>
+          <SettingForm moduleState={moduleState} dispatch={dispatch} />
+        </Menu.Item>
       </SubMenu>
     </Menu>
   );
