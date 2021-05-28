@@ -5,17 +5,17 @@ import {
   getAllleafRowids,
 } from '@/pages/datamining/utils';
 import { apply, loop, uuid } from '@/utils/utils';
-import { EditOutlined, FileOutlined, MenuFoldOutlined, SaveOutlined } from '@ant-design/icons';
-import { Card, Col, message, Modal, Row, Space, Tooltip, Tree } from 'antd';
+import { EditOutlined, FileOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Col, message, Modal, Row, Space, Tree } from 'antd';
 import type { Key } from 'antd/es/table/interface';
-import { fetchGridDetails, fetchModuleFields, saveGridSchemeDetails } from '../service';
+import { fetchFilterDetails, fetchModuleFields, saveFilterSchemeDetails } from '../service';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
-import { GridFieldDesignForm } from './DesignGridField';
+import { FilterUserFieldDesignForm } from './DesignUserFilterField';
 import './designForm.css';
 import { getAllTreeRecord } from '../moduleUtils';
 
-interface DesignGridProps {
-  gridScheme: any;
+interface DesignUserFilterProps {
+  filterScheme: any;
 }
 
 const getTitle = (node: any, text?: string) => {
@@ -24,16 +24,17 @@ const getTitle = (node: any, text?: string) => {
 };
 
 const farray = [
-  'tf_title',
-  'tf_hidden',
-  'tf_locked',
-  'tf_showdetailtip',
-  'tf_width',
-  'tf_minwidth',
-  'tf_maxwidth',
-  'tf_flex',
-  'tf_autosizetimes',
-  'tf_otherSetting',
+  'xtype',
+  'rows',
+  'cols',
+  'widths',
+  'rowspan',
+  'colspan',
+  'filtertype',
+  'operator',
+  'hiddenoperator',
+  'othersetting',
+  'remark',
 ];
 
 const getChildNodesArray = (pnode: any) => {
@@ -42,7 +43,8 @@ const getChildNodesArray = (pnode: any) => {
     const nodedata: any = {
       text: node.text,
     };
-    if (!node.children && node.itemId) nodedata.tf_itemId = node.itemId;
+    if (node.udftitle) nodedata.title = node.udftitle;
+    if (!node.children && node.itemId) nodedata.itemId = node.itemId;
     farray.forEach((f) => {
       if (node[f]) nodedata[f] = node[f];
     });
@@ -53,18 +55,18 @@ const getChildNodesArray = (pnode: any) => {
   return result;
 };
 
-const saveGridScheme = (details: any[], gridScheme: any) => {
-  saveGridSchemeDetails({
-    dataObjectId: gridScheme['FDataobject.objectid'],
-    gridSchemeId: gridScheme.gridschemeid,
-    gridSchemeName: gridScheme.schemename,
+const saveFilterScheme = (details: any[], filterScheme: any) => {
+  saveFilterSchemeDetails({
+    dataObjectId: filterScheme['FDataobject.objectid'],
+    filterSchemeId: filterScheme.filterschemeid,
+    filterSchemeName: filterScheme.schemename,
     schemeDefine: JSON.stringify(getChildNodesArray(details[0])),
   }).then((response) => {
     if (response.success) {
-      message.success(`列表方案『${gridScheme.schemename}』已保存。`);
+      message.success(`筛选方案『${filterScheme.schemename}』已保存。`);
     } else {
       Modal.error({
-        title: `列表方案保存失败！`,
+        title: `筛选方案保存失败！`,
         width: 500,
         content: response.msg,
       });
@@ -72,9 +74,9 @@ const saveGridScheme = (details: any[], gridScheme: any) => {
   });
 };
 
-export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
-  const moduleName = gridScheme['FDataobject.objectid'];
-  const { gridschemeid } = gridScheme;
+export const DesignUserFilter: React.FC<DesignUserFilterProps> = ({ filterScheme }) => {
+  const moduleName = filterScheme['FDataobject.objectid'];
+  const { filterschemeid } = filterScheme;
   const hierarchyRef: any = useRef();
   const form: any = useRef();
   const [canSelectTree, setCanSelectTree] = useState<any[]>([]);
@@ -173,7 +175,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
   const getEditTitle = (node: any, text?: string) => {
     return (
       <>
-        <span className={node.cls}>{text || node.tf_title || node.text}</span>
+        <span className={node.cls}>{text || node.udftitle || node.text}</span>
         <EditOutlined
           className="editbutton"
           onClick={() => {
@@ -181,22 +183,6 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
             setModalVisible(true);
           }}
         />
-        {node.children && node.children.length ? (
-          <Tooltip title="把所有子节点放在上级节点下">
-            <MenuFoldOutlined
-              className="editbutton"
-              onClick={() => {
-                const pchildren: any[] = node.parent.children;
-                const index = pchildren.findIndex((r: any) => r === node);
-                node.children.forEach((rec: any) => {
-                  apply(rec, { parent: node.parent });
-                });
-                pchildren.splice(index, 1, ...node.children);
-                setDetails((v) => [...v]);
-              }}
-            />
-          </Tooltip>
-        ) : null}
       </>
     );
   };
@@ -208,7 +194,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
     } else if (Object.prototype.toString.call(object) === '[object Object]') {
       if (object.key !== 'root') {
         if (object.title) {
-          apply(object, { tf_title: object.title });
+          apply(object, { udftitle: object.title });
         }
         apply(object, { title: getEditTitle(object) });
       }
@@ -259,7 +245,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
             snodeParent = {
               key: uuid(),
               text: node.parent.text || node.parent.title,
-              tf_title: node.parent.text || node.parent.title,
+              udftitle: node.parent.text || node.parent.title,
               leaf: false,
               expanded: true,
               xtype: 'fieldset',
@@ -273,7 +259,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
           }
         }
       });
-    // 检查unchecked的在选中列表中有没有，有则删除
+    // 检查unchecked的在选中筛选中有没有，有则删除
     getAllLeafRecords(canSelectTree)
       .filter((rec) => !info.checkedNodes.find((node: any) => node === rec))
       .forEach((crec) => {
@@ -298,8 +284,8 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
   }, [canSelectTree]);
 
   useEffect(() => {
-    fetchGridDetails({
-      gridSchemeId: gridschemeid,
+    fetchFilterDetails({
+      filterSchemeId: filterschemeid,
     }).then((response) => {
       const ds = [
         {
@@ -362,7 +348,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
                   onClick={() => {
                     const newNode: any = {
                       key: uuid(),
-                      tf_title: '新增的字段组',
+                      udftitle: '新增的字段组',
                       xtype: 'fieldset',
                       parent: details[0],
                     };
@@ -377,7 +363,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
                   删除
                 </a>
                 <span></span>
-                <a href="#" onClick={() => saveGridScheme(details, gridScheme)}>
+                <a href="#" onClick={() => saveFilterScheme(details, filterScheme)}>
                   保存
                 </a>
               </Space>
@@ -441,7 +427,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
       </Row>
       <Modal
         width={820}
-        title={`编辑列表字段：${editRecord.tf_title || editRecord.text}`}
+        title={`编辑筛选字段：${editRecord.udftitle || editRecord.text}`}
         visible={modalVisible}
         onCancel={() => {
           setModalVisible(false);
@@ -452,7 +438,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
           </>
         }
         onOk={() => {
-          const { tf_otherSetting: othersetting } = form.current.getValues();
+          const { othersetting } = form.current.getValues();
           if (othersetting) {
             try {
               // eslint-disable-next-line
@@ -468,7 +454,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
           // 如果不是字段
           if (!editRecord.itemId) {
             apply(editRecord, {
-              text: editRecord.tf_title,
+              text: editRecord.udftitle,
             });
           }
           apply(editRecord, {
@@ -477,7 +463,7 @@ export const DesignGrid: React.FC<DesignGridProps> = ({ gridScheme }) => {
           setDetails([...details]);
         }}
       >
-        <GridFieldDesignForm ref={form} moduleName={moduleName} init={{ ...editRecord }} />
+        <FilterUserFieldDesignForm ref={form} moduleName={moduleName} init={{ ...editRecord }} />
       </Modal>
     </>
   );

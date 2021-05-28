@@ -22,6 +22,7 @@ import { DesignForm } from '../design/DesignForm';
 import { DesignGrid } from '../design/DesignGrid';
 import { DesignDefaultOrder } from '../design/DesignDefaultOrder';
 import { DesignFieldExpression } from '../design/DesignFieldExpression';
+import { DesignUserFilter } from '../design/DesignUserFilter';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -366,6 +367,29 @@ const designGrid = (params: ActionParamsModal) => {
   });
 };
 
+/**
+ * 设置用户筛选方案
+ * @param params
+ */
+const designUserFilter = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalDrawerProps({
+    onClose: () => setGlobalDrawerProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '100%',
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计${record['FDataobject.title']}的『${record.schemename}』筛选方案`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignUserFilter filterScheme={record} />,
+  });
+};
+
 const designDefaultOrder = (params: ActionParamsModal) => {
   const { record } = params;
   setGlobalDrawerProps({
@@ -461,6 +485,7 @@ export const systemActions: ActionStore = apply(
     updatetocompanymodulefunction: updateToCompanyModuleFunction,
     designform: designForm,
     designGrid,
+    designUserFilter,
     setdefaultorder: designDefaultOrder,
     setadditionfieldexpression: setAdditionFieldExpression,
   },
