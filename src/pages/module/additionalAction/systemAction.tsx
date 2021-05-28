@@ -23,6 +23,7 @@ import { DesignGrid } from '../design/DesignGrid';
 import { DesignDefaultOrder } from '../design/DesignDefaultOrder';
 import { DesignFieldExpression } from '../design/DesignFieldExpression';
 import { DesignUserFilter } from '../design/DesignUserFilter';
+import { DesignNavigate } from '../design/DesignNavigate';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -390,6 +391,29 @@ const designUserFilter = (params: ActionParamsModal) => {
   });
 };
 
+/**
+ * 设计导航方案
+ * @param params
+ */
+const designNavigate = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalDrawerProps({
+    onClose: () => setGlobalDrawerProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '100%',
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计${record['FDataobject.title']}的『${record.title}』导航方案`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignNavigate navigateScheme={record} />,
+  });
+};
+
 const designDefaultOrder = (params: ActionParamsModal) => {
   const { record } = params;
   setGlobalDrawerProps({
@@ -486,6 +510,7 @@ export const systemActions: ActionStore = apply(
     designform: designForm,
     designGrid,
     designUserFilter,
+    designNavigate,
     setdefaultorder: designDefaultOrder,
     setadditionfieldexpression: setAdditionFieldExpression,
   },

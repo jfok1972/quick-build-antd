@@ -318,6 +318,18 @@ export const saveDefaultOrderSchemeDetails = async (params: any) => {
   });
 };
 
+export const fetchNavigateDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/navigate/getdetails.do`, {
+    params,
+  });
+};
+
+export const saveNavigateSchemeDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/navigate/updatedetails.do`, {
+    params,
+  });
+};
+
 /**
  * 读取一个附加字段的定义
  * @param params
@@ -330,7 +342,7 @@ export const fetchFieldExpression = async (params: any) => {
 };
 
 /**
- * 读取一个附加字段的定义
+ * 更新一个附加字段的定义
  * @param params
  * @returns
  */
