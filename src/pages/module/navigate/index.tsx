@@ -547,6 +547,7 @@ const Navigate = ({ moduleState, dispatch }: { moduleState: ModuleState; dispatc
       }
       children = data.children;
       if (children && children.length > 0) children[0].expanded = true; // root展开
+      if (!data.children) data.children = [];
       const dataSource = data.children.map(rebuildData);
       // 1、导航的数据小于200条，则全部展开
       // 2、根据分级多层设置的收缩值来，只显示到第一级的所有数据，例如部门，会展开所有的部门，下一级的展开自动加入

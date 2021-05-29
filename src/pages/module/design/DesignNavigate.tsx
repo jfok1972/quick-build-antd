@@ -30,18 +30,17 @@ interface DesignNavigateProps {
   navigateScheme: any;
 }
 
-export const getFunctionOptions = (): any =>
+const getFunctionOptions = (): any =>
   getModuleComboDataSource('FFunction').map(({ value, text }) => ({
     value,
     label: text,
   }));
 
-const getNumbergroupOptions: any = getModuleComboDataSource('FNumbergroup').map(
-  ({ value, text }) => ({
+const getNumbergroupOptions = (): any =>
+  getModuleComboDataSource('FNumbergroup').map(({ value, text }) => ({
     value,
     label: text,
-  }),
-);
+  }));
 
 const getTitle = (node: any, text?: string) => {
   if (node.cls) return <span className={node.cls}>{text || node.text}</span>;
@@ -433,7 +432,7 @@ export const DesignNavigate: React.FC<DesignNavigateProps> = ({ navigateScheme }
                         <Select
                           allowClear
                           showSearch
-                          options={getNumbergroupOptions}
+                          options={getNumbergroupOptions()}
                           getPopupContainer={(triggerNode) => triggerNode.parentNode}
                           filterOption={(input, option: any) => {
                             return (
