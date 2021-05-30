@@ -27,7 +27,7 @@ import {
   Modal,
 } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
-// react-zmage 现只能使用 "0.8.5-beta.36"
+// react-zmage 只能使用 "0.8.5-beta.36" , .37图像跑到最下面去了，以后再查查原因
 import type { IStaticSetParams } from 'react-zmage';
 import Zmage from 'react-zmage';
 import type { UploadListType } from 'antd/lib/upload/interface';
@@ -372,21 +372,23 @@ export const AttachemntRenderer: React.FC<AttachmentRenderProps> = ({
       );
     /* eslint-enable */
     if (
-      n === 'doc' ||
-      n === 'docx' ||
-      n === 'html' ||
-      n === 'mov' ||
-      n === 'mp3' ||
-      n === 'mp4' ||
-      n === 'pdf' ||
-      n === 'ppt' ||
-      n === 'pptx' ||
-      n === 'psd' ||
-      n === 'rar' ||
-      n === 'wav' ||
-      n === 'xls' ||
-      n === 'xlsx' ||
-      n === 'zip'
+      [
+        'doc',
+        'docx',
+        'html',
+        'mov',
+        'mp3',
+        'mp4',
+        'pdf',
+        'ppt',
+        'pptx',
+        'psd',
+        'rar',
+        'wav',
+        'xls',
+        'xlsx',
+        'zip',
+      ].includes(n)
     )
       return <img src={`/attachment/${n}.png`} alt="" />;
     return (
