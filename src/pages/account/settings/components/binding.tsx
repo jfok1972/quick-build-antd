@@ -1,18 +1,23 @@
 import { WechatOutlined } from '@ant-design/icons';
-import { Card, List } from 'antd';
+import { Card, List, message } from 'antd';
 import React, { Component, Fragment } from 'react';
 
 class BindingView extends Component {
   getData = () => [
     {
-      title: "微信绑定",
-      description: "当前未绑定微信帐号",
+      title: '微信绑定',
+      description: '当前未绑定微信帐号',
       actions: [
-        <a key="Bind">
+        <a
+          key="Bind"
+          onClick={() => {
+            message.warn('此功能尚未启用！');
+          }}
+        >
           绑定
         </a>,
       ],
-      avatar: <WechatOutlined style={{fontSize : '48px' , color:'#52c41a'}} />,
+      avatar: <WechatOutlined style={{ fontSize: '48px', color: '#52c41a' }} />,
     },
   ];
 
@@ -23,7 +28,7 @@ class BindingView extends Component {
           <List
             itemLayout="horizontal"
             dataSource={this.getData()}
-            renderItem={item => (
+            renderItem={(item) => (
               <List.Item actions={item.actions}>
                 <List.Item.Meta
                   avatar={item.avatar}
