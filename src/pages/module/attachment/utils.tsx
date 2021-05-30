@@ -27,6 +27,7 @@ import {
   Modal,
 } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
+// react-zmage 现只能使用 "0.8.5-beta.36"
 import type { IStaticSetParams } from 'react-zmage';
 import Zmage from 'react-zmage';
 import type { UploadListType } from 'antd/lib/upload/interface';
