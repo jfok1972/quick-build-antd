@@ -90,8 +90,11 @@ const Login: React.FC<LoginProps> = ({ dispatch, userLogin, submitting, systemIn
           password:
             savePassword && localStorage.getItem(PASSWORD) && localStorage.getItem(LOGINSLATKEY)
               ? sm4.decrypt(
-                  decryptString(localStorage.getItem(PASSWORD) as any),
-                  decryptString(localStorage.getItem(LOGINSLATKEY) as any),
+                  decryptString(localStorage.getItem(PASSWORD) as string),
+                  decryptString(localStorage.getItem(LOGINSLATKEY) as string)
+                    .split('')
+                    .reverse()
+                    .join(''),
                 )
               : '',
         }}

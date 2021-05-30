@@ -24,7 +24,7 @@ export interface LoginParamsType {
  */
 export async function fakeAccountLogin(params: LoginParamsType) {
   apply(params, {
-    password: sm4.encrypt(params.password, loginslatkey[0]),
+    password: sm4.encrypt(params.password, loginslatkey[0].split('').reverse().join('')),
   });
   return request(`${API_HEAD}/login/validate.do`, {
     method: 'POST',
