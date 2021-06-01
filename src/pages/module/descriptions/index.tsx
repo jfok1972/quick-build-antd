@@ -116,12 +116,37 @@ const getIntegerValue = (
   );
 };
 
-const getDoubleValue = (value: number, field: ModuleFieldType) => {
+const getDoubleValue = (
+  value: number,
+  field: ModuleFieldType,
+  {
+    moduleInfo,
+    dispatch,
+    record,
+    formFieldDefine,
+  }: { moduleInfo: ModuleModal; dispatch: any; record: any; formFieldDefine: any },
+) => {
   const numberFormat = getNumberDigitsFormat(field.digitslen);
   return (
     <span style={numberStyle}>
       {value ? numeral(value).format(numberFormat) : ''}{' '}
-      {field.unittext ? <span style={{ color: 'green' }}>{field.unittext}</span> : ''}
+      {field.unittext ? (
+        <span style={{ color: 'green' }}>
+          {field.unittext}
+          {field.aggregate
+            ? getOneToManyInfoButton(record, {
+                fieldtitle: field.fieldtitle,
+                fieldname: field.fieldname,
+                childModuleName: formFieldDefine.additionObjectname,
+                fieldahead: formFieldDefine.fieldahead,
+                moduleInfo,
+                dispatch,
+              })
+            : null}
+        </span>
+      ) : (
+        ''
+      )}
     </span>
   );
 };
@@ -671,7 +696,12 @@ const generateField = ({
       case 'money':
       case 'double':
       case 'float':
-        value = getDoubleValue(value, field);
+        value = getDoubleValue(value, field, {
+          moduleInfo,
+          dispatch,
+          record,
+          formFieldDefine: item,
+        });
         break;
       case 'integer':
         if (field.isRate) value = getRateValue(value);
