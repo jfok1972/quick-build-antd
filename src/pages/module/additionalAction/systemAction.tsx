@@ -480,6 +480,93 @@ const extjsSetting = (params: ActionParamsModal) => {
   setGlobalDrawerProps(props);
 };
 
+/**
+ * 给选中的manytoone字段，在one端创建onetomany字段
+ * @param params
+ * @returns
+ */
+const createOneToManyField = (params: ActionParamsModal) => {
+  const { record } = params;
+  if (!(record.fieldrelation && record.fieldrelation.toLowerCase() === 'manytoone')) {
+    message.warn('请选择一个多对一(manytoone)的字段！');
+    return;
+  }
+  const mess = `模块『${record.fieldtitle}』中建立『${record['FDataobject.title']}』的一对多关系`;
+  Modal.confirm({
+    title: `确定要在${mess}吗?`,
+    width: 500,
+    icon: <ExclamationCircleOutlined />,
+    onOk: () => {
+      request(`${API_HEAD}/platform/dataobjectfield/createonetomanyfield.do`, {
+        method: 'POST',
+        params: {
+          fieldid: record.fieldid,
+        },
+      }).then((response) => {
+        if (response.success) {
+          message.success(`${mess}已成功!`);
+        } else {
+          Modal.error({
+            width: 500,
+            title: '操作失败',
+            content: response.msg,
+          });
+        }
+      });
+    },
+  });
+};
+
+/**
+ * 为二个manytoone字段在otherside 生成二个 manytomany的字段
+ * @param params
+ * @returns
+ */
+const createManyToManyField = (params: ActionParamsModal) => {
+  const { records } = params;
+  const [r1, r2] = records as any[];
+  if (r1['FDataobject.objectid'] !== r2['FDataobject.objectid']) {
+    message.warn('请选择相同模块下的二个字段！');
+    return;
+  }
+  if (
+    !(
+      r1.fieldrelation &&
+      r1.fieldrelation.toLowerCase() === 'manytoone' &&
+      r2.fieldrelation &&
+      r2.fieldrelation.toLowerCase() === 'manytoone'
+    )
+  ) {
+    message.warn('请选择二个多对一(manytoone)的字段！');
+    return;
+  }
+  const mess = `模块『${r1.fieldtitle}』和『${r2.fieldtitle}』之间建立多对多关系`;
+  Modal.confirm({
+    title: `确定要在${mess}吗?`,
+    icon: <ExclamationCircleOutlined />,
+    onOk: () => {
+      request(`${API_HEAD}/platform/dataobjectfield/createmanytomanyfield.do`, {
+        method: 'POST',
+        params: {
+          fieldid1: r1.fieldid,
+          fieldid2: r2.fieldid,
+          linkedobjectid: r1['FDataobject.objectid'],
+        },
+      }).then((response) => {
+        if (response.success) {
+          message.success(`${mess}已成功!`);
+        } else {
+          Modal.error({
+            width: 500,
+            title: '操作失败',
+            content: response.msg,
+          });
+        }
+      });
+    },
+  });
+};
+
 type ActionStore = Record<string, Function>;
 
 /**
@@ -513,6 +600,8 @@ export const systemActions: ActionStore = apply(
     designNavigate,
     setdefaultorder: designDefaultOrder,
     setadditionfieldexpression: setAdditionFieldExpression,
+    createonetomanyfield: createOneToManyField,
+    createmanytomanyfield: createManyToManyField,
   },
   businessActions,
 ) as ActionStore;

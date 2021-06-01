@@ -515,7 +515,10 @@ const refreshFieldsInDataobjectFields = (params: ActionParamsModal) => {
 export const refreshFields = (params: ActionParamsModal) => {
   const { record, dispatch, moduleState } = params;
   const { moduleName } = moduleState;
-  if (moduleName === 'FDataobjectfield') refreshFieldsInDataobjectFields(params);
+  if (moduleName === 'FDataobjectfield') {
+    refreshFieldsInDataobjectFields(params);
+    return;
+  }
   const { title } = record;
   const { objectid } = record;
   request(`${API_HEAD}/platform/database/refreshtablefields.do`, {
