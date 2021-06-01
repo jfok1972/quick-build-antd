@@ -133,8 +133,30 @@ const getPercentValue = (value: number, field: ModuleFieldType) => {
   // return <span style={numberStyle}>{value ? numeral(value * 100).format('0,0.00') : ''} %</span>
 };
 
-const getOneToManyValue = (value: number) => {
-  return <span style={numberStyle}>{value} 条</span>;
+const getOneToManyValue = (
+  value: number,
+  field: ModuleFieldType,
+  { moduleInfo, dispatch, record }: { moduleInfo: ModuleModal; dispatch: any; record: any },
+) => {
+  return (
+    <span style={numberStyle}>
+      {value}
+      <span style={{ color: 'green' }}>
+        {` ${field.unittext || '条'}`}
+        {getOneToManyInfoButton(record, {
+          fieldtitle: field.fieldtitle,
+          fieldname: field.fieldname,
+          childModuleName: field.fieldtype.substring(
+            field.fieldtype.indexOf('<') + 1,
+            field.fieldtype.indexOf('>'),
+          ),
+          fieldahead: field.fieldahead as string,
+          moduleInfo,
+          dispatch,
+        })}
+      </span>
+    </span>
+  );
 };
 
 /**
@@ -637,7 +659,11 @@ const generateField = ({
       </Descriptions.Item>
     );
   } else if (field.isOneToMany) {
-    value = getOneToManyValue(value);
+    value = getOneToManyValue(value, field, {
+      moduleInfo,
+      dispatch,
+      record,
+    });
   } else if (field.isManyToMany) {
     value = getManyToManyValue(record[`${field.fieldname}_detail`], field, dispatch);
   } else

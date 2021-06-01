@@ -982,12 +982,17 @@ const FormField = ({
           </FormItem>
           <span style={{ paddingLeft: '5px' }}>
             {unittext}
-            {formFieldDefine.aggregate
+            {formFieldDefine.aggregate || fieldDefine.isOneToMany
               ? getOneToManyInfoButton(currRecord, {
                   fieldtitle: fieldDefine.fieldtitle,
                   fieldname: fieldDefine.fieldname,
-                  childModuleName: formFieldDefine.additionObjectname,
-                  fieldahead: formFieldDefine.fieldahead,
+                  childModuleName:
+                    formFieldDefine.additionObjectname ||
+                    fieldDefine.fieldtype.substring(
+                      fieldDefine.fieldtype.indexOf('<') + 1,
+                      fieldDefine.fieldtype.indexOf('>'),
+                    ),
+                  fieldahead: formFieldDefine.fieldahead || fieldDefine.fieldahead,
                   moduleInfo,
                   dispatch,
                 })
