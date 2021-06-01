@@ -604,6 +604,32 @@ export const addParentAdditionField = (moduleInfo: ModuleModal, gridorformField:
   return field;
 };
 
+/**
+ * 加入form中出现的onetomany的字段
+ * @param gridorformField
+ */
+export const addChildAdditionField = (moduleInfo: ModuleModal, gridorformField: any) => {
+  console.log(gridorformField);
+  const pmoduleName = gridorformField.additionObjectname;
+  const additionModuleInfo = getModuleInfo(pmoduleName);
+  const additionField = getFieldDefine(gridorformField.fieldid, additionModuleInfo);
+  const field: any = {
+    fieldname: gridorformField.additionFieldname,
+    fieldtitle: gridorformField.title || gridorformField.defaulttitle,
+    fieldid: gridorformField.fieldid,
+    aggregate: gridorformField.aggregate,
+  };
+  applyIf(field, additionField);
+  if (field.aggregate === 'count') {
+    field.fieldtype = 'Integer';
+    field.ismonetary = false;
+    // 原字段如果有的话，可能不需要修改
+    field.unittext = '条';
+  }
+  moduleInfo.fields.push(field);
+  return field;
+};
+
 export const getSqlParamDefaultValue = (moduleInfo: ModuleModal) => {
   if (moduleInfo.moduleLimit.hassqlparam) {
     const result: any = {};

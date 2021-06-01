@@ -41,6 +41,11 @@
     padding-right: 16px;
   }
 
+  // 在窗口显示到主区域时，会用space vertical 显示，要设置宽度为100%，否则有些模块form就撑不满
+  .moduleform > .ant-space.ant-space-vertical {
+    width: 100%;
+  }
+
   // form 显示在主区域时上下不要留空，否则空位是二倍
   .pageheaderformwrapper .ant-pro-page-container-children-content {
     margin: 0 16px 0 !important;
@@ -79,4 +84,10 @@
     margin-right: 8px;
     border: @primary-color solid 1px;
   }
+}
+
+// form 和 Descriptions onetomany字段后面的显示明细的按钮
+.onetomanyfieldinfo {
+  margin-left: 4px;
+  cursor: pointer;
 }

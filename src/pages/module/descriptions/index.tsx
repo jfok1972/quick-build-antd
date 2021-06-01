@@ -18,7 +18,12 @@ import type { Dispatch } from 'redux';
 import { apply, getLastLevelLabel, getNumberDigitsFormat } from '@/utils/utils';
 import type { ModuleModal, ModuleFieldType } from '../data';
 import { fetchObjectRecord, downloadRecordExcel, fetchObjectRecordSync } from '../service';
-import { getModuleInfo, addParentAdditionField, getFieldDefine } from '../modules';
+import {
+  getModuleInfo,
+  addParentAdditionField,
+  getFieldDefine,
+  addChildAdditionField,
+} from '../modules';
 import { AttachemntRenderer } from '../attachment/utils';
 import styles from './index.less';
 import columnStyles from '../grid/columnFactory.less';
@@ -31,6 +36,7 @@ import { isAudited } from '../audit/utils';
 import { execPrintRecordScheme } from '../toolbar/export/PrintRecordScheme';
 import { AuditFinished, AuditWaititng, NOIMAGE_PNG } from '../constants';
 import { getBusinessDescriptionItemRender } from './itemBusinessRender';
+import { getOneToManyInfoButton } from '../form/formFactory';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -76,10 +82,36 @@ const getRateValue = (value: number) => {
   return <Rate disabled value={value} />;
 };
 
-const getIntegerValue = (value: number, field: ModuleFieldType) => {
+const getIntegerValue = (
+  value: number,
+  field: ModuleFieldType,
+  {
+    moduleInfo,
+    dispatch,
+    record,
+    formFieldDefine,
+  }: { moduleInfo: ModuleModal; dispatch: any; record: any; formFieldDefine: any },
+) => {
   return (
     <span style={numberStyle}>
-      {value || ''} {field.unittext ? <span style={{ color: 'green' }}>{field.unittext}</span> : ''}
+      {value || ''}{' '}
+      {field.unittext ? (
+        <span style={{ color: 'green' }}>
+          {field.unittext}
+          {field.aggregate
+            ? getOneToManyInfoButton(record, {
+                fieldtitle: field.fieldtitle,
+                fieldname: field.fieldname,
+                childModuleName: formFieldDefine.additionObjectname,
+                fieldahead: formFieldDefine.fieldahead,
+                moduleInfo,
+                dispatch,
+              })
+            : null}
+        </span>
+      ) : (
+        ''
+      )}
     </span>
   );
 };
@@ -555,15 +587,17 @@ const generateField = ({
   record: object;
   dispatch: Dispatch;
 }) => {
-  let field: ModuleFieldType = getFieldDefine(item.fieldid, moduleInfo) || {};
-  if (item.fieldahead) {
-    // 如果是父模的其他字段或者祖父模块
-    if (item.aggregate) {
-      // 子模块的暂未考虑
-      return null;
+  let field: ModuleFieldType = getFieldDefine(item.fieldid, moduleInfo);
+  if (field === null) {
+    if (item.fieldahead) {
+      // 如果是父模的其他字段或者祖父模块
+      if (item.aggregate) {
+        field = addChildAdditionField(moduleInfo, item);
+      } else {
+        // 生成manytoone,onetoonefield
+        field = addParentAdditionField(moduleInfo, item);
+      }
     }
-    // 生成manytoone,onetoonefield
-    field = addParentAdditionField(moduleInfo, item);
   }
   if (!field.fieldname) {
     apply(field, {
@@ -615,7 +649,13 @@ const generateField = ({
         break;
       case 'integer':
         if (field.isRate) value = getRateValue(value);
-        else value = getIntegerValue(value, field);
+        else
+          value = getIntegerValue(value, field, {
+            moduleInfo,
+            dispatch,
+            record,
+            formFieldDefine: item,
+          });
         break;
       case 'percent':
         value = getPercentValue(value, field);

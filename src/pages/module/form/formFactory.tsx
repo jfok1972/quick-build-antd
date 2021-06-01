@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { history } from 'umi';
 import {
   InputNumber,
   DatePicker,
@@ -18,6 +19,8 @@ import {
   AutoComplete,
   Switch,
   Slider,
+  Typography,
+  Tooltip,
 } from 'antd';
 import type { Dispatch } from 'redux';
 import {
@@ -28,6 +31,9 @@ import {
   AuditOutlined,
   FileDoneOutlined,
   SearchOutlined,
+  InfoCircleOutlined,
+  FormOutlined,
+  SelectOutlined,
 } from '@ant-design/icons';
 import type { FormInstance, Rule } from 'antd/lib/form';
 import { apply, getLastLevelLabel, getNumberDigitsFormat } from '@/utils/utils';
@@ -37,6 +43,7 @@ import type {
   FormOperateType,
   FormShowType,
   TextValue,
+  ParentFilterModal,
 } from '../data';
 import { getDictionary, getPropertys } from '../dictionary/dictionarys';
 
@@ -46,7 +53,9 @@ import {
   getModulTreeDataSource,
   getFieldDefine,
   addParentAdditionField,
+  addChildAdditionField,
   getModulTreePathDataSource,
+  getFormSchemeFormType,
 } from '../modules';
 import styles from './formFactory.less';
 import {
@@ -64,6 +73,8 @@ import SelectGrid from '../detailGrid/selectGrid';
 import ImageField from './field/ImageField';
 import { PercentField } from './field/PercentField';
 import TagSelect from '../UserDefineFilter/TagSelect';
+import OneTowManyTooltip from '../widget/oneTwoManyTooltip';
+import { getModuleUrlFormSysMenu } from '@/layouts/BasicLayout';
 
 const numeral = require('numeral');
 
@@ -715,6 +726,89 @@ const getFieldInput: React.FC<FormFieldProps> = (props) => {
   return formField;
 };
 
+export const getOneToManyInfoButton = (
+  record: Object,
+  {
+    fieldtitle,
+    fieldname,
+    childModuleName,
+    fieldahead,
+    moduleInfo,
+    dispatch,
+  }: {
+    fieldtitle: string;
+    fieldname: string;
+    childModuleName: string;
+    fieldahead: string;
+    moduleInfo: ModuleModal;
+    dispatch: Dispatch;
+  },
+) => {
+  const formScheme = getFormSchemeFormType(childModuleName, 'onetomanytooltip');
+  const openOrEnter = (openInNewWindow: boolean) => {
+    const parentFilter: ParentFilterModal = {
+      moduleName: moduleInfo.modulename,
+      fieldahead: fieldahead.split('.with.')[1],
+      fieldName: moduleInfo.primarykey,
+      fieldtitle: moduleInfo.title,
+      operator: '=',
+      fieldvalue: record[moduleInfo.primarykey],
+      text: record[moduleInfo.namefield],
+    };
+    const parentFilterParam = encodeURIComponent(JSON.stringify(parentFilter));
+    const pathname = getModuleUrlFormSysMenu(childModuleName);
+    if (openInNewWindow) {
+      const url = `${pathname}?parentFilter=${parentFilterParam}`;
+      window.open(url);
+    } else {
+      history.push({
+        pathname,
+        // query ,可以用 location.query 获取值,
+        // state ,可以用 location.state 获取值,state方式下，url中?后面的参数不显示在网址中，刷新后参数丢失
+        state: {
+          parentFilter: parentFilterParam,
+        },
+      });
+    }
+  };
+  return formScheme && moduleInfo ? (
+    <Popover
+      trigger="click"
+      title={
+        <span>
+          {`${record[moduleInfo.namefield]} 的 ${fieldtitle}`}
+          <Space style={{ float: 'right', marginRight: '12px', marginLeft: '12px' }}>
+            <Tooltip title={`转到${fieldtitle}`}>
+              <a onClick={() => openOrEnter(false)}>
+                <FormOutlined />
+              </a>
+            </Tooltip>
+            <Tooltip title="新页面中打开">
+              <a onClick={() => openOrEnter(true)}>
+                <SelectOutlined rotate={90} />
+              </a>
+            </Tooltip>
+          </Space>
+        </span>
+      }
+      content={
+        <OneTowManyTooltip
+          moduleName={moduleInfo.modulename}
+          fieldahead={fieldahead}
+          childModuleName={childModuleName}
+          parentid={record[moduleInfo.primarykey]}
+          count={record[fieldname] || 0}
+          dispatch={dispatch}
+        />
+      }
+    >
+      <Typography.Text type="secondary" className={styles.onetomanyfieldinfo}>
+        <InfoCircleOutlined />
+      </Typography.Text>
+    </Popover>
+  ) : null;
+};
+
 const FormField = ({
   formFieldDefine,
   moduleInfo,
@@ -741,8 +835,7 @@ const FormField = ({
     if (formFieldDefine.fieldahead) {
       // 如果是父模的其他字段或者祖父模块
       if (formFieldDefine.aggregate) {
-        // 子模块的暂未考虑
-        // return null;
+        fieldDefine = addChildAdditionField(moduleInfo, formFieldDefine);
       } else {
         // 生成manytoone,onetoonefield
         fieldDefine = addParentAdditionField(moduleInfo, formFieldDefine);
@@ -887,7 +980,19 @@ const FormField = ({
           <FormItem noStyle {...formItemProp} rules={rules}>
             {fieldinput}
           </FormItem>
-          <span style={{ paddingLeft: '5px' }}>{unittext}</span>
+          <span style={{ paddingLeft: '5px' }}>
+            {unittext}
+            {formFieldDefine.aggregate
+              ? getOneToManyInfoButton(currRecord, {
+                  fieldtitle: fieldDefine.fieldtitle,
+                  fieldname: fieldDefine.fieldname,
+                  childModuleName: formFieldDefine.additionObjectname,
+                  fieldahead: formFieldDefine.fieldahead,
+                  moduleInfo,
+                  dispatch,
+                })
+              : null}
+          </span>
         </FormItem>
       );
     } else
