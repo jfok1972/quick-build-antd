@@ -294,6 +294,18 @@ export const saveGridSchemeDetails = async (params: any) => {
   });
 };
 
+export const fetchSortDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/sort/getdetails.do`, {
+    params,
+  });
+};
+
+export const saveSortSchemeDetails = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/sort/updatedetails.do`, {
+    params,
+  });
+};
+
 export const fetchFilterDetails = async (params: any) => {
   return request(`${API_HEAD}/platform/scheme/filter/getdetails.do`, {
     params,

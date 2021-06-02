@@ -24,6 +24,7 @@ import { DesignDefaultOrder } from '../design/DesignDefaultOrder';
 import { DesignFieldExpression } from '../design/DesignFieldExpression';
 import { DesignUserFilter } from '../design/DesignUserFilter';
 import { DesignNavigate } from '../design/DesignNavigate';
+import { DesignSort } from '../design/DesignSort';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -433,6 +434,25 @@ const designDefaultOrder = (params: ActionParamsModal) => {
   });
 };
 
+const designSort = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalDrawerProps({
+    onClose: () => setGlobalDrawerProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '100%',
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计${record['FDataobject.title']}的『${record.title}』排序方案`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignSort objectRecord={record} />,
+  });
+};
+
 /**
  * 设置自定义字段的表达式
  * @param params
@@ -599,6 +619,7 @@ export const systemActions: ActionStore = apply(
     designUserFilter,
     designNavigate,
     setdefaultorder: designDefaultOrder,
+    designSort,
     setadditionfieldexpression: setAdditionFieldExpression,
     createonetomanyfield: createOneToManyField,
     createmanytomanyfield: createManyToManyField,
