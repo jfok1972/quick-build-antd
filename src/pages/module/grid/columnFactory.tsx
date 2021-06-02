@@ -505,19 +505,12 @@ const setFieldxtype = (
 ) => {
   const columnFilterInfo = filterInfo;
   const field = thisfield;
-  if (field.fieldDefine.aggregate) {
-    apply(field, {
-      render1: oneToManyFieldRender,
-      align: 'right',
-    });
-    // field.xtype = 'aggregatecolumn'
-  } else
+  if (!field.fieldDefine.aggregate)
     switch (fieldtype) {
       case 'image':
         apply(field, {
           render: (value: string, record: Object, recno: number) =>
             imageRender(value, record, recno, field),
-          xtype: 'imagecolumn',
           align: 'center',
           width: 100,
           sorter: false,
@@ -525,7 +518,6 @@ const setFieldxtype = (
         break;
       case 'date':
         apply(field, {
-          xtype: 'datecolumn',
           align: 'center',
           render: dateRender,
         });
@@ -536,7 +528,6 @@ const setFieldxtype = (
       case 'datetime':
       case 'timestamp':
         apply(field, {
-          xtype: 'datecolumn',
           align: 'center',
           render: (value: string, record: Object, recno: number) =>
             datetimeRender(value, record, recno, field.fieldDefine.disableSecond),

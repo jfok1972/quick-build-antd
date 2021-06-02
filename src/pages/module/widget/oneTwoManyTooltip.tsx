@@ -38,41 +38,42 @@ const OneTowManyTooltip = ({
   parentid,
   childModuleName,
   fieldahead,
-  count,
   dispatch,
 }: {
   moduleName: string;
   parentid: string;
   childModuleName: string;
   fieldahead: string;
-  count: number;
   dispatch: Dispatch;
 }): any => {
-  const array = [];
-  for (let i = 0; i < Math.min(count, 20); i += 1) array.push({ [RECNOUNDERLINE]: i + 1 });
-  const [data, setData] = useState(array);
+  const limit = 10;
+  const [data, setData] = useState([]);
+  const [dataCount, setDataCount] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    setLoading(true);
     fetchChildModuleData({
       objectid: moduleName,
       parentid,
       childModuleName,
       fieldahead,
-      limit: 20,
-      page: 1,
-      start: 0,
+      limit,
+      page,
+      start: (page - 1) * limit,
     }).then((response: any) => {
       setLoading(false);
       let recno = 1;
       if (response.msg)
         response.msg.forEach((record: any) => {
           const rec = record;
-          rec[RECNOUNDERLINE] = recno;
+          rec[RECNOUNDERLINE] = recno + (page - 1) * limit;
           recno += 1;
         });
+      setDataCount(response.tag);
       setData(response.msg || []);
     });
-  }, []);
+  }, [page]);
   const cModuleInfo: ModuleModal = getModuleInfo(childModuleName);
   const scheme = getFormSchemeFormType(childModuleName, 'onetomanytooltip');
   let columns: any[] = scheme.details.map((formField: any) => {
@@ -159,7 +160,6 @@ const OneTowManyTooltip = ({
       className: styles.numberalignright,
     },
   ].concat(columns);
-
   return (
     <>
       {' '}
@@ -169,9 +169,19 @@ const OneTowManyTooltip = ({
         dataSource={data}
         columns={columns}
         size="small"
-        pagination={false}
+        pagination={{
+          pageSize: limit,
+          current: page,
+          total: dataCount,
+          showSizeChanger: false,
+          showLessItems: true,
+          hideOnSinglePage: true,
+          onChange: (p: number) => {
+            setPage(p);
+          },
+          showTotal: (atotal, range) => <span style={{ float: 'right' }}>{`共 ${atotal} 条`}</span>,
+        }}
       />
-      {count > 20 ? <div style={{ padding: '5px' }}>等共 {count} 条记录</div> : null}
     </>
   );
 };

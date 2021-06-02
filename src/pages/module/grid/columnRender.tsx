@@ -408,7 +408,6 @@ export const oneToManyFieldRender = (
               fieldahead={fieldahead}
               childModuleName={childModuleName}
               parentid={record[moduleInfo.primarykey]}
-              count={value || 0}
               dispatch={dispatch}
             />
           }

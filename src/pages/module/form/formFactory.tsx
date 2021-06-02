@@ -730,14 +730,12 @@ export const getOneToManyInfoButton = (
   record: Object,
   {
     fieldtitle,
-    fieldname,
     childModuleName,
     fieldahead,
     moduleInfo,
     dispatch,
   }: {
     fieldtitle: string;
-    fieldname: string;
     childModuleName: string;
     fieldahead: string;
     moduleInfo: ModuleModal;
@@ -797,7 +795,6 @@ export const getOneToManyInfoButton = (
           fieldahead={fieldahead}
           childModuleName={childModuleName}
           parentid={record[moduleInfo.primarykey]}
-          count={record[fieldname] || 0}
           dispatch={dispatch}
         />
       }
@@ -985,7 +982,6 @@ const FormField = ({
             {formFieldDefine.aggregate || fieldDefine.isOneToMany
               ? getOneToManyInfoButton(currRecord, {
                   fieldtitle: fieldDefine.fieldtitle,
-                  fieldname: fieldDefine.fieldname,
                   childModuleName:
                     formFieldDefine.additionObjectname ||
                     fieldDefine.fieldtype.substring(
