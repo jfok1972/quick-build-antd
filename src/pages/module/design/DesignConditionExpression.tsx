@@ -14,17 +14,93 @@ import {
   Tree,
 } from 'antd';
 import { getFunctionOptions } from './DesignDefaultOrder';
-import { fetchFieldExpression, updateFieldExpression, testAdditionField } from '../service';
+import {
+  fetchConditionExpression,
+  updateConditionExpression,
+  testConditionExpression,
+} from '../service';
 import { apply, loop, uuid } from '@/utils/utils';
 import { getAllhasChildrenRowids } from '@/pages/datamining/utils';
 import { CloseOutlined, DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { SelectModuleFieldPopover } from './SelectModuleField';
 
-interface DesignFieldExpressionProps {
+interface DesignConditionExpressionProps {
   record: Record<string, unknown>;
 }
 
-const farray = ['fieldtitle', 'fieldid', 'title', 'functionid', 'userfunction', 'remark'];
+const farray = [
+  'fieldtitle',
+  'fieldid',
+  'title',
+  'functionid',
+  'userfunction',
+  'operator',
+  'ovalue',
+  'remark',
+];
+
+const fieldOperator = [
+  {
+    value: 'eq',
+    label: '=',
+  },
+  {
+    value: 'gt',
+    label: '>',
+  },
+  {
+    value: 'ge',
+    label: '>=',
+  },
+  {
+    value: 'lt',
+    label: '<',
+  },
+  {
+    value: 'le',
+    label: '<=',
+  },
+  {
+    value: 'ne',
+    label: '<>',
+  },
+  {
+    value: 'in',
+    label: '列表',
+  },
+  {
+    value: 'not in',
+    label: '列表外',
+  },
+  {
+    value: 'between',
+    label: '区间',
+  },
+  {
+    value: 'not between',
+    label: '区间外',
+  },
+  {
+    value: 'like',
+    label: '包含',
+  },
+  {
+    value: 'not like',
+    label: '不包含',
+  },
+  {
+    value: 'startwith',
+    label: '开始于',
+  },
+  {
+    value: 'not startwith',
+    label: '不开始',
+  },
+  {
+    value: 'regexp',
+    label: '正则',
+  },
+];
 
 const getChildNodesArray = (pnode: any) => {
   const result: any[] = [];
@@ -39,16 +115,17 @@ const getChildNodesArray = (pnode: any) => {
   return result;
 };
 
-const saveFieldExpression = (details: any[], record: any) => {
-  updateFieldExpression({
-    additionfieldid: record.additionfieldid,
-    expression: JSON.stringify(getChildNodesArray(details[0])),
+const saveConditionExpression = (details: any[], record: any) => {
+  updateConditionExpression({
+    conditionid: record.conditionid,
+    schemename: record.title,
+    schemeDefine: JSON.stringify(getChildNodesArray(details[0])),
   }).then((response) => {
     if (response.success) {
-      message.success(`附加字段『${record.title}』的定义已保存。`);
+      message.success(`自定义条件『${record.title}』的定义已保存。`);
     } else {
       Modal.error({
-        title: `附加字段定义保存失败！`,
+        title: `自定义条件定义保存失败！`,
         width: 500,
         content: response.msg,
       });
@@ -56,16 +133,18 @@ const saveFieldExpression = (details: any[], record: any) => {
   });
 };
 
-const testFieldExpressiion = (record: any) => {
-  testAdditionField({
+const testExpression = (record: any) => {
+  testConditionExpression({
     objectid: record['FDataobject.objectid'],
-    additionFieldId: record.additionfieldid,
+    conditionid: record.conditionid,
   }).then((response) => {
     if (response.success) {
-      message.success(`附加字段可以使用。表达式为：${response.msg}`);
+      message.success(
+        `自定义条件可以使用。满足条件的记录有${response.tag}条，表达式为：${response.msg}`,
+      );
     } else {
       Modal.error({
-        title: `字段表达式不能解析！`,
+        title: `条件表达式不能解析！`,
         width: 500,
         content: response.msg,
       });
@@ -73,9 +152,9 @@ const testFieldExpressiion = (record: any) => {
   });
 };
 
-export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ record }) => {
+export const DesignConditionExpression: React.FC<DesignConditionExpressionProps> = ({ record }) => {
   const moduleName = record['FDataobject.objectid'] as string;
-  const { additionfieldid } = record;
+  const { conditionid } = record;
   const [form] = Form.useForm();
 
   const [details, setDetails] = useState<any[]>([]);
@@ -107,8 +186,8 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
   };
 
   useEffect(() => {
-    fetchFieldExpression({
-      additionfieldid,
+    fetchConditionExpression({
+      conditionId: conditionid,
     }).then((response) => {
       const ds = [
         {
@@ -122,7 +201,7 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
       changeTextToTitle(ds);
       setDetails(ds);
     });
-  }, [additionfieldid]);
+  }, [conditionid]);
 
   useEffect(() => {
     form.resetFields();
@@ -133,6 +212,8 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
         title: editRecord.title,
         functionid: editRecord.functionid,
         userfunction: editRecord.userfunction,
+        operator: editRecord.operator,
+        ovalue: editRecord.ovalue,
         remark: editRecord.remark,
       });
     }
@@ -142,7 +223,7 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
     <>
       <Card
         size="small"
-        title="已经设置的字段表达式"
+        title="已经设置的条件表达式"
         extra={
           <Space>
             <Button
@@ -179,21 +260,21 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
             >
               <DeleteOutlined />
             </Button>
-            <Tooltip title="如果修改过字段表达式，请先保存再测试">
+            <Tooltip title="如果修改过条件表达式，请先保存再测试">
               <Button
                 size="small"
                 onClick={() => {
-                  testFieldExpressiion(record);
+                  testExpression(record);
                 }}
               >
-                测试字段
+                测试表达式
               </Button>
             </Tooltip>
             <Button
               size="small"
               type="primary"
               onClick={() => {
-                saveFieldExpression(details, record);
+                saveConditionExpression(details, record);
               }}
             >
               <SaveOutlined />
@@ -249,7 +330,7 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
           }}
         />
       </Card>
-      <Card size="small" title="字段表达式内容设置" style={{ marginTop: '16px' }}>
+      <Card size="small" title="条件表达式内容设置" style={{ marginTop: '16px' }}>
         <Form
           className="moduleform"
           form={form}
@@ -330,6 +411,29 @@ export const DesignFieldExpression: React.FC<DesignFieldExpressionProps> = ({ re
                 />
               </Form.Item>
             </Col>
+
+            <Col span={8}>
+              <Form.Item label="比较符" name="operator">
+                <Select
+                  allowClear
+                  showSearch={true}
+                  options={fieldOperator}
+                  getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                  filterOption={(input, option: any) => {
+                    return (
+                      option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    );
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            <Col span={16}>
+              <Form.Item label="比较值" name="ovalue">
+                <Input.TextArea autoSize={{ maxRows: 5 }} />
+              </Form.Item>
+            </Col>
+
             <Col span={24}>
               <Form.Item label="备注" name="remark">
                 <Input />

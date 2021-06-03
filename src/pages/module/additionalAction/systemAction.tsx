@@ -25,6 +25,7 @@ import { DesignFieldExpression } from '../design/DesignFieldExpression';
 import { DesignUserFilter } from '../design/DesignUserFilter';
 import { DesignNavigate } from '../design/DesignNavigate';
 import { DesignSort } from '../design/DesignSort';
+import { DesignConditionExpression } from '../design/DesignConditionExpression';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -469,11 +470,35 @@ const setAdditionFieldExpression = (params: ActionParamsModal) => {
     title: (
       <>
         <EditOutlined />
-        {` 设计 ${record['FDataobject.title']} 附加字段『${record.title}』的表达式`}
+        {` 设计 ${record['FDataobject.title']} 附加字段『${record.title}』的字段表达式`}
       </>
     ),
     bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
     children: <DesignFieldExpression record={record} />,
+  });
+};
+
+/**
+ * 设置模块自定义条件的表达式
+ * @param params
+ */
+export const setConditionExpression = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalModalProps({
+    onCancel: () => setGlobalModalProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '900px',
+    footer: null,
+    title: (
+      <>
+        <EditOutlined />
+        {` 设计 ${record['FDataobject.title']} 自定义条件『${record.title}』的表达式`}
+      </>
+    ),
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <DesignConditionExpression record={record} />,
   });
 };
 
@@ -621,6 +646,7 @@ export const systemActions: ActionStore = apply(
     setdefaultorder: designDefaultOrder,
     designSort,
     setadditionfieldexpression: setAdditionFieldExpression,
+    setConditionExpression,
     createonetomanyfield: createOneToManyField,
     createmanytomanyfield: createManyToManyField,
   },

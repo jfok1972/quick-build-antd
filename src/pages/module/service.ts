@@ -364,8 +364,26 @@ export const updateFieldExpression = async (params: any) => {
   });
 };
 
+export const fetchConditionExpression = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/usercondition/getdetails.do`, {
+    params,
+  });
+};
+
+export const updateConditionExpression = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/usercondition/updatedetails.do`, {
+    params,
+  });
+};
+
 export const testAdditionField = async (params: any) => {
   return request(`${API_HEAD}/platform/dataobjectfield/testadditionfield.do`, {
+    params,
+  });
+};
+
+export const testConditionExpression = async (params: any) => {
+  return request(`${API_HEAD}/platform/scheme/usercondition/testusercondition.do`, {
     params,
   });
 };
