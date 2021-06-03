@@ -70,7 +70,7 @@ const ModuleToolbar = ({
 
         {!readOnly
           ? // 模块附加功能中菜单名称是toolbar的
-            getToolbarButton({ moduleState, dispatch })
+            getToolbarButton({ moduleState, dispatch, position: 'toolbar' })
           : null}
         {moduleState.selectedRowKeys.length ? (
           <BatchOperateButton moduleState={moduleState} dispatch={dispatch} readOnly={readOnly} />

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import type { Dispatch } from 'redux';
 import { Table, Tooltip, Space, Empty } from 'antd';
 import type { PaginationConfig } from 'antd/lib/pagination';
-import marked from 'marked';
 import { ReloadOutlined } from '@ant-design/icons';
 import type {
   Key,
@@ -29,6 +28,8 @@ import { UpdateRecordOrderNoButton } from './updateRecordOrderno';
 import { RemoteExpandBody } from './RemoteExpandBody';
 import { PARENT_RECORD } from '../constants';
 import { updateParentKey } from '../service';
+
+const marked = require('marked');
 
 interface ModuleGridProps {
   moduleState: ModuleState;
@@ -150,11 +151,8 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
     }
   };
 
-  const {
-    limit,
-    curpage,
-    total,
-  }: { limit: number; curpage: number; total: number } = moduleState.gridParams;
+  const { limit, curpage, total }: { limit: number; curpage: number; total: number } =
+    moduleState.gridParams;
 
   const refreshData = () => {
     dispatch({
@@ -189,7 +187,9 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
         {!readOnly ? (
           // index.less 中加入了 .ant-pagination-total-text ：flex:1 的定义
           // 模块附加功能中菜单名称是toolbar的
-          <Space size="middle">{getToolbarButton({ moduleState, dispatch })}</Space>
+          <Space size="middle">
+            {getToolbarButton({ moduleState, dispatch, position: 'pagination' })}
+          </Space>
         ) : null}
         <div style={{ flex: 1 }} />
         <Space size="middle" style={{ whiteSpace: 'nowrap' }}>

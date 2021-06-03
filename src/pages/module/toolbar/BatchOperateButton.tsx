@@ -263,9 +263,11 @@ const BatchOperateButton = ({
 export const getToolbarButton = ({
   moduleState,
   dispatch,
+  position,
 }: {
   moduleState: ModuleState;
   dispatch: Dispatch;
+  position: string;
 }): any => {
   const { moduleName } = moduleState;
   const moduleInfo: ModuleModal = getModuleInfo(moduleName);
@@ -275,7 +277,7 @@ export const getToolbarButton = ({
     const { minselectrecordnum: min } = fun;
     if (min > 0 && moduleState.selectedRowKeys.length === 0) return false;
     return (
-      fun.menuname === 'toolbar' &&
+      fun.menuname === position &&
       (!fun.visibleWithEmpty || (fun.visibleWithEmpty && moduleState.dataSource.length === 0)) &&
       (!fun.visibleWithRecord || (fun.visibleWithRecord && moduleState.dataSource.length > 0)) &&
       (!fun.needParentFilter || (fun.needParentFilter && moduleState.filters.parentfilter))

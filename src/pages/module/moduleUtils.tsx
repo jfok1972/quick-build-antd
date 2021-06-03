@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import marked from 'marked';
 import { apply } from '@/utils/utils';
 import { CloseOutlined, PushpinOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Input, message, Popover, Tabs, Tooltip } from 'antd';
@@ -12,6 +11,8 @@ import styles from './index.less';
 import { getModuleInfo } from './modules';
 import type { ModuleState, ParentFilterModal, ModuleModal } from './data';
 import { PARENT_RECORD } from './constants';
+
+const marked = require('marked');
 
 export const DateFormat = 'YYYY-MM-DD';
 export const DateTimeFormat = 'YYYY-MM-DD HH:mm:ss';

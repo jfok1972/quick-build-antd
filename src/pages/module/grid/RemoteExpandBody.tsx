@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import request, { API_HEAD } from '@/utils/request';
 import { Card } from 'antd';
-import marked from 'marked';
 import type { ModuleModal } from '../data';
 import styles from './RemoteExpandBody.less';
+
+const marked = require('marked');
 
 interface ExpandBodyParams {
   moduleInfo: ModuleModal;
