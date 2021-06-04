@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Form,
   Input,
@@ -23,10 +24,37 @@ import { apply, loop, uuid } from '@/utils/utils';
 import { getAllhasChildrenRowids } from '@/pages/datamining/utils';
 import { CloseOutlined, DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { SelectModuleFieldPopover } from './SelectModuleField';
+import { API_HEAD, syncRequest } from '@/utils/request';
+
+export declare type ConditionType = 'condition' | 'datarole' | 'canselectrole';
 
 interface DesignConditionExpressionProps {
   record: Record<string, unknown>;
+  type: ConditionType;
 }
+
+// 所有可以有下拉框选项的值的数据的缓存，用在manytoone或dictionary的条件值的选择
+const comboDataCache = new Map();
+const getFieldidComboData = (fieldid: string) => {
+  if (!fieldid) {
+    return [];
+  }
+  if (!comboDataCache.has(fieldid)) {
+    const comboData = syncRequest(`${API_HEAD}/platform/dataobjectfield/fetchcombodata.do`, {
+      type: 'POST',
+      params: {
+        fieldid: fieldid.indexOf('|') !== -1 ? fieldid.split('|')[1] : fieldid,
+      },
+    });
+    comboDataCache.set(
+      fieldid,
+      Array.isArray(comboData)
+        ? comboData.map((rec: any) => ({ value: rec.value, label: rec.text }))
+        : [],
+    );
+  }
+  return comboDataCache.get(fieldid);
+};
 
 const farray = [
   'fieldtitle',
@@ -36,6 +64,9 @@ const farray = [
   'userfunction',
   'operator',
   'ovalue',
+  'recordids',
+  'recordnames',
+  'istreerecord',
   'remark',
 ];
 
@@ -109,23 +140,29 @@ const getChildNodesArray = (pnode: any) => {
     farray.forEach((f) => {
       if (node[f]) nodedata[f] = node[f];
     });
+    if (Array.isArray(node.recordids) && node.recordids.length) {
+      nodedata.recordids = node.recordids.join(',');
+    } else {
+      delete nodedata.recordids;
+    }
     if (node.children && node.children.length) nodedata.children = getChildNodesArray(node);
     result.push(nodedata);
   });
   return result;
 };
 
-const saveConditionExpression = (details: any[], record: any) => {
+const saveConditionExpression = (details: any[], record: any, type: ConditionType) => {
   updateConditionExpression({
-    conditionid: record.conditionid,
-    schemename: record.title,
-    schemeDefine: JSON.stringify(getChildNodesArray(details[0])),
+    id: (record.conditionid || record.roleid) as string,
+    type,
+    title: record.title,
+    details: JSON.stringify(getChildNodesArray(details[0])),
   }).then((response) => {
     if (response.success) {
-      message.success(`自定义条件『${record.title}』的定义已保存。`);
+      message.success(`『${record.title || record.rolename}』的条件表达式定义已保存。`);
     } else {
       Modal.error({
-        title: `自定义条件定义保存失败！`,
+        title: `条件表达式定义保存失败！`,
         width: 500,
         content: response.msg,
       });
@@ -133,14 +170,15 @@ const saveConditionExpression = (details: any[], record: any) => {
   });
 };
 
-const testExpression = (record: any) => {
+const testExpression = (record: any, type: ConditionType) => {
   testConditionExpression({
     objectid: record['FDataobject.objectid'],
-    conditionid: record.conditionid,
+    id: (record.conditionid || record.roleid) as string,
+    type,
   }).then((response) => {
     if (response.success) {
       message.success(
-        `自定义条件可以使用。满足条件的记录有${response.tag}条，表达式为：${response.msg}`,
+        `条件表达式可以使用。满足条件的记录有${response.tag}条，表达式为：${response.msg}`,
       );
     } else {
       Modal.error({
@@ -152,15 +190,19 @@ const testExpression = (record: any) => {
   });
 };
 
-export const DesignConditionExpression: React.FC<DesignConditionExpressionProps> = ({ record }) => {
+export const DesignConditionExpression: React.FC<DesignConditionExpressionProps> = ({
+  record,
+  type,
+}) => {
   const moduleName = record['FDataobject.objectid'] as string;
-  const { conditionid } = record;
+  const { conditionid, roleid } = record;
   const [form] = Form.useForm();
 
   const [details, setDetails] = useState<any[]>([]);
   const [detailsExpandKey, setDetailsExpandKey] = useState<string[]>([]);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
   const [editRecord, setEditRecord] = useState<any>(null);
+  const [recordOptions, setRecordOptions] = useState<any>([]);
 
   const updateText = (rec: any) => {
     if (rec) {
@@ -174,6 +216,18 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
     if (Array.isArray(object)) {
       object.forEach((o: any) => changeTextToTitle(o));
     } else if (Object.prototype.toString.call(object) === '[object Object]') {
+      // 把 recordids,recordnames 从字符串转换成数组
+      if (object.recordids) {
+        if ((object.recordids as string).startsWith('[')) {
+          apply(object, {
+            recordids: JSON.parse(object.recordids),
+          });
+        } else {
+          apply(object, {
+            recordids: (object.recordids as string).split(','),
+          });
+        }
+      }
       if (object.children) {
         object.children.forEach((child: any) => {
           apply(child, {
@@ -187,7 +241,8 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
 
   useEffect(() => {
     fetchConditionExpression({
-      conditionId: conditionid,
+      id: (conditionid || roleid) as string,
+      type,
     }).then((response) => {
       const ds = [
         {
@@ -201,7 +256,7 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
       changeTextToTitle(ds);
       setDetails(ds);
     });
-  }, [conditionid]);
+  }, [conditionid, roleid]);
 
   useEffect(() => {
     form.resetFields();
@@ -215,7 +270,12 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
         operator: editRecord.operator,
         ovalue: editRecord.ovalue,
         remark: editRecord.remark,
+
+        recordids: editRecord.recordids,
+        recordnames: editRecord.recordnames,
+        istreerecord: editRecord.istreerecord,
       });
+      setRecordOptions(getFieldidComboData(editRecord.fieldid));
     }
   }, [editRecord]);
 
@@ -264,7 +324,7 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
               <Button
                 size="small"
                 onClick={() => {
-                  testExpression(record);
+                  testExpression(record, type);
                 }}
               >
                 测试表达式
@@ -274,7 +334,7 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
               size="small"
               type="primary"
               onClick={() => {
-                saveConditionExpression(details, record);
+                saveConditionExpression(details, record, type);
               }}
             >
               <SaveOutlined />
@@ -332,6 +392,7 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
       </Card>
       <Card size="small" title="条件表达式内容设置" style={{ marginTop: '16px' }}>
         <Form
+          style={{ visibility: editRecord ? 'visible' : 'hidden' }}
           className="moduleform"
           form={form}
           size="middle"
@@ -368,7 +429,11 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
                         const val = {
                           fieldtitle: field.title,
                           fieldid: field.fieldid,
+                          // 只要选择过字段，就把记录值删掉
+                          recordids: undefined,
+                          istreerecord: false,
                         };
+                        setRecordOptions(getFieldidComboData(field.fieldid));
                         form.setFieldsValue(val);
                         apply(editRecord, val);
                         updateText(editRecord);
@@ -427,13 +492,21 @@ export const DesignConditionExpression: React.FC<DesignConditionExpressionProps>
                 />
               </Form.Item>
             </Col>
-
             <Col span={16}>
               <Form.Item label="比较值" name="ovalue">
                 <Input.TextArea autoSize={{ maxRows: 5 }} />
               </Form.Item>
             </Col>
-
+            <Col span={24}>
+              <Form.Item label="选择的记录值" name="recordids">
+                <Select mode="tags" options={recordOptions} disabled={recordOptions.length === 0} />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item label="树形记录值" name="istreerecord" valuePropName="checked">
+                <Checkbox disabled={recordOptions.length === 0} />
+              </Form.Item>
+            </Col>
             <Col span={24}>
               <Form.Item label="备注" name="remark">
                 <Input />

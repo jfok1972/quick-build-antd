@@ -105,7 +105,7 @@ export const syncRequest = (
     async: false,
     data: params,
     successEvent: (res: string) => {
-      result = JSON.parse(res);
+      result = res ? JSON.parse(res) : res;
     },
     errorEvent: (res: any) => {
       if (res === 999 || res === 401) {

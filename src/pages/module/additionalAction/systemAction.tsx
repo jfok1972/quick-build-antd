@@ -25,6 +25,7 @@ import { DesignFieldExpression } from '../design/DesignFieldExpression';
 import { DesignUserFilter } from '../design/DesignUserFilter';
 import { DesignNavigate } from '../design/DesignNavigate';
 import { DesignSort } from '../design/DesignSort';
+import type { ConditionType } from '../design/DesignConditionExpression';
 import { DesignConditionExpression } from '../design/DesignConditionExpression';
 
 export interface ActionParamsModal {
@@ -478,11 +479,7 @@ const setAdditionFieldExpression = (params: ActionParamsModal) => {
   });
 };
 
-/**
- * 设置模块自定义条件的表达式
- * @param params
- */
-export const setConditionExpression = (params: ActionParamsModal) => {
+const setConditionBase = (params: ActionParamsModal, title: string, type: ConditionType) => {
   const { record } = params;
   setGlobalModalProps({
     onCancel: () => setGlobalModalProps(() => ({ visible: false })),
@@ -494,12 +491,30 @@ export const setConditionExpression = (params: ActionParamsModal) => {
     title: (
       <>
         <EditOutlined />
-        {` 设计 ${record['FDataobject.title']} 自定义条件『${record.title}』的表达式`}
+        {` 设计 ${record['FDataobject.title']} ${title}『${
+          record.title || record.rolename
+        }』的表达式`}
       </>
     ),
     bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
-    children: <DesignConditionExpression record={record} />,
+    children: <DesignConditionExpression record={record} type={type} />,
   });
+};
+
+/**
+ * 设置模块自定义条件的表达式
+ * @param params
+ */
+export const setConditionExpression = (params: ActionParamsModal) => {
+  setConditionBase(params, '自定义条件', 'condition');
+};
+
+export const setDataFilterRoleLimit = (params: ActionParamsModal) => {
+  setConditionBase(params, '数据角色', 'datarole');
+};
+
+export const setDataCanSelectFilterRoleLimit = (params: ActionParamsModal) => {
+  setConditionBase(params, '可选数据角色', 'canselectrole');
 };
 
 /**
@@ -647,6 +662,8 @@ export const systemActions: ActionStore = apply(
     designSort,
     setadditionfieldexpression: setAdditionFieldExpression,
     setConditionExpression,
+    setDataFilterRoleLimit,
+    setDataCanSelectFilterRoleLimit,
     createonetomanyfield: createOneToManyField,
     createmanytomanyfield: createManyToManyField,
   },

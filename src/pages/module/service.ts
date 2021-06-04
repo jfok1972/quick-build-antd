@@ -3,6 +3,7 @@ import { applyIf, apply } from '@/utils/utils';
 import { isMoment } from 'moment';
 import { serialize } from 'object-to-formdata';
 import type { ModuleState, FetchObjectResponse } from './data';
+import type { ConditionType } from './design/DesignConditionExpression';
 import { getAllFilterAjaxParam } from './grid/filterUtils';
 import { getModuleInfo } from './modules';
 import { DateTimeFormat, generateTreeParent } from './moduleUtils';
@@ -364,26 +365,102 @@ export const updateFieldExpression = async (params: any) => {
   });
 };
 
-export const fetchConditionExpression = async (params: any) => {
-  return request(`${API_HEAD}/platform/scheme/usercondition/getdetails.do`, {
-    params,
-  });
+/**
+ * 获取实体对象条件，数据角色，可选数据角色的条件表达式
+ * @param param0
+ * @returns
+ */
+export const fetchConditionExpression = async ({
+  id,
+  type,
+}: {
+  id: string;
+  type: ConditionType;
+}) => {
+  if (type === 'condition') {
+    return request(`${API_HEAD}/platform/scheme/usercondition/getdetails.do`, {
+      params: {
+        conditionId: id,
+      },
+    });
+  }
+  return request(
+    `${API_HEAD}/platform/${
+      type === 'datarole' ? 'datafilterrole' : 'datacanselectfilterrole'
+    }/getlimits.do`,
+    {
+      params: {
+        roleId: id,
+      },
+    },
+  );
 };
 
-export const updateConditionExpression = async (params: any) => {
-  return request(`${API_HEAD}/platform/scheme/usercondition/updatedetails.do`, {
-    params,
-  });
+export const updateConditionExpression = async ({
+  id,
+  type,
+  title,
+  details,
+}: {
+  id: string;
+  type: ConditionType;
+  title: string;
+  details: any;
+}) => {
+  if (type === 'condition') {
+    return request(`${API_HEAD}/platform/scheme/usercondition/updatedetails.do`, {
+      params: {
+        conditionid: id,
+        schemename: title,
+        schemeDefine: details,
+      },
+    });
+  }
+  return request(
+    `${API_HEAD}/platform/${
+      type === 'datarole' ? 'datafilterrole' : 'datacanselectfilterrole'
+    }/updatelimits.do`,
+    {
+      params: {
+        roleId: id,
+        limits: details,
+      },
+    },
+  );
+};
+
+export const testConditionExpression = async ({
+  id,
+  type,
+  objectid,
+}: {
+  id: string;
+  type: ConditionType;
+  objectid: string;
+}) => {
+  if (type === 'condition') {
+    return request(`${API_HEAD}/platform/scheme/usercondition/testusercondition.do`, {
+      params: {
+        objectid,
+        conditionid: id,
+      },
+    });
+  }
+  return request(
+    `${API_HEAD}/platform/${
+      type === 'datarole' ? 'datafilterrole' : 'datacanselectfilterrole'
+    }/testrole.do`,
+    {
+      params: {
+        objectid,
+        roleId: id,
+      },
+    },
+  );
 };
 
 export const testAdditionField = async (params: any) => {
   return request(`${API_HEAD}/platform/dataobjectfield/testadditionfield.do`, {
-    params,
-  });
-};
-
-export const testConditionExpression = async (params: any) => {
-  return request(`${API_HEAD}/platform/scheme/usercondition/testusercondition.do`, {
     params,
   });
 };
