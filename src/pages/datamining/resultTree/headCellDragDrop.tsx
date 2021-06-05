@@ -601,13 +601,21 @@ const CategoryMenu = () => {
   return menu;
 };
 
+/**
+ *
+ * @param param0
+ * @returns
+ */
 export const DragDropHeaderCell = ({
   children,
+  // column.onHeaderCell 设置的当前字段的值
   column,
+  isCategoryField,
   className,
   ...restProps
 }: {
   column: any;
+  isCategoryField: any;
   children: ReactChild;
   className: string;
   restProps: any;
@@ -616,7 +624,7 @@ export const DragDropHeaderCell = ({
     // 聚合字段总计和所有的分组字段
     return DragDropHeaderCellActive({ children, column, className, ...restProps });
   }
-  return className.indexOf('categorycolumn') !== -1 ? (
+  return isCategoryField ? (
     // 分组项目列加上右键菜单
     <Dropdown overlay={CategoryMenu()} trigger={['contextMenu']}>
       <th {...restProps} className={className}>

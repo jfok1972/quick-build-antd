@@ -152,7 +152,10 @@ const addRowidToTree = (columns: any[], parentId: string, firstCount: number) =>
 const adjustCloneGroupColumns = (cloneGroupColumns: any[], state: DataminingModal) => {
   cloneGroupColumns.forEach((col) => {
     const colu = col;
-    if (!colu.isCategory && !colu.onHeaderCell) colu.onHeaderCell = (column: any) => ({ column });
+    if (!colu.isCategory && !colu.onHeaderCell) {
+      // 传递参数给 DragDropHeaderCell
+      colu.onHeaderCell = (column: any) => ({ column });
+    }
     if (colu.children) colu.style = 'background-color:#f6f5ec;';
     else colu.style = 'background-color:#fffef9;';
     if (colu.isCategory) {
@@ -205,6 +208,8 @@ export const rebuildColumns = (
         getSortOrder(state.schemeState.sorts, 'text') ||
         getSortOrder(state.schemeState.sorts, 'value'),
       rowid: 'category',
+      // 传递参数给 DragDropHeaderCell
+      onHeaderCell: () => ({ isCategoryField: true }),
     },
   ];
   // 如果有多层表头的，只展示此多层表头，不可以展开和进行操作
