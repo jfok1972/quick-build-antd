@@ -12,7 +12,6 @@ import { fieldTitleTransform, getColumnDataIndex } from '../utils';
 import styles from '../index.less';
 import type { ColumnGroupModal, DataminingModal, FieldModal } from '../data';
 import { categoryFieldRender } from './categoryFieldRender';
-import CategoryActionButton from './categoryActionButton';
 import { PARENT_ROWID, ROWID, TEXTUNDERLINE } from '../constants';
 import { adjustColumnGroupToggleButton } from './columnUtils';
 
@@ -195,14 +194,7 @@ export const rebuildColumns = (
       fixed: 'left',
       isCategory: true,
       text: groupText,
-      title: (
-        <div style={{ whiteSpace: 'nowrap', display: 'flex' }}>
-          <span style={{ flex: 1 }}>{groupText}</span>
-          <span style={{ margin: '0px 8px 0px 24px' }}>
-            <CategoryActionButton />
-          </span>
-        </div>
-      ),
+      title: groupText,
       dataIndex: 'text',
       key: 'text',
       className: styles.categorycolumn,

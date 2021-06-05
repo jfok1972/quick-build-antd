@@ -4,13 +4,17 @@ import React, { useContext } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import {
   ApartmentOutlined,
+  ClearOutlined,
   DeleteOutlined,
   DeleteRowOutlined,
   EyeInvisibleOutlined,
   EyeOutlined,
   MergeCellsOutlined,
+  NodeCollapseOutlined,
   NodeExpandOutlined,
   PlusOutlined,
+  SortAscendingOutlined,
+  SortDescendingOutlined,
   ToTopOutlined,
 } from '@ant-design/icons';
 import { EMPTY_MENU_ICON } from '@/utils/utils';
@@ -34,8 +38,12 @@ import {
   ACT_FIELD_GROUP_FIXED_LEFT_TOGGLE,
   ACT_FIELD_GROUP_ADD,
   DRAG_NAVIGATE_RECORD,
+  ACT_CLEAR_ALL_COLUMN_EXPAND,
+  ACT_CLEAR_ALL_ROWEXPAND,
+  ACT_SORT_CHANGE,
+  ACT_DATAMINING_EXPAND_CHANGED,
 } from '../constants';
-import { getTreeSelectedKeys } from '../utils';
+import { getAllhasChildrenRowids, getTreeSelectedKeys } from '../utils';
 import {
   expandHeadCellWithGroup,
   getCellType,
@@ -492,6 +500,107 @@ const DragDropHeaderCellActive = ({
   );
 };
 
+/**
+ * 分组项目的右键菜单
+ * @returns
+ */
+const CategoryMenu = () => {
+  const context = useContext<DataminingStateContext>(DataminingContext);
+  const { state, dispatch } = context;
+  const menu = (
+    <Menu
+      key="category_popup_menu"
+      onClick={({ domEvent }) => {
+        domEvent.stopPropagation();
+      }}
+    >
+      <Menu.Item
+        key="expandAll"
+        icon={<NodeExpandOutlined />}
+        onClick={() => {
+          dispatch({
+            type: ACT_DATAMINING_EXPAND_CHANGED,
+            payload: { expandedRowKeys: getAllhasChildrenRowids(state.schemeState.dataSource) },
+          });
+        }}
+      >
+        展开所有行
+      </Menu.Item>
+      <Menu.Item
+        key="collapseAll"
+        icon={<NodeCollapseOutlined />}
+        onClick={() => {
+          dispatch({
+            type: ACT_DATAMINING_EXPAND_CHANGED,
+            payload: { expandedRowKeys: [state.schemeState.dataSource[0][ROWID]] },
+          });
+        }}
+      >
+        折叠至总计行
+      </Menu.Item>
+      <Menu.ItemGroup title="排序设置">
+        <Menu.Item
+          key="value-asc"
+          icon={<SortAscendingOutlined />}
+          onClick={() => {
+            dispatch({
+              type: ACT_SORT_CHANGE,
+              payload: {
+                property: 'value',
+                direction: 'ASC',
+              },
+            });
+          }}
+        >
+          分组编码升序
+        </Menu.Item>
+        <Menu.Item
+          key="value-desc"
+          icon={<SortDescendingOutlined />}
+          onClick={() => {
+            dispatch({
+              type: ACT_SORT_CHANGE,
+              payload: {
+                property: 'value',
+                direction: 'DESC',
+              },
+            });
+          }}
+        >
+          分组编码降序
+        </Menu.Item>
+      </Menu.ItemGroup>
+      <Menu.ItemGroup title="重置行或列">
+        <Menu.Item
+          key="clearrowexpand"
+          icon={<ClearOutlined />}
+          onClick={() => {
+            dispatch({
+              type: ACT_CLEAR_ALL_ROWEXPAND,
+              payload: {},
+            });
+          }}
+        >
+          清除所有行展开数据
+        </Menu.Item>
+        <Menu.Item
+          key="clearcolumnexpand"
+          icon={<ClearOutlined />}
+          onClick={() => {
+            dispatch({
+              type: ACT_CLEAR_ALL_COLUMN_EXPAND,
+              payload: {},
+            });
+          }}
+        >
+          清除所有列展开分组
+        </Menu.Item>
+      </Menu.ItemGroup>
+    </Menu>
+  );
+  return menu;
+};
+
 export const DragDropHeaderCell = ({
   children,
   column,
@@ -503,11 +612,21 @@ export const DragDropHeaderCell = ({
   className: string;
   restProps: any;
 }) => {
-  if (!column)
-    return (
+  if (column) {
+    // 聚合字段总计和所有的分组字段
+    return DragDropHeaderCellActive({ children, column, className, ...restProps });
+  }
+  return className.indexOf('categorycolumn') !== -1 ? (
+    // 分组项目列加上右键菜单
+    <Dropdown overlay={CategoryMenu()} trigger={['contextMenu']}>
       <th {...restProps} className={className}>
         {children}
       </th>
-    );
-  return DragDropHeaderCellActive({ children, column, className, ...restProps });
+    </Dropdown>
+  ) : (
+    // 选择列
+    <th {...restProps} className={className}>
+      {children}
+    </th>
+  );
 };
