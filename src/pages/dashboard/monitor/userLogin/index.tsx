@@ -9,13 +9,16 @@ import { currentUser } from 'umi';
 import moment from 'moment';
 
 import type { PieConfig } from '@ant-design/charts/es/pie';
-import { Column, Pie } from '@ant-design/charts';
+import { Column, Pie, RingProgress } from '@ant-design/charts';
 import type { TextValue } from '@/pages/module/data';
 import type { ColumnConfig } from '@ant-design/charts/es/column';
 import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionSelect } from '../../utils/DateSectionSelect';
 import { chartsColSpan } from '../../charts';
+import { StatisticCard } from '@ant-design/pro-card';
+import RcResizeObserver from 'rc-resize-observer';
 
+const { Statistic, Divider } = StatisticCard;
 const numeral = require('numeral');
 
 const cardParams: CardProps = {
@@ -373,9 +376,144 @@ const UserLogginYearMonthColumn: React.FC = (params) => {
   );
 };
 
+const UserOperatorStaticCard: React.FC = () => {
+  const [responsive, setResponsive] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<any>({});
+  useEffect(() => {
+    request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
+      method: 'POST',
+      data: serialize(
+        stringifyObjectField({
+          moduleName: 'FUserloginlog',
+          fields: ['count.*'],
+          groupfieldid: { fieldname: 'logouttype' },
+        }),
+      ),
+    }).then((response: any[]) => {
+      const logData: any = {
+        sumCount: 0,
+        successCount: 0,
+        timeoutCount: 0,
+        otherCount: 0,
+      };
+      response.forEach((rec) => {
+        logData.sumCount += rec[COUNT];
+        if (rec.text === '正常登出') logData.successCount = rec[COUNT];
+        else if (rec.text === '超时登出') logData.timeoutCount = rec[COUNT];
+        else logData.otherCount += rec[COUNT];
+      });
+      if (logData.sumCount > 0) {
+        logData.insertPer = Math.round((logData.successCount * 10000) / logData.sumCount) / 100;
+        logData.updatePer = Math.round((logData.timeoutCount * 10000) / logData.sumCount) / 100;
+        logData.otherPer = Math.round((logData.otherCount * 10000) / logData.sumCount) / 100;
+      }
+      setData(logData);
+      setLoading(false);
+    });
+  }, []);
+
+  const getRingProgress = (value: number, color: string) => {
+    const config = {
+      height: 100,
+      width: 100,
+      autoFit: false,
+      percent: value / 100,
+      color: [color, '#E8EDF3'],
+      innerRadius: 0.85,
+      radius: 0.98,
+    };
+    return <RingProgress {...config} />;
+  };
+  const sumCard = (
+    <StatisticCard
+      loading={loading}
+      statistic={{
+        title: '总登录次数',
+        value: data.sumCount,
+        description: '所有年度',
+      }}
+    />
+  );
+  const insertCard = (
+    <StatisticCard
+      loading={loading}
+      statistic={{
+        title: '正常登出',
+        value: data.successCount,
+        description: <Statistic title="占比" value={`${data.insertPer}%`} />,
+      }}
+      chart={getRingProgress(data.insertPer, '#531dab')}
+      chartPlacement="left"
+    />
+  );
+  const updateCard = (
+    <StatisticCard
+      loading={loading}
+      statistic={{
+        title: '超时登出',
+        value: data.timeoutCount,
+        description: <Statistic title="占比" value={`${data.updatePer}%`} />,
+      }}
+      chart={getRingProgress(data.updatePer, '#096dd9')}
+      chartPlacement="left"
+    />
+  );
+  const otherCard = (
+    <StatisticCard
+      loading={loading}
+      statistic={{
+        title: '登出异常',
+        value: data.otherCount,
+        description: <Statistic title="占比" value={`${data.otherPer}%`} />,
+      }}
+      chart={getRingProgress(data.otherPer, '#F4664A')}
+      chartPlacement="left"
+    />
+  );
+
+  return (
+    <RcResizeObserver
+      key="resize-observer"
+      onResize={(offset) => {
+        setResponsive(offset.width < 768);
+      }}
+    >
+      {responsive ? (
+        <StatisticCard.Group direction="column">
+          <StatisticCard.Group>
+            {sumCard}
+            <Divider type="vertical" />
+            {insertCard}
+          </StatisticCard.Group>
+          <Divider type="horizontal" />
+          <StatisticCard.Group>
+            {updateCard}
+            <Divider type="vertical" />
+            {otherCard}
+          </StatisticCard.Group>
+        </StatisticCard.Group>
+      ) : (
+        <StatisticCard.Group>
+          {sumCard}
+          <Divider type="vertical" />
+          {insertCard}
+          <Divider type="vertical" />
+          {updateCard}
+          <Divider type="vertical" />
+          {otherCard}
+        </StatisticCard.Group>
+      )}
+    </RcResizeObserver>
+  );
+};
+
 export const UserLogin: React.FC = () => {
   return (
     <Row gutter={[12, 12]}>
+      <Col span={24}>
+        <UserOperatorStaticCard />
+      </Col>
       <Col {...chartsColSpan}>
         <UserLogginPie title="用户登录地址分析" groupfieldid={{ fieldname: 'ipaddress' }} />
       </Col>
