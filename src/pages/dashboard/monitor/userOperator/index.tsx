@@ -70,17 +70,29 @@ const UserOperatorPie: React.FC<any> = ({
           groupfieldid,
         }),
       ),
-    }).then((response) => {
-      setData(
-        (response as any[])
-          .map((rec) => ({
-            type: rec.text,
-            value: rec[COUNT],
-          }))
-          .sort((rec1, rec2) => rec2.value - rec1.value),
-      );
+    }).then((response: any[]) => {
+      const result = response
+        .map((rec) => ({
+          type: rec.text,
+          value: rec[COUNT],
+        }))
+        .sort((rec1, rec2) => rec2.value - rec1.value);
+      // 只取前19个最大的，其他放在其他之中
+      let restValue = 0;
+      result
+        .filter((value, index) => index >= 19)
+        .forEach((rec) => {
+          restValue += rec.value;
+        });
+      const adata = result.filter((value, index) => index < 19);
+      if (restValue)
+        adata.push({
+          type: '其他模块',
+          value: restValue,
+        });
+      setData(adata);
+      setLoading(false);
     });
-    setLoading(false);
   };
 
   const config: PieConfig = {
