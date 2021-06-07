@@ -27,8 +27,8 @@ export const RemoteExpandBody: React.FC<ExpandBodyParams> = ({ moduleInfo, recor
   /* eslint-disable */
   // 使用markdown语法来显示
   return (
-    <Card bodyStyle={{ padding: 0, margin: 0 }}>
-      <span className={styles._} dangerouslySetInnerHTML={{ __html: marked(data) }} />
+    <Card className="markdowncard">
+      <span className={`markdown ${styles._}`} dangerouslySetInnerHTML={{ __html: marked(data) }} />
     </Card>
   );
   /* eslint-enable */

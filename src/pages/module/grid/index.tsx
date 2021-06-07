@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { Dispatch } from 'redux';
-import { Table, Tooltip, Space, Empty } from 'antd';
+import { Table, Tooltip, Space, Empty, Card } from 'antd';
 import type { PaginationConfig } from 'antd/lib/pagination';
 import { ReloadOutlined } from '@ant-design/icons';
 import type {
@@ -268,11 +268,14 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
           /* eslint-disable */
           // 使用markdown显示内容
           return (
-            <span
-              dangerouslySetInnerHTML={{
-                __html: marked(templateReplace(moduleInfo.rowbodytpl || '', record)),
-              }}
-            ></span>
+            <Card className="markdowncard">
+              <span
+                className="markdown"
+                dangerouslySetInnerHTML={{
+                  __html: marked(templateReplace(moduleInfo.rowbodytpl || '', record)),
+                }}
+              ></span>
+            </Card>
           );
           /* eslint-enable */
         },

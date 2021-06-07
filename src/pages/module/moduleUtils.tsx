@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apply } from '@/utils/utils';
 import { CloseOutlined, PushpinOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { Button, Input, message, Popover, Tabs, Tooltip } from 'antd';
+import { Button, Card, Input, message, Popover, Tabs, Tooltip } from 'antd';
 import { history } from 'umi';
 import request, { API_HEAD } from '@/utils/request';
 import { serialize } from 'object-to-formdata';
@@ -304,7 +304,9 @@ export const ModuleHelpMarkDown: React.FC<ModuleHelpMarkDownProps> = ({ moduleIn
   const showMarkDown = (
     <div style={{ padding: 4, height: '520px', overflowY: 'auto', border: '1px solid gray' }}>
       {/* eslint-disable */}
-      <span className="markdown" dangerouslySetInnerHTML={{ __html: marked(markdown) }} />
+      <Card className="markdowncard" bordered={false}>
+        <span className="markdown" dangerouslySetInnerHTML={{ __html: marked(markdown) }} />
+      </Card>
       {/* eslint-enable */}
     </div>
   );
