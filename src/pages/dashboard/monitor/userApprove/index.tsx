@@ -14,6 +14,7 @@ import type { ColumnConfig } from '@ant-design/charts/es/column';
 import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionSelect } from '../../utils/DateSectionSelect';
 import { chartsColSpan } from '../../charts';
+import { StaticMasterDetailCard } from '@/pages/module/components/StaticMasterDetailCard';
 
 const numeral = require('numeral');
 
@@ -276,6 +277,32 @@ const UserApproveYearMonthColumn: React.FC = (params) => {
 export const UserApprove: React.FC = () => {
   return (
     <Row gutter={[12, 12]}>
+      <Col span={24}>
+        <StaticMasterDetailCard
+          moduleName="VActHiProcinst"
+          aggregateField="count.*"
+          groupField={{ fieldname: 'objecttitle' }}
+          detailCount={4}
+          title="审批记录条数"
+          otherTitle="其他模块"
+          description="所有年度"
+          orderby="value"
+          orderDesc={true}
+        />
+      </Col>
+      <Col span={24}>
+        <StaticMasterDetailCard
+          moduleName="VActFinishTask"
+          aggregateField="count.*"
+          groupField={{ fieldname: 'objecttitle' }}
+          detailCount={4}
+          title="完成审批任务次数"
+          otherTitle="其他模块"
+          description="所有年度"
+          orderby="value"
+          orderDesc={true}
+        />
+      </Col>
       <Col {...chartsColSpan}>
         <UserApprovePie title="用户审批模块分析" groupfieldid={{ fieldname: 'objecttitle' }} />
       </Col>
