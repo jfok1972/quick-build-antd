@@ -39,16 +39,19 @@ export interface DetailGridPrpos {
   readOnly?: boolean; // grid是否是只读的
   enableUserFilter?: boolean; // 允许使用用户自定义条件
   parentForm?: ParentFormModal; // 父模块记录的信息
+  displayTitle?: boolean; // 是否在按钮最前面显示模块名称
 }
 
 const DetailTable = ({
   pFilter,
   readOnly,
   enableUserFilter,
+  displayTitle,
 }: {
   pFilter: ParentFilterModal;
   readOnly: boolean;
   enableUserFilter: boolean;
+  displayTitle?: boolean;
 }) => {
   const context = useContext(DetailModelContext);
   const { dispatch } = context;
@@ -74,6 +77,7 @@ const DetailTable = ({
   return (
     <>
       <div style={{ marginBottom: '16px', display: parentFilter?.fieldvalue ? 'flex' : 'none' }}>
+        {displayTitle ? <span style={{ fontSize: '16px' }}>{moduleInfo.title}</span> : null}
         <span style={{ flex: 1 }} />
         <Space>
           <ModuleToolbar
@@ -117,6 +121,7 @@ const DetailGrid: React.FC<DetailGridPrpos> = ({
   readOnly,
   enableUserFilter = false,
   parentForm,
+  displayTitle,
 }) => {
   return (
     <DetailModelProvider
@@ -128,6 +133,7 @@ const DetailGrid: React.FC<DetailGridPrpos> = ({
         pFilter={parentFilter}
         readOnly={readOnly || false}
         enableUserFilter={enableUserFilter}
+        displayTitle={displayTitle}
       />
     </DetailModelProvider>
   );

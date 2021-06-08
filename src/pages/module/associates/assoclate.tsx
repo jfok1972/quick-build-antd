@@ -9,11 +9,13 @@ const getDetailGrid = ({
   item,
   record,
   parentOperateType,
+  displayTitle,
 }: {
   moduleInfo: ModuleModal;
   item: any;
   record: any;
   parentOperateType: any;
+  displayTitle?: boolean;
 }) => {
   const config = {
     moduleName: item.subobjectname,
@@ -27,6 +29,7 @@ const getDetailGrid = ({
       text: record[moduleInfo.namefield],
       fieldvalue: record[moduleInfo.primarykey], // 父模块的记录id
     },
+    displayTitle,
   };
   return <DetailGrid {...config} />;
 };
@@ -58,10 +61,9 @@ export const getAssociatesSouthDetails = ({
   const associates = getAssociatesSouth(moduleInfo);
   if (associates.length === 1) {
     const item = associates[0];
-    const subModuleInfo = getModuleInfo(item.subobjectname);
     return (
-      <Card title={subModuleInfo.title}>
-        {getDetailGrid({ moduleInfo, item, record, parentOperateType })}
+      <Card>
+        {getDetailGrid({ moduleInfo, item, record, parentOperateType, displayTitle: true })}
       </Card>
     );
   }
