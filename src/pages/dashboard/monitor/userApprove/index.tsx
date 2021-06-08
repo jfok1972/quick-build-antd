@@ -281,28 +281,35 @@ export const UserApprove: React.FC = () => {
         <StaticMasterDetailCard
           moduleName="VActHiProcinst"
           aggregateField="count.*"
-          groupField={{ fieldname: 'objecttitle' }}
           detailCount={4}
           title="审批记录条数"
-          otherTitle="其他模块"
-          description="所有年度"
-          orderby="value"
-          orderDesc={true}
+
+          items={[{
+            groupField: { fieldname: 'objecttitle' },
+            groupTitle: '审批模块',
+            otherTitle: "其他模块",
+            description: "所有年度",
+            orderby: "value",
+            orderDesc: true,
+          }]}
         />
       </Col>
-      <Col span={24}>
+      { <Col span={24}>
         <StaticMasterDetailCard
           moduleName="VActFinishTask"
           aggregateField="count.*"
-          groupField={{ fieldname: 'objecttitle' }}
-          detailCount={4}
           title="完成审批任务次数"
-          otherTitle="其他模块"
-          description="所有年度"
-          orderby="value"
-          orderDesc={true}
+          detailCount={4}
+          items={[{
+            groupField: { fieldname: 'objecttitle' },
+            groupTitle: '审批模块',
+            otherTitle: "其他模块",
+            description: "所有年度",
+            orderby: "value",
+            orderDesc: true,
+          }]}
         />
-      </Col>
+      </Col> }
       <Col {...chartsColSpan}>
         <UserApprovePie title="用户审批模块分析" groupfieldid={{ fieldname: 'objecttitle' }} />
       </Col>

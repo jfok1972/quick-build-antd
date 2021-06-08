@@ -9,6 +9,7 @@ import ModuleForm from '../form';
 import ModuleToolbar from '../toolbar';
 import UserDefineFilter from '../UserDefineFilter';
 import { DetailGridPageHeaderToolbar } from '../PageHeaderToolbar';
+import { getModuleIcon } from '../moduleUtils';
 
 /**
  * 在masterdetail的form中显示的从表的grid，或者主表记录展开后的从表grid
@@ -77,7 +78,7 @@ const DetailTable = ({
   return (
     <>
       <div style={{ marginBottom: '16px', display: parentFilter?.fieldvalue ? 'flex' : 'none' }}>
-        {displayTitle ? <span style={{ fontSize: '16px' }}>{moduleInfo.title}</span> : null}
+        {displayTitle ? <span style={{ fontSize: '16px' }}>{getModuleIcon(moduleInfo)} {moduleInfo.title}</span> : null}
         <span style={{ flex: 1 }} />
         <Space>
           <ModuleToolbar

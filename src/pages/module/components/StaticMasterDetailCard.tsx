@@ -6,6 +6,7 @@ import { serialize } from 'object-to-formdata';
 import RcResizeObserver from 'rc-resize-observer';
 import { RingProgress } from '@ant-design/charts';
 import { getColumnDataIndex } from '@/pages/datamining/utils';
+import { Badge, Tooltip } from 'antd';
 
 const numeral = require('numeral');
 
@@ -20,10 +21,16 @@ interface TextValue {
 interface StaticMasterDetailCardProps {
   moduleName: string; // 模块名称
   aggregateField: string; // 聚合字段， count.* ,sum.fieldname , avg.fieldname
-  groupField: any; // 分组的字段  { fieldname : dotype} ,
-  detailCount: number; // 明细里面个数，超过的全部放在其他里
   title: string; // 指标名称
-  otherTitle: string;
+  detailCount: number; // 明细里面个数，超过的全部放在其他里
+  items: CardCategoryProps[];
+}
+
+// 可以有多个选项，在总计里面呆以进行选择
+interface CardCategoryProps {
+  groupField: any; // 分组的字段  { fieldname : dotype} ,
+  groupTitle: string; // 指标名称
+  otherTitle?: string;
   description?: string; // 汇总指标的描述
   orderby?: 'text' | 'value'; // 按什么排序
   orderDesc?: boolean; // 排序顺序
@@ -32,40 +39,39 @@ interface StaticMasterDetailCardProps {
   detailCallback?: Function; // detail数据获取后的回调
 }
 
+
 export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   moduleName,
   aggregateField,
-  groupField,
   detailCount,
   title,
-  otherTitle,
-  orderby,
-  orderDesc,
-  description,
-  detailCallback,
+  items,
 }) => {
   const aggregateFieldName = getColumnDataIndex(aggregateField);
   const [responsive, setResponsive] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [total, setTotal] = useState<number>(0);
   const [detailData, setDetailData] = useState<TextValue[]>([]);
+  const [itemIndex, setItemIndex] = useState<number>(0);
   useEffect(() => {
+    setLoading(true);
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
       method: 'POST',
       data: serialize(
         stringifyObjectField({
           moduleName,
           fields: [aggregateField],
-          groupfieldid: groupField,
+          groupfieldid: items[itemIndex].groupField,
         }),
       ),
     }).then((response: any[]) => {
       // 生成 detailData , 根据结果排序，生成后取前count-1个，其他的全部加在一起
-      if (detailCallback) {
-        detailCallback(response);
+      const callback = items[itemIndex].detailCallback;
+      if (callback) {
+        callback(response);
       }
       let sumValue: number = 0;
-      const sortField = orderby || 'value';
+      const sortField = items[itemIndex].orderby || 'value';
       const detailArray: TextValue[] = response
         .map((rec) => {
           const obj = {
@@ -77,13 +83,14 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           return obj;
         })
         .sort((rec1, rec2) => {
-          if (rec1[sortField] > rec2[sortField]) return orderDesc ? -1 : 1;
-          if (rec1[sortField] < rec2[sortField]) return orderDesc ? 1 : -1;
+          if (rec1[sortField] > rec2[sortField]) return items[itemIndex].orderDesc ? -1 : 1;
+          if (rec1[sortField] < rec2[sortField]) return items[itemIndex].orderDesc ? 1 : -1;
           return 0;
         });
       if (detailArray.length > detailCount) {
+        let restCount = 0;
         const other: TextValue = {
-          text: otherTitle || '其他',
+          text: items[itemIndex].otherTitle || '其他',
           value: 0,
           percent: 0,
         };
@@ -91,7 +98,9 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           .filter((rec, order) => order >= detailCount - 1)
           .forEach((rec) => {
             other.value += rec.value;
+            restCount += 1;
           });
+        other.text = other.text + `(${restCount}个)`
         detailArray.splice(detailCount - 1, detailArray.length - detailCount + 1, other);
       }
       detailArray.forEach((rec) => {
@@ -101,7 +110,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       setTotal(sumValue);
       setLoading(false);
     });
-  }, []);
+  }, [itemIndex]);
 
   const getRingProgress = (value: number, color: string) => {
     const config = {
@@ -120,8 +129,16 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       statistic={{
         title,
         value: total,
-        description,
+        description: items.length > 1 ?
+          items.map((item, index) => <Tooltip title={item.groupTitle} placement='bottom'>
+            <span style={{ cursor: 'pointer' }} onClick={() => {
+              setItemIndex(index);
+            }}>
+              <Badge status={index === itemIndex ? "success" : 'default'} title={item.groupTitle} />
+            </span>
+          </Tooltip>) : null
       }}
+      footer={items[itemIndex].description}
     />
   );
   const getDetailCard = (detail: TextValue) => (
@@ -131,7 +148,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
         value: detail.value,
         description: <Statistic title="占比" value={numeral(detail.percent).format('0.00%')} />,
       }}
-      chart={getRingProgress(detail.percent, detail.text === otherTitle ? '#F4664A' : '#531dab')}
+      chart={getRingProgress(detail.percent, detail.text === items[itemIndex].otherTitle ? '#F4664A' : '#531dab')}
       chartPlacement="left"
     />
   );

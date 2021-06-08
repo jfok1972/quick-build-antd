@@ -52,9 +52,8 @@ const UserOperatorPie: React.FC<any> = ({
         property: 'odate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
-          d2 ? moment(d2).format(DateFormat) : ''
-        }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
+          }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -76,15 +75,17 @@ const UserOperatorPie: React.FC<any> = ({
         .sort((rec1, rec2) => rec2.value - rec1.value);
       // 只取前19个最大的，其他放在其他之中
       let restValue = 0;
+      let restCount = 0;
       result
         .filter((value, index) => index >= 19)
         .forEach((rec) => {
           restValue += rec.value;
+          restCount += 1;
         });
       const adata = result.filter((value, index) => index < 19);
       if (restValue)
         adata.push({
-          type: '其他模块',
+          type: `其他模块(${restCount}个)`,
           value: restValue,
         });
       setData(adata);
@@ -290,13 +291,27 @@ export const UserOperator: React.FC = () => {
         <StaticMasterDetailCard
           moduleName="FUseroperatelog"
           aggregateField="count.*"
-          groupField={{ fieldname: 'dotype' }}
           detailCount={4}
           title="记录操作次数"
-          otherTitle="其他操作"
-          description="所有年度"
-          orderby="value"
-          orderDesc={true}
+          items={[{
+            groupField: { fieldname: 'dotype' },
+            groupTitle: '操作类型',
+            otherTitle: "其他操作",
+            orderby: "value",
+            orderDesc: true,
+          },{
+            groupField: { fieldahead: 'FDataobject' },
+            groupTitle: '操作模块',
+            otherTitle: "其他模块",
+            orderby: "value",
+            orderDesc: true,
+          },{
+            groupField: { fieldname:"odate",function:"yyyy年" },
+            groupTitle: '操作年度',
+            otherTitle: "其他年度",
+            orderby: "text",
+            orderDesc: true,
+          }]}
         />
       </Col>
       <Col {...chartsColSpan}>
