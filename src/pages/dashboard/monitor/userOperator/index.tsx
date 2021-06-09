@@ -16,6 +16,7 @@ import { DateSectionSelect } from '../../utils/DateSectionSelect';
 import { chartsColSpan, staticColSpan } from '../../charts';
 import { StaticMasterDetailCard } from '../../../module/components/StaticMasterDetailCard';
 import { StaticCard } from '@/pages/module/components/StaticCard';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
 const numeral = require('numeral');
 
@@ -53,9 +54,8 @@ const UserOperatorPie: React.FC<any> = ({
         property: 'odate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
-          d2 ? moment(d2).format(DateFormat) : ''
-        }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
+          }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -295,7 +295,7 @@ export const UserOperator: React.FC = () => {
           title="记录操作次数"
           aggregate="count"
           fieldName="*"
-          description="所有模块的记录的操作都统在内"
+          description="所有模块记录的各种操作都统计在内，包括新增、修改、删除、执行SQL语句等。"
           prefix={'¥'}
           suffix="次"
         />
@@ -303,25 +303,46 @@ export const UserOperator: React.FC = () => {
       <Col {...staticColSpan}>
         <StaticCard
           moduleName="FUseroperatelog"
-          title="记录操作次数"
+          title="记录修改次数"
+          icon={<EditOutlined />}
           aggregate="count"
           fieldName="*"
+          suffix="次"
+          filters={[{
+            property: "dotype",
+            operator: "=",
+            value: "修改"
+          }]}
         />
       </Col>
       <Col {...staticColSpan}>
         <StaticCard
           moduleName="FUseroperatelog"
-          title="记录操作次数"
+          title="记录新增次数"
+          icon={<PlusOutlined />}
           aggregate="count"
           fieldName="*"
+          suffix="次"
+          filters={[{
+            property: "dotype",
+            operator: "=",
+            value: "新增"
+          }]}
         />
       </Col>
       <Col {...staticColSpan}>
         <StaticCard
           moduleName="FUseroperatelog"
-          title="记录操作次数"
+          title="记录删除次数"
+          icon={<DeleteOutlined />}
           aggregate="count"
           fieldName="*"
+          suffix="次"
+          filters={[{
+            property: "dotype",
+            operator: "=",
+            value: "删除"
+          }]}
         />
       </Col>
 

@@ -21,6 +21,7 @@ interface StaticMasterDetailCardProps {
   aggregateField: string; // 聚合字段， count.* ,sum.fieldname , avg.fieldname
   title: string; // 指标名称
   detailCount: number; // 明细里面个数，超过的全部放在其他里
+  filters?: any[];
   items: CardCategoryProps[];
 }
 
@@ -42,6 +43,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   aggregateField,
   detailCount,
   title,
+  filters,
   items,
 }) => {
   const aggregateFieldName = getColumnDataIndex(aggregateField);
@@ -59,6 +61,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           moduleName,
           fields: [aggregateField],
           groupfieldid: items[itemIndex].groupField,
+          navigatefilters: filters,
         }),
       ),
     }).then((response: any[]) => {
