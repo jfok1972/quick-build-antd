@@ -10,9 +10,10 @@ import { Badge, Progress, Tooltip } from 'antd';
 const { Divider } = StatisticCard;
 
 interface TextValue {
-  text: string;
-  value: number;
-  percent: number;
+  code?: string; // 主键或数据字典的代码
+  text: string; // 当前记录的文本
+  value: number; // 当前记录的值
+  percent: number; // 总占比
 }
 
 interface StaticMasterDetailCardProps {
@@ -29,7 +30,7 @@ interface CardCategoryProps {
   groupTitle: string; // 指标名称
   otherTitle?: string;
   description?: string; // 汇总指标的描述
-  orderby?: 'text' | 'value'; // 按什么排序
+  orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
   monetary?: any; // 金额单位
   unittext?: string; // 数值单位，个，米
@@ -71,6 +72,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       const detailArray: TextValue[] = response
         .map((rec) => {
           const obj = {
+            code: rec.value,
             text: rec.text,
             value: rec[aggregateFieldName],
             percent: 0,

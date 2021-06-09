@@ -13,8 +13,9 @@ import type { TextValue } from '@/pages/module/data';
 import type { ColumnConfig } from '@ant-design/charts/es/column';
 import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionSelect } from '../../utils/DateSectionSelect';
-import { chartsColSpan } from '../../charts';
+import { chartsColSpan, staticColSpan } from '../../charts';
 import { StaticMasterDetailCard } from '../../../module/components/StaticMasterDetailCard';
+import { StaticCard } from '@/pages/module/components/StaticCard';
 
 const numeral = require('numeral');
 
@@ -288,6 +289,42 @@ const UserOperatorYearMonthColumn: React.FC = (params) => {
 export const UserOperator: React.FC = () => {
   return (
     <Row gutter={[12, 12]}>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUseroperatelog"
+          title="记录操作次数"
+          aggregate="count"
+          fieldName="*"
+          description="所有模块的记录的操作都统在内"
+          prefix={'¥'}
+          suffix="次"
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUseroperatelog"
+          title="记录操作次数"
+          aggregate="count"
+          fieldName="*"
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUseroperatelog"
+          title="记录操作次数"
+          aggregate="count"
+          fieldName="*"
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUseroperatelog"
+          title="记录操作次数"
+          aggregate="count"
+          fieldName="*"
+        />
+      </Col>
+
       <Col span={24}>
         <StaticMasterDetailCard
           moduleName="FUseroperatelog"

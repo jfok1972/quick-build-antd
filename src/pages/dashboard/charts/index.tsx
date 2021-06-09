@@ -16,6 +16,15 @@ export const chartsColSpan: any = {
   xxl: 12,
 };
 
+export const staticColSpan: any = {
+  xs: 24,
+  sm: 12,
+  md: 12,
+  lg: 6,
+  xl: 6,
+  xxl: 6,
+};
+
 export default (): React.ReactNode => {
   const cardProps: CardProps = {
     bordered: false,
