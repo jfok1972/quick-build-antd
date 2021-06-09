@@ -6,7 +6,7 @@ import { currentUser } from 'umi';
 import request, { API_HEAD } from '@/utils/request';
 import moment from 'moment';
 import { serialize } from 'object-to-formdata';
-import { stringifyObjectField } from '@/utils/utils';
+import { apply, stringifyObjectField } from '@/utils/utils';
 import type { PieConfig } from '@ant-design/charts/es/pie';
 import { Column, Pie } from '@ant-design/charts';
 import type { TextValue } from '@/pages/module/data';
@@ -283,33 +283,82 @@ export const UserApprove: React.FC = () => {
           aggregateField="count.*"
           detailCount={4}
           title="审批记录条数"
-
-          items={[{
-            groupField: { fieldname: 'objecttitle' },
-            groupTitle: '审批模块',
-            otherTitle: "其他模块",
-            description: "所有年度",
-            orderby: "value",
-            orderDesc: true,
-          }]}
+          items={[
+            {
+              groupField: { fieldname: 'objecttitle' },
+              groupTitle: '审批模块',
+              otherTitle: '其他模块',
+              orderby: 'value',
+              orderDesc: true,
+            },
+            {
+              groupField: { fieldname: 'endTime', function: 'yyyy年' },
+              groupTitle: '审批完成年度',
+              otherTitle: '其他年度',
+              orderby: 'text',
+              orderDesc: true,
+              detailCallback: (details: any[]) => {
+                details.forEach((rec) => {
+                  if (rec.text === '空') {
+                    apply(rec, {
+                      text: '审批尚未完成',
+                    });
+                  }
+                });
+              },
+            },
+            {
+              groupField: { fieldname: 'endActName' },
+              groupTitle: '审批结果',
+              otherTitle: '其他结果',
+              orderby: 'value',
+              orderDesc: true,
+              detailCallback: (details: any[]) => {
+                details.forEach((rec) => {
+                  if (rec.text === '空') {
+                    apply(rec, {
+                      text: '审批尚未完成',
+                    });
+                  }
+                });
+              },
+            },
+          ]}
         />
       </Col>
-      { <Col span={24}>
-        <StaticMasterDetailCard
-          moduleName="VActFinishTask"
-          aggregateField="count.*"
-          title="完成审批任务次数"
-          detailCount={4}
-          items={[{
-            groupField: { fieldname: 'objecttitle' },
-            groupTitle: '审批模块',
-            otherTitle: "其他模块",
-            description: "所有年度",
-            orderby: "value",
-            orderDesc: true,
-          }]}
-        />
-      </Col> }
+      {
+        <Col span={24}>
+          <StaticMasterDetailCard
+            moduleName="VActFinishTask"
+            aggregateField="count.*"
+            title="完成审批任务次数"
+            detailCount={4}
+            items={[
+              {
+                groupField: { fieldname: 'objecttitle' },
+                groupTitle: '审批模块',
+                otherTitle: '其他模块',
+                orderby: 'value',
+                orderDesc: true,
+              },
+              {
+                groupField: { fieldahead: 'actAssignee' },
+                groupTitle: '任务完成人员',
+                otherTitle: '其他人员',
+                orderby: 'value',
+                orderDesc: true,
+              },
+              {
+                groupField: { fieldname: 'actTaskEndTime', function: 'YYYY年' },
+                groupTitle: '任务完成年度',
+                otherTitle: '其他年度',
+                orderby: 'value',
+                orderDesc: true,
+              },
+            ]}
+          />
+        </Col>
+      }
       <Col {...chartsColSpan}>
         <UserApprovePie title="用户审批模块分析" groupfieldid={{ fieldname: 'objecttitle' }} />
       </Col>

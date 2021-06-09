@@ -4,13 +4,10 @@ import { apply, stringifyObjectField } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
 import { serialize } from 'object-to-formdata';
 import RcResizeObserver from 'rc-resize-observer';
-import { RingProgress } from '@ant-design/charts';
 import { getColumnDataIndex } from '@/pages/datamining/utils';
-import { Badge, Tooltip } from 'antd';
+import { Badge, Progress, Tooltip } from 'antd';
 
-const numeral = require('numeral');
-
-const { Statistic, Divider } = StatisticCard;
+const { Divider } = StatisticCard;
 
 interface TextValue {
   text: string;
@@ -38,7 +35,6 @@ interface CardCategoryProps {
   unittext?: string; // 数值单位，个，米
   detailCallback?: Function; // detail数据获取后的回调
 }
-
 
 export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   moduleName,
@@ -100,7 +96,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
             other.value += rec.value;
             restCount += 1;
           });
-        other.text = other.text + `(${restCount}个)`
+        other.text += `(${restCount}个)`;
         detailArray.splice(detailCount - 1, detailArray.length - detailCount + 1, other);
       }
       detailArray.forEach((rec) => {
@@ -113,30 +109,42 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   }, [itemIndex]);
 
   const getRingProgress = (value: number, color: string) => {
-    const config = {
-      height: 100,
-      width: 100,
-      autoFit: false,
-      percent: value,
-      color: [color, '#E8EDF3'],
-      innerRadius: 0.85,
-      radius: 0.98,
-    };
-    return <RingProgress {...config} />;
+    return (
+      <Progress
+        type="circle"
+        percent={Math.round(value * 10000) / 100}
+        width={80}
+        strokeLinecap="butt"
+        strokeColor={color}
+        format={(percent) => {
+          return <span style={{ fontSize: '14px' }}>{`${percent}%`}</span>;
+        }}
+      />
+    );
   };
   const getSumCard = () => (
     <StatisticCard
       statistic={{
         title,
         value: total,
-        description: items.length > 1 ?
-          items.map((item, index) => <Tooltip title={item.groupTitle} placement='bottom'>
-            <span style={{ cursor: 'pointer' }} onClick={() => {
-              setItemIndex(index);
-            }}>
-              <Badge status={index === itemIndex ? "success" : 'default'} title={item.groupTitle} />
-            </span>
-          </Tooltip>) : null
+        description:
+          items.length > 1
+            ? items.map((item, index) => (
+                <Tooltip title={item.groupTitle} placement="bottom">
+                  <span
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setItemIndex(index);
+                    }}
+                  >
+                    <Badge
+                      status={index === itemIndex ? 'success' : 'default'}
+                      title={item.groupTitle}
+                    />
+                  </span>
+                </Tooltip>
+              ))
+            : null,
       }}
       footer={items[itemIndex].description}
     />
@@ -146,9 +154,12 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       statistic={{
         title: detail.text,
         value: detail.value,
-        description: <Statistic title="占比" value={numeral(detail.percent).format('0.00%')} />,
+        // description: <Statistic title="占比" value={numeral(detail.percent).format('0.00%')} />,
       }}
-      chart={getRingProgress(detail.percent, detail.text === items[itemIndex].otherTitle ? '#F4664A' : '#531dab')}
+      chart={getRingProgress(
+        detail.percent,
+        detail.text === items[itemIndex].otherTitle ? '#F4664A' : 'default',
+      )}
       chartPlacement="left"
     />
   );

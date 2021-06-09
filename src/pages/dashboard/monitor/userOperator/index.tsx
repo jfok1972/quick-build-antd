@@ -52,8 +52,9 @@ const UserOperatorPie: React.FC<any> = ({
         property: 'odate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
-          }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
+          d2 ? moment(d2).format(DateFormat) : ''
+        }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -293,25 +294,36 @@ export const UserOperator: React.FC = () => {
           aggregateField="count.*"
           detailCount={4}
           title="记录操作次数"
-          items={[{
-            groupField: { fieldname: 'dotype' },
-            groupTitle: '操作类型',
-            otherTitle: "其他操作",
-            orderby: "value",
-            orderDesc: true,
-          },{
-            groupField: { fieldahead: 'FDataobject' },
-            groupTitle: '操作模块',
-            otherTitle: "其他模块",
-            orderby: "value",
-            orderDesc: true,
-          },{
-            groupField: { fieldname:"odate",function:"yyyy年" },
-            groupTitle: '操作年度',
-            otherTitle: "其他年度",
-            orderby: "text",
-            orderDesc: true,
-          }]}
+          items={[
+            {
+              groupField: { fieldname: 'dotype' },
+              groupTitle: '操作类型',
+              otherTitle: '其他操作',
+              orderby: 'value',
+              orderDesc: true,
+            },
+            {
+              groupField: { fieldahead: 'FDataobject' },
+              groupTitle: '操作模块',
+              otherTitle: '其他模块',
+              orderby: 'value',
+              orderDesc: true,
+            },
+            {
+              groupField: { fieldname: 'odate', function: 'yyyy年' },
+              groupTitle: '操作年度',
+              otherTitle: '其他年度',
+              orderby: 'text',
+              orderDesc: true,
+            },
+            {
+              groupField: { fieldahead: 'FUser' },
+              groupTitle: '操作人员',
+              otherTitle: '其他人员',
+              orderby: 'value',
+              orderDesc: true,
+            },
+          ]}
         />
       </Col>
       <Col {...chartsColSpan}>

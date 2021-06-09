@@ -54,8 +54,9 @@ const UserLogginPie: React.FC<any> = ({
         property: 'logindate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
-          }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
+          d2 ? moment(d2).format(DateFormat) : ''
+        }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -161,8 +162,9 @@ const UserLogginInOutColumn: React.FC<any> = () => {
         property: 'logindate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
-          }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
+          d2 ? moment(d2).format(DateFormat) : ''
+        }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -380,23 +382,31 @@ export const UserLogin: React.FC = () => {
           aggregateField="count.*"
           detailCount={3}
           title="用户登录次数"
-          items={[{
-            groupField: { fieldname: 'logouttype' },
-            groupTitle: '登出类型',
-            otherTitle: "其他操作",
-            description: "所有年度",
-            orderby: "value",
-            orderDesc: true,
-            detailCallback: (detail: any[]) => {
-              detail.forEach((rec) => {
-                if (rec.value === 'null') {
-                  apply(rec, {
-                    text: '登出异常',
-                  });
-                }
-              })
-            }
-          }]}
+          items={[
+            {
+              groupField: { fieldname: 'logouttype' },
+              groupTitle: '登出类型',
+              otherTitle: '其他操作',
+              orderby: 'value',
+              orderDesc: true,
+              detailCallback: (detail: any[]) => {
+                detail.forEach((rec) => {
+                  if (rec.value === 'null') {
+                    apply(rec, {
+                      text: '登出异常',
+                    });
+                  }
+                });
+              },
+            },
+            {
+              groupField: { fieldname: 'logindate', function: 'yyyy年' },
+              groupTitle: '登录年度',
+              otherTitle: '其他年度',
+              orderby: 'text',
+              orderDesc: true,
+            },
+          ]}
         />
       </Col>
       <Col {...chartsColSpan}>
