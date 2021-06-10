@@ -54,8 +54,9 @@ const UserOperatorPie: React.FC<any> = ({
         property: 'odate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
-          }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
+          d2 ? moment(d2).format(DateFormat) : ''
+        }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -295,9 +296,29 @@ export const UserOperator: React.FC = () => {
           title="记录操作次数"
           aggregate="count"
           fieldName="*"
+          dateFieldName="odate"
           description="所有模块记录的各种操作都统计在内，包括新增、修改、删除、执行SQL语句等。"
-          prefix={'¥'}
           suffix="次"
+          relatives={[
+            {
+              section: 'day',
+            },
+            {
+              section: 'day',
+              sectionNumber: 10,
+              containerToday: true,
+            },
+            {
+              section: 'week',
+            },
+            {
+              section: 'month',
+              wholeMonth: true,
+            },
+            {
+              section: 'month',
+            },
+          ]}
         />
       </Col>
       <Col {...staticColSpan}>
@@ -307,12 +328,40 @@ export const UserOperator: React.FC = () => {
           icon={<EditOutlined />}
           aggregate="count"
           fieldName="*"
+          dateFieldName="odate"
           suffix="次"
-          filters={[{
-            property: "dotype",
-            operator: "=",
-            value: "修改"
-          }]}
+          filters={[
+            {
+              property: 'dotype',
+              operator: '=',
+              value: '修改',
+            },
+          ]}
+          relatives={[
+            {
+              section: 'day',
+              monthOnMonth: true,
+            },
+            {
+              section: 'day',
+              sectionNumber: 10,
+              containerToday: true,
+              monthOnMonth: true,
+            },
+            {
+              section: 'week',
+              monthOnMonth: true,
+            },
+            {
+              section: 'month',
+              wholeMonth: true,
+              monthOnMonth: true,
+            },
+            {
+              section: 'month',
+              monthOnMonth: true,
+            },
+          ]}
         />
       </Col>
       <Col {...staticColSpan}>
@@ -322,12 +371,36 @@ export const UserOperator: React.FC = () => {
           icon={<PlusOutlined />}
           aggregate="count"
           fieldName="*"
+          dateFieldName="odate"
           suffix="次"
-          filters={[{
-            property: "dotype",
-            operator: "=",
-            value: "新增"
-          }]}
+          filters={[
+            {
+              property: 'dotype',
+              operator: '=',
+              value: '新增',
+            },
+          ]}
+          relatives={[
+            {
+              section: 'year',
+            },
+            {
+              section: 'year',
+              sectionNumber: 10,
+              wholeMonth: true,
+              containerToday: true,
+            },
+            {
+              section: 'year',
+            },
+            {
+              section: 'year',
+              wholeMonth: true,
+            },
+            {
+              section: 'year',
+            },
+          ]}
         />
       </Col>
       <Col {...staticColSpan}>
@@ -337,12 +410,15 @@ export const UserOperator: React.FC = () => {
           icon={<DeleteOutlined />}
           aggregate="count"
           fieldName="*"
+          dateFieldName="odate"
           suffix="次"
-          filters={[{
-            property: "dotype",
-            operator: "=",
-            value: "删除"
-          }]}
+          filters={[
+            {
+              property: 'dotype',
+              operator: '=',
+              value: '删除',
+            },
+          ]}
         />
       </Col>
 
