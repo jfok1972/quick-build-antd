@@ -361,6 +361,10 @@ export const UserOperator: React.FC = () => {
               monthOnMonth: true,
             },
           ]}
+          chart={{
+            type: 'area',
+            sectionType: 'year',
+          }}
         />
       </Col>
       <Col {...staticColSpan}>
@@ -400,6 +404,10 @@ export const UserOperator: React.FC = () => {
               section: 'year',
             },
           ]}
+          chart={{
+            type: 'line',
+            sectionType: 'day',
+          }}
         />
       </Col>
       <Col {...staticColSpan}>
@@ -420,7 +428,7 @@ export const UserOperator: React.FC = () => {
           ]}
           chart={{
             type: 'column',
-            sectionType: 'day',
+            sectionType: 'month',
           }}
         />
       </Col>

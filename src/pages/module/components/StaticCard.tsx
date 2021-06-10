@@ -23,7 +23,7 @@ interface TextValue {
 
 interface ChartProps {
   type: 'line' | 'area' | 'column'; // 迷你折线图，迷你面积图，迷你柱状图
-  sectionType: 'day' | 'week' | 'month' | 'year'; // 分组类型
+  sectionType: 'day' | 'month' | 'year'; // 分组类型
   maxCount?: number; // 迷你图最大的记录个数
   orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
@@ -264,6 +264,12 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     );
   };
 
+  const groupFunction = {
+    day: 'yyyy年mm月dd日',
+    month: 'yyyy年mm月',
+    year: 'yyyy年'
+  }
+
   const MiniChart: React.FC<any> = ({ chart }: { chart: ChartProps }) => {
     const [data, setData] = useState<TextValue[]>([]);
     const {
@@ -282,7 +288,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
             moduleName,
             fields: [aggregateField],
             navigatefilters: filters,
-            groupfieldid: { fieldname: dateFieldName, function: 'yyyy年mm月dd日' },
+            groupfieldid: { fieldname: dateFieldName, function: groupFunction[sectionType] },
           }),
         ),
       }).then((response: any[]) => {
@@ -326,7 +332,12 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         },
       },
     };
-    return <Column {...config} />;
+    switch (type) {
+      case 'column': return <Column {...config} />;
+      case 'line': return <Line {...config} />;
+      default:
+        return <Area {...config} />;
+    }
   };
 
   useEffect(() => {
