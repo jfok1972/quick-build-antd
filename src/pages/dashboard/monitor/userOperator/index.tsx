@@ -54,9 +54,8 @@ const UserOperatorPie: React.FC<any> = ({
         property: 'odate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
-          d2 ? moment(d2).format(DateFormat) : ''
-        }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
+          }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -419,6 +418,10 @@ export const UserOperator: React.FC = () => {
               value: '删除',
             },
           ]}
+          chart={{
+            type: 'column',
+            sectionType: 'day',
+          }}
         />
       </Col>
 

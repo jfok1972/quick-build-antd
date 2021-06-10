@@ -1,6 +1,7 @@
 import { getColumnDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
 import { stringifyObjectField } from '@/utils/utils';
+import { Area, Column, Line } from '@ant-design/charts';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
 import { message, Popover, Tooltip } from 'antd';
@@ -14,6 +15,19 @@ import styles from './StaticCard.less';
 const numeral = require('numeral');
 
 const { Statistic } = StatisticCard;
+
+interface TextValue {
+  text: string;   // 当前记录的文本
+  value: number;  // 当前记录的值
+}
+
+interface ChartProps {
+  type: 'line' | 'area' | 'column'; // 迷你折线图，迷你面积图，迷你柱状图
+  sectionType: 'day' | 'week' | 'month' | 'year'; // 分组类型
+  maxCount?: number; // 迷你图最大的记录个数
+  orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
+  orderDesc?: boolean; // 排序顺序
+}
 
 interface StaticCardProps {
   moduleName: string; // 模块名称
@@ -30,13 +44,7 @@ interface StaticCardProps {
   monetary?: any; // 金额单位
   unittext?: string; // 数值单位，个，米
   relatives?: Relative[]; //
-  chart?: {
-    type: 'line' | 'area' | 'column'; // 迷你折线图，迷你面积图，迷你柱状图
-    sectionType: 'day' | 'week' | 'month' | 'year'; // 分组类型
-    maxCount: number; // 迷你图最大的记录个数
-    orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
-    orderDesc?: boolean; // 排序顺序
-  };
+  chart?: ChartProps;
 }
 
 const sectionTitles = {
@@ -79,6 +87,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   description,
   relatives,
   formatPattern = '0,000',
+  chart,
 }) => {
   const [total, setTotal] = useState<number>(0);
   const [relativeDatas, setRelativeDatas] = useState<RelativeData[]>([]);
@@ -255,6 +264,71 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     );
   };
 
+  const MiniChart: React.FC<any> = ({ chart }: { chart: ChartProps }) => {
+    const [data, setData] = useState<TextValue[]>([]);
+    const {
+      type,
+      sectionType,
+      maxCount = 18,
+      orderby = 'text',
+      orderDesc = false,
+    } = chart;
+
+    useEffect(() => {
+      request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
+        method: 'POST',
+        data: serialize(
+          stringifyObjectField({
+            moduleName,
+            fields: [aggregateField],
+            navigatefilters: filters,
+            groupfieldid: { fieldname: dateFieldName, function: 'yyyy年mm月dd日' },
+          }),
+        ),
+      }).then((response: any[]) => {
+        const detailArray: TextValue[] = response
+          .map((rec) => {
+            const obj = {
+              text: rec.text,
+              value: rec[aggregateFieldName],
+            };
+            return obj;
+          })
+          .sort((rec1, rec2) => {
+            if (rec1[orderby] > rec2[orderby]) return orderDesc ? -1 : 1;
+            if (rec1[orderby] < rec2[orderby]) return orderDesc ? 1 : -1;
+            return 0;
+          }).filter((value, index, array) => array.length - index <= maxCount);
+        console.log(detailArray);
+        setData(detailArray);
+      });
+    }, []);
+
+    var config: any = {
+      height: 40,
+      width: '100%',
+      data,
+      xField: 'text',
+      yField: 'value',
+      xAxis: {
+        label: null,
+        line: null,
+      },
+      yAxis: {
+        label: null,
+        line: null,
+        tickCount: 1
+      },
+      tooltip: {
+        showTitle: false,
+        formatter: (datum: any) => {
+          return { name: datum.text, value: datum.value };
+        },
+      },
+    };
+    return <Column {...config} />;
+  };
+
   useEffect(() => {
     setLoading(true);
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -304,6 +378,8 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         icon,
         // description
       }}
+      chart={chart ? <MiniChart chart={chart} /> : null}
     />
   );
 };
+
