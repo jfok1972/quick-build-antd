@@ -230,45 +230,42 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       <Statistic
         style={{ flex: 1 }}
         title={
-          <span>
-            {sectionTitle}
-            <Popover
-              title={`${sectionTitle}计算过程`}
-              content={
-                <table className={styles.tooltiptable}>
-                  <tr>
-                    <th></th>
-                    <th>起始日期</th>
-                    <th>终止日期</th>
-                    <th>指标数值</th>
-                  </tr>
-                  <tr>
-                    <th>本期期间</th>
-                    <td>{startDate}</td>
-                    <td>{endDate}</td>
-                    <td className={styles.tdvalue}>{numeral(thisValue).format(formatPattern)}</td>
-                  </tr>
-                  <tr>
-                    <th>对比期间</th>
-                    <td>{lastStartDate}</td>
-                    <td>{lastEndDate}</td>
-                    <td className={styles.tdvalue}>{numeral(lastValue).format(formatPattern)}</td>
-                  </tr>
-                  <tr>
-                    <th>增长比例</th>
-                    <td></td>
-                    <td></td>
-                    <td className={styles.tdvalue}>
-                      {typeof ratio === 'undefined' ? '无对比数据' : numeral(ratio).format('0.00%')}
-                    </td>
-                  </tr>
-                </table>
-              }
-              trigger={['click']}
-            >
-              <InfoCircleOutlined style={{ paddingLeft: '4px' }} />
-            </Popover>
-          </span>
+          <Popover
+            title={`${sectionTitle}计算过程`}
+            content={
+              <table className={styles.tooltiptable}>
+                <tr>
+                  <th></th>
+                  <th>起始日期</th>
+                  <th>终止日期</th>
+                  <th>指标数值</th>
+                </tr>
+                <tr>
+                  <th>本期期间</th>
+                  <td>{startDate}</td>
+                  <td>{endDate}</td>
+                  <td className={styles.tdvalue}>{numeral(thisValue).format(formatPattern)}</td>
+                </tr>
+                <tr>
+                  <th>对比期间</th>
+                  <td>{lastStartDate}</td>
+                  <td>{lastEndDate}</td>
+                  <td className={styles.tdvalue}>{numeral(lastValue).format(formatPattern)}</td>
+                </tr>
+                <tr>
+                  <th>增长比例</th>
+                  <td></td>
+                  <td></td>
+                  <td className={styles.tdvalue}>
+                    {typeof ratio === 'undefined' ? '无对比数据' : numeral(ratio).format('0.00%')}
+                  </td>
+                </tr>
+              </table>
+            }
+            trigger={['click']}
+          >
+            <span style={{ cursor: 'pointer' }}>{sectionTitle}</span>
+          </Popover>
         }
         value={typeof ratio === 'undefined' ? ' ' : numeral(ratio).format('0%')}
         // eslint-disable-next-line

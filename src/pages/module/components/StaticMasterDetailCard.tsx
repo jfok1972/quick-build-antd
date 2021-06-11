@@ -6,6 +6,9 @@ import { serialize } from 'object-to-formdata';
 import RcResizeObserver from 'rc-resize-observer';
 import { getColumnDataIndex } from '@/pages/datamining/utils';
 import { Badge, Progress, Tooltip } from 'antd';
+import styles from './StaticMasterDetailCard.less';
+
+const numeral = require('numeral');
 
 const { Divider } = StatisticCard;
 
@@ -14,6 +17,7 @@ interface TextValue {
   text: string; // 当前记录的文本
   value: number; // 当前记录的值
   percent: number; // 总占比
+  icon?: React.ReactNode; // 图标
 }
 
 interface StaticMasterDetailCardProps {
@@ -21,6 +25,9 @@ interface StaticMasterDetailCardProps {
   aggregateField: string; // 聚合字段， count.* ,sum.fieldname , avg.fieldname
   title: string; // 指标名称
   detailCount: number; // 明细里面个数，超过的全部放在其他里
+  formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
+  monetaryUnit?: 100000000 | 1000000 | 10000 | 1000 | 1; // 数值单位 亿 百万 万 千
+  unitText?: string; // 数值单位，个，米，万元。
   filters?: any[];
   items: CardCategoryProps[];
 }
@@ -33,8 +40,6 @@ interface CardCategoryProps {
   description?: string; // 汇总指标的描述
   orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
-  monetary?: any; // 金额单位
-  unittext?: string; // 数值单位，个，米
   detailCallback?: Function; // detail数据获取后的回调
 }
 
@@ -42,6 +47,9 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   moduleName,
   aggregateField,
   detailCount,
+  formatPattern = '0,000',
+  monetaryUnit = 1,
+  unitText = '',
   title,
   filters,
   items,
@@ -49,9 +57,24 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   const aggregateFieldName = getColumnDataIndex(aggregateField);
   const [responsive, setResponsive] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [firstloading, setFirstloading] = useState<boolean>(true);
   const [total, setTotal] = useState<number>(0);
   const [detailData, setDetailData] = useState<TextValue[]>([]);
   const [itemIndex, setItemIndex] = useState<number>(0);
+
+  const getUnitText = () => {
+    let text = '';
+    if (monetaryUnit === 100000000) text = '亿';
+    else if (monetaryUnit === 1000000) text = '百万';
+    else if (monetaryUnit === 10000) text = '万';
+    else if (monetaryUnit === 1000) text = '千';
+    return text + unitText;
+  };
+
+  const getValueText = (value: number) => {
+    return numeral(value / monetaryUnit).format(formatPattern) + getUnitText();
+  };
+
   useEffect(() => {
     setLoading(true);
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -79,6 +102,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
             text: rec.text,
             value: rec[aggregateFieldName],
             percent: 0,
+            icon: rec.icon,
           };
           sumValue += obj.value;
           return obj;
@@ -110,6 +134,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       setDetailData(detailArray);
       setTotal(sumValue);
       setLoading(false);
+      setFirstloading(false);
     });
   }, [itemIndex]);
 
@@ -117,8 +142,8 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
     return (
       <Progress
         type="circle"
-        percent={Math.round(value * 10000) / 100}
-        width={80}
+        percent={Math.round(value * 1000) / 10}
+        width={72}
         strokeLinecap="butt"
         strokeColor={color}
         format={(percent) => {
@@ -129,9 +154,10 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   };
   const getSumCard = () => (
     <StatisticCard
+      className={styles.staticcard}
       statistic={{
         title,
-        value: total,
+        value: getValueText(total),
         description:
           items.length > 1
             ? items.map((item, index) => (
@@ -156,9 +182,11 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   );
   const getDetailCard = (detail: TextValue) => (
     <StatisticCard
+      loading={!firstloading && loading}
+      className={styles.staticcard}
       statistic={{
-        title: detail.text,
-        value: detail.value,
+        title: [detail.icon, detail.text],
+        value: getValueText(detail.value),
         // description: <Statistic title="占比" value={numeral(detail.percent).format('0.00%')} />,
       }}
       chart={getRingProgress(
@@ -216,11 +244,15 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       }}
     >
       {responsive && detailData.length > 1 ? (
-        <StatisticCard.Group direction="column" loading={loading}>
+        <StatisticCard.Group
+          className={styles.staticcardgroup}
+          direction="column"
+          loading={firstloading && loading}
+        >
           {getResponsiveChildren()}
         </StatisticCard.Group>
       ) : (
-        <StatisticCard.Group loading={loading}>
+        <StatisticCard.Group className={styles.staticcardgroup} loading={firstloading && loading}>
           {getSumCard()}
           {detailData.length ? <Divider type="vertical" /> : null}
           {detailData.map((detail, index) => [

@@ -15,6 +15,7 @@ import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionSelect } from '../../utils/DateSectionSelect';
 import { chartsColSpan } from '../../charts';
 import { StaticMasterDetailCard } from '@/pages/module/components/StaticMasterDetailCard';
+import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
 const numeral = require('numeral');
 
@@ -382,6 +383,7 @@ export const UserLogin: React.FC = () => {
           aggregateField="count.*"
           detailCount={3}
           title="用户登录次数"
+          unitText="次"
           items={[
             {
               groupField: { fieldname: 'logouttype' },
@@ -394,6 +396,15 @@ export const UserLogin: React.FC = () => {
                   if (rec.value === 'null') {
                     apply(rec, {
                       text: '登出异常',
+                      icon: <CloseCircleOutlined style={{ color: 'red', paddingRight: '4px' }} />,
+                    });
+                  } else if (rec.value === '超时登出') {
+                    apply(rec, {
+                      icon: <ClockCircleOutlined style={{ color: 'green', paddingRight: '4px' }} />,
+                    });
+                  } else if (rec.value === '正常登出') {
+                    apply(rec, {
+                      icon: <CheckCircleOutlined style={{ color: 'blue', paddingRight: '4px' }} />,
                     });
                   }
                 });

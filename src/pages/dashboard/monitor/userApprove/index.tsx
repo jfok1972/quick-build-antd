@@ -283,6 +283,7 @@ export const UserApprove: React.FC = () => {
           aggregateField="count.*"
           detailCount={4}
           title="审批记录条数"
+          unitText="条"
           items={[
             {
               groupField: { fieldname: 'objecttitle' },
@@ -333,6 +334,7 @@ export const UserApprove: React.FC = () => {
             aggregateField="count.*"
             title="完成审批任务次数"
             detailCount={4}
+            unitText="次"
             items={[
               {
                 groupField: { fieldname: 'objecttitle' },

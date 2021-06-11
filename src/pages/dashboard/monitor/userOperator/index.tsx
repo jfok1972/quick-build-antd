@@ -350,8 +350,8 @@ export const UserOperator: React.FC = () => {
             },
           ]}
           chart={{
-            type: 'area',
-            sectionType: 'year',
+            type: 'column',
+            sectionType: 'month',
           }}
         />
       </Col>
@@ -406,7 +406,7 @@ export const UserOperator: React.FC = () => {
             },
           ]}
           chart={{
-            type: 'column',
+            type: 'area',
             sectionType: 'month',
             height: 68,
           }}
@@ -419,6 +419,7 @@ export const UserOperator: React.FC = () => {
           aggregateField="count.*"
           detailCount={4}
           title="记录操作次数"
+          unitText="次"
           items={[
             {
               groupField: { fieldname: 'dotype' },
