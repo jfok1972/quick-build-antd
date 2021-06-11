@@ -54,8 +54,9 @@ const UserOperatorPie: React.FC<any> = ({
         property: 'odate',
         operator: 'daysection',
         searchfor: 'date',
-        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${d2 ? moment(d2).format(DateFormat) : ''
-          }`,
+        value: `${d1 ? moment(d1).format(DateFormat) : ''}--${
+          d2 ? moment(d2).format(DateFormat) : ''
+        }`,
       });
     }
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -298,24 +299,25 @@ export const UserOperator: React.FC = () => {
           dateFieldName="odate"
           description="所有模块记录的各种操作都统计在内，包括新增、修改、删除、执行SQL语句等。"
           suffix="次"
+          height={180}
           relatives={[
             {
-              section: 'day',
-            },
-            {
-              section: 'day',
-              sectionNumber: 10,
+              section: 'week',
               containerToday: true,
             },
             {
               section: 'week',
+              monthOnMonth: true,
+              containerToday: true,
             },
             {
               section: 'month',
-              wholeMonth: true,
+              containerToday: true,
             },
             {
               section: 'month',
+              monthOnMonth: true,
+              containerToday: true,
             },
           ]}
         />
@@ -328,7 +330,7 @@ export const UserOperator: React.FC = () => {
           aggregate="count"
           fieldName="*"
           dateFieldName="odate"
-          suffix="次"
+          height={180}
           filters={[
             {
               property: 'dotype',
@@ -339,22 +341,8 @@ export const UserOperator: React.FC = () => {
           relatives={[
             {
               section: 'day',
-              monthOnMonth: true,
-            },
-            {
-              section: 'day',
               sectionNumber: 10,
               containerToday: true,
-              monthOnMonth: true,
-            },
-            {
-              section: 'week',
-              monthOnMonth: true,
-            },
-            {
-              section: 'month',
-              wholeMonth: true,
-              monthOnMonth: true,
             },
             {
               section: 'month',
@@ -375,7 +363,8 @@ export const UserOperator: React.FC = () => {
           aggregate="count"
           fieldName="*"
           dateFieldName="odate"
-          suffix="次"
+          monetaryUnit={1000}
+          height={180}
           filters={[
             {
               property: 'dotype',
@@ -389,24 +378,13 @@ export const UserOperator: React.FC = () => {
             },
             {
               section: 'year',
-              sectionNumber: 10,
-              wholeMonth: true,
-              containerToday: true,
-            },
-            {
-              section: 'year',
-            },
-            {
-              section: 'year',
-              wholeMonth: true,
-            },
-            {
-              section: 'year',
+              monthOnMonth: true,
             },
           ]}
           chart={{
             type: 'line',
             sectionType: 'day',
+            maxCount: 360,
           }}
         />
       </Col>
@@ -418,7 +396,8 @@ export const UserOperator: React.FC = () => {
           aggregate="count"
           fieldName="*"
           dateFieldName="odate"
-          suffix="次"
+          unitText="次"
+          height={180}
           filters={[
             {
               property: 'dotype',
@@ -429,6 +408,7 @@ export const UserOperator: React.FC = () => {
           chart={{
             type: 'column',
             sectionType: 'month',
+            height: 68,
           }}
         />
       </Col>

@@ -4,7 +4,7 @@ import { stringifyObjectField } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
-import { message, Popover, Tooltip } from 'antd';
+import { Col, message, Popover, Row, Tooltip } from 'antd';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { serialize } from 'object-to-formdata';
@@ -17,8 +17,8 @@ const numeral = require('numeral');
 const { Statistic } = StatisticCard;
 
 interface TextValue {
-  text: string;   // 当前记录的文本
-  value: number;  // 当前记录的值
+  text: string; // 当前记录的文本
+  value: number; // 当前记录的值
 }
 
 interface ChartProps {
@@ -27,6 +27,7 @@ interface ChartProps {
   maxCount?: number; // 迷你图最大的记录个数
   orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
+  height?: number; // miniChart的高度
 }
 
 interface StaticCardProps {
@@ -41,8 +42,9 @@ interface StaticCardProps {
   prefix?: React.ReactNode | string; // 金额前面的符号
   suffix?: React.ReactNode | string; // 金额前面的单位
   icon?: React.ReactNode; // 指标标题前面的图标
-  monetary?: any; // 金额单位
-  unittext?: string; // 数值单位，个，米
+  height?: number; // 整个Card的高度
+  monetaryUnit?: 100000000 | 1000000 | 10000 | 1000 | 1; // 数值单位 亿 百万 万 千
+  unitText?: string; // 数值单位，个，米，万元。
   relatives?: Relative[]; //
   chart?: ChartProps;
 }
@@ -84,9 +86,12 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   prefix,
   suffix,
   icon,
+  height,
   description,
   relatives,
   formatPattern = '0,000',
+  monetaryUnit = 1,
+  unitText = '',
   chart,
 }) => {
   const [total, setTotal] = useState<number>(0);
@@ -94,6 +99,15 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const aggregateField = `${aggregate}.${fieldName}`;
   const aggregateFieldName = getColumnDataIndex(aggregateField);
+
+  const getUnitText = () => {
+    let text = '';
+    if (monetaryUnit === 100000000) text = '亿';
+    else if (monetaryUnit === 1000000) text = '百万';
+    else if (monetaryUnit === 10000) text = '万';
+    else if (monetaryUnit === 1000) text = '千';
+    return text + unitText;
+  };
 
   const getTitle = () => {
     if (description) {
@@ -256,7 +270,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
             </Popover>
           </span>
         }
-        value={typeof ratio === 'undefined' ? '无对比数据' : numeral(ratio).format('0.00%')}
+        value={typeof ratio === 'undefined' ? ' ' : numeral(ratio).format('0%')}
         // eslint-disable-next-line
         trend={typeof ratio === 'undefined' ? undefined : ratio > 0 ? 'up' : 'down'}
         layout="horizontal"
@@ -267,10 +281,10 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   const groupFunction = {
     day: 'yyyy年mm月dd日',
     month: 'yyyy年mm月',
-    year: 'yyyy年'
-  }
+    year: 'yyyy年',
+  };
 
-  const MiniChart: React.FC<any> = ({ chart }: { chart: ChartProps }) => {
+  const MiniChart: React.FC<any> = ({ chartDefine }: { chartDefine: ChartProps }) => {
     const [data, setData] = useState<TextValue[]>([]);
     const {
       type,
@@ -278,7 +292,8 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       maxCount = 18,
       orderby = 'text',
       orderDesc = false,
-    } = chart;
+      height: chartHeight = 40,
+    } = chartDefine;
 
     useEffect(() => {
       request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
@@ -296,7 +311,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
           .map((rec) => {
             const obj = {
               text: rec.text,
-              value: rec[aggregateFieldName],
+              value: rec[aggregateFieldName] / monetaryUnit,
             };
             return obj;
           })
@@ -304,14 +319,14 @@ export const StaticCard: React.FC<StaticCardProps> = ({
             if (rec1[orderby] > rec2[orderby]) return orderDesc ? -1 : 1;
             if (rec1[orderby] < rec2[orderby]) return orderDesc ? 1 : -1;
             return 0;
-          }).filter((value, index, array) => array.length - index <= maxCount);
-        console.log(detailArray);
+          })
+          .filter((value, index, array) => array.length - index <= maxCount);
         setData(detailArray);
       });
     }, []);
 
-    var config: any = {
-      height: 40,
+    const config: any = {
+      height: chartHeight,
       width: '100%',
       data,
       xField: 'text',
@@ -323,18 +338,21 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       yAxis: {
         label: null,
         line: null,
-        tickCount: 1
+        tickCount: 1,
       },
       tooltip: {
         showTitle: false,
+        // tooltip 显示的格式是  日期-数值 ,不加这一条显示的是 指标-数值
         formatter: (datum: any) => {
-          return { name: datum.text, value: datum.value };
+          return { name: datum.text, value: datum.value + getUnitText() };
         },
       },
     };
     switch (type) {
-      case 'column': return <Column {...config} />;
-      case 'line': return <Line {...config} />;
+      case 'column':
+        return <Column {...config} />;
+      case 'line':
+        return <Line {...config} />;
       default:
         return <Area {...config} />;
     }
@@ -367,12 +385,18 @@ export const StaticCard: React.FC<StaticCardProps> = ({
 
   return (
     <StatisticCard
+      className={styles.staticcard}
+      style={{ height: height ? `${height}px` : '' }}
       loading={loading}
       footer={
         <>
-          {relativeDatas.length
-            ? relativeDatas.map((relative) => getRelativeSection(relative))
-            : null}
+          {relativeDatas.length ? (
+            <Row gutter={8}>
+              {relativeDatas.map((relative) => (
+                <Col span={12}>{getRelativeSection(relative)}</Col>
+              ))}{' '}
+            </Row>
+          ) : null}
 
           {/* { <div style={{ display: 'flex', marginBottom: '4px' }}>
             <Statistic style={{ flex: 1 }} title="日同比" value="6.47%" trend="up" layout="vertical" />
@@ -383,14 +407,13 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       }
       statistic={{
         title: getTitle(),
-        value: total,
+        value: total / monetaryUnit,
         prefix,
-        suffix,
+        suffix: [getUnitText(), suffix],
         icon,
         // description
       }}
-      chart={chart ? <MiniChart chart={chart} /> : null}
+      chart={chart ? <MiniChart chartDefine={chart} /> : null}
     />
   );
 };
-
