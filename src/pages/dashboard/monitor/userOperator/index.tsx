@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { CardProps } from 'antd';
 import { Card, Col, Radio, Row } from 'antd';
 import { currentUser } from 'umi';
@@ -38,6 +38,7 @@ const UserOperatorPie: React.FC<any> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [dateSection, setDateSection] = useState<[any, any]>([null, null]);
   const fetchData = () => {
+    setLoading(true);
     const fields = ['count.*'];
     const filter = {
       property_: {
@@ -95,51 +96,53 @@ const UserOperatorPie: React.FC<any> = ({
       setLoading(false);
     });
   };
-
-  const config: PieConfig = {
-    appendPadding: 10,
-    data,
-    loading,
-    angleField: 'value',
-    colorField: 'type',
-    radius: 0.8,
-    innerRadius: 0.64,
-    label: {
-      type: 'outer',
-      formatter: (datum) => `${datum.value}次(${numeral(datum.percent).format('0.00%')})`,
-    },
-    statistic: {
-      title: {
-        formatter: () => '总计',
-        offsetY: -15,
+  const config: PieConfig = useMemo(
+    () => ({
+      appendPadding: 10,
+      data,
+      loading,
+      angleField: 'value',
+      colorField: 'type',
+      radius: 0.8,
+      innerRadius: 0.64,
+      label: {
+        type: 'outer',
+        formatter: (datum) => `${datum.value}次(${numeral(datum.percent).format('0.00%')})`,
       },
-      content: {
-        formatter: (value, datum) => {
-          let sum = 0;
-          if (datum)
-            datum.forEach((rec) => {
-              sum += rec.value;
-            });
-          return `${numeral(sum).format('0,0')}次`;
+      statistic: {
+        title: {
+          formatter: () => '总计',
+          offsetY: -15,
         },
-        offsetY: 15,
-        style: {
-          fontSize: '20px',
+        content: {
+          formatter: (value, datum) => {
+            let sum = 0;
+            if (datum)
+              datum.forEach((rec) => {
+                sum += rec.value;
+              });
+            return `${numeral(sum).format('0,0')}次`;
+          },
+          offsetY: 15,
+          style: {
+            fontSize: '20px',
+          },
         },
       },
-    },
-    interactions: [{ type: 'element-active' }],
-    legend: {
-      layout: 'vertical',
-      position: 'right',
-      animate: true,
-    },
-    tooltip: {
-      formatter: (datum) => {
-        return { name: datum.type, value: `${numeral(datum.value).format('0,0')}次` };
+      interactions: [{ type: 'element-active' }],
+      legend: {
+        layout: 'vertical',
+        position: 'right',
+        animate: true,
       },
-    },
-  };
+      tooltip: {
+        formatter: (datum) => {
+          return { name: datum.type, value: `${numeral(datum.value).format('0,0')}次` };
+        },
+      },
+    }),
+    [data, loading],
+  );
   useEffect(() => {
     fetchData();
   }, [dateSection]);
@@ -149,7 +152,13 @@ const UserOperatorPie: React.FC<any> = ({
       title={title}
       extra={<DateSectionSelect dateSection={dateSection} setDateSection={setDateSection} />}
     >
-      <Pie {...config} />
+      <Card
+        bordered={false}
+        style={{ padding: 0, margin: 0, height: '100%' }}
+        bodyStyle={{ padding: 0, margin: 0, height: '100%' }}
+      >
+        <Pie {...config} />
+      </Card>
     </Card>
   );
 };
@@ -223,6 +232,7 @@ const UserOperatorYearMonthColumn: React.FC = (params) => {
     });
   };
   const config: ColumnConfig = {
+    style: { height: '100%' },
     loading,
     data,
     xField: 'type',
@@ -282,7 +292,13 @@ const UserOperatorYearMonthColumn: React.FC = (params) => {
       }
       {...params}
     >
-      <Column {...config} />
+      <Card
+        bordered={false}
+        style={{ height: '100%' }}
+        bodyStyle={{ padding: '0px 12px', margin: 0, height: '100%' }}
+      >
+        <Column {...config} />
+      </Card>
     </Card>
   );
 };
@@ -298,26 +314,47 @@ export const UserOperator: React.FC = () => {
           fieldName="*"
           dateFieldName="odate"
           description="所有模块记录的各种操作都统计在内，包括新增、修改、删除、执行SQL语句等。"
-          suffix="次"
+          unitText="次"
           height={180}
           relatives={[
             {
               section: 'week',
-              containerToday: true,
             },
             {
               section: 'week',
               monthOnMonth: true,
-              containerToday: true,
+            },
+          ]}
+          staticFields={[
+            {
+              moduleName: 'FUseroperatelog',
+              title: '本日操作次数',
+              aggregate: 'count',
+              fieldName: '*',
+              unitText: '次',
+              filters: [
+                {
+                  property: 'odate',
+                  operator: 'daysection',
+                  value: `${moment().format(DateFormat)}--${moment().format(DateFormat)}`,
+                },
+              ],
             },
             {
-              section: 'month',
-              containerToday: true,
-            },
-            {
-              section: 'month',
-              monthOnMonth: true,
-              containerToday: true,
+              moduleName: 'FUseroperatelog',
+              title: '本月操作次数',
+              aggregate: 'count',
+              fieldName: '*',
+              unitText: '次',
+              filters: [
+                {
+                  property: 'odate',
+                  operator: 'daysection',
+                  value: `${moment().set('date', 1).format(DateFormat)}--${moment().format(
+                    DateFormat,
+                  )}`,
+                },
+              ],
             },
           ]}
         />
@@ -342,7 +379,6 @@ export const UserOperator: React.FC = () => {
             {
               section: 'day',
               sectionNumber: 10,
-              containerToday: true,
             },
             {
               section: 'month',
@@ -398,6 +434,7 @@ export const UserOperator: React.FC = () => {
           dateFieldName="odate"
           unitText="次"
           height={180}
+          chartHeight={68}
           filters={[
             {
               property: 'dotype',
@@ -408,7 +445,6 @@ export const UserOperator: React.FC = () => {
           chart={{
             type: 'area',
             sectionType: 'month',
-            height: 68,
           }}
         />
       </Col>

@@ -13,9 +13,10 @@ import type { TextValue } from '@/pages/module/data';
 import type { ColumnConfig } from '@ant-design/charts/es/column';
 import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionSelect } from '../../utils/DateSectionSelect';
-import { chartsColSpan } from '../../charts';
+import { chartsColSpan, staticColSpan } from '../../charts';
 import { StaticMasterDetailCard } from '@/pages/module/components/StaticMasterDetailCard';
 import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { StaticCard } from '@/pages/module/components/StaticCard';
 
 const numeral = require('numeral');
 
@@ -217,6 +218,7 @@ const UserLogginInOutColumn: React.FC<any> = () => {
     fetchData();
   }, [dateSection]);
   const config = {
+    style: { height: '100%' },
     data,
     loading,
     xField: 'group',
@@ -310,6 +312,7 @@ const UserLogginYearMonthColumn: React.FC = (params) => {
     });
   };
   const config: ColumnConfig = {
+    style: { height: '100%' },
     loading,
     data,
     xField: 'type',
@@ -377,6 +380,125 @@ const UserLogginYearMonthColumn: React.FC = (params) => {
 export const UserLogin: React.FC = () => {
   return (
     <Row gutter={[12, 12]}>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUserloginlog"
+          title="用户登录次数"
+          aggregate="count"
+          fieldName="*"
+          dateFieldName="logindate"
+          description="用户的登录信息。"
+          unitText="次"
+          relatives={[
+            {
+              section: 'week',
+            },
+            {
+              section: 'week',
+              monthOnMonth: true,
+            },
+            {
+              section: 'month',
+            },
+            {
+              section: 'month',
+              monthOnMonth: true,
+            },
+          ]}
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUserloginlog"
+          title="用户登录时长"
+          aggregate="sum"
+          fieldName="udfloginminute"
+          dateFieldName="logindate"
+          unitText="分钟"
+          relatives={[
+            {
+              section: 'week',
+            },
+            {
+              section: 'week',
+              monthOnMonth: true,
+            },
+            {
+              section: 'month',
+            },
+            {
+              section: 'month',
+              monthOnMonth: true,
+            },
+          ]}
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUserloginlog"
+          title="平均登录时长"
+          aggregate="avg"
+          fieldName="udfloginminute"
+          dateFieldName="logindate"
+          formatPattern="0,0"
+          filters={[
+            {
+              property: 'logoutdate',
+              operator: 'is not null',
+            },
+          ]}
+          unitText="分钟"
+          relatives={[
+            {
+              section: 'week',
+            },
+            {
+              section: 'week',
+              monthOnMonth: true,
+            },
+            {
+              section: 'month',
+            },
+            {
+              section: 'month',
+              monthOnMonth: true,
+            },
+          ]}
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="FUserloginlog"
+          title="最大登录时长"
+          aggregate="max"
+          fieldName="udfloginminute"
+          dateFieldName="logindate"
+          formatPattern="0,0"
+          filters={[
+            {
+              property: 'logoutdate',
+              operator: 'is not null',
+            },
+          ]}
+          unitText="分钟"
+          relatives={[
+            {
+              section: 'week',
+            },
+            {
+              section: 'week',
+              monthOnMonth: true,
+            },
+            {
+              section: 'month',
+            },
+            {
+              section: 'month',
+              monthOnMonth: true,
+            },
+          ]}
+        />
+      </Col>
       <Col span={24}>
         <StaticMasterDetailCard
           moduleName="FUserloginlog"

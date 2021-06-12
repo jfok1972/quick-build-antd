@@ -51,7 +51,7 @@
     "not ie <= 10"
   ],
   "dependencies": {
-    "@ant-design/charts": "^1.1.12",
+    "@ant-design/charts": "^1.1.13",
     "@ant-design/icons": "^4.6.2",
     "@ant-design/pro-card": "^1.13.2",
     "@ant-design/pro-layout": "^6.16.6",
@@ -72,7 +72,7 @@
     "object-to-formdata": "^4.1.0",
     "omit.js": "^2.0.2",
     "path-to-regexp": "2.4.0",
-    "pinyin-match": "^1.2.1",
+    "pinyin-match": "^1.2.2",
     "qs": "^6.9.0",
     "re-resizable": "^6.5.5",
     "react": "^16.8.6",

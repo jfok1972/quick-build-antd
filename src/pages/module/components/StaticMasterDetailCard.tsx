@@ -7,6 +7,8 @@ import RcResizeObserver from 'rc-resize-observer';
 import { getColumnDataIndex } from '@/pages/datamining/utils';
 import { Badge, Progress, Tooltip } from 'antd';
 import styles from './StaticMasterDetailCard.less';
+import type { MonetaryUnit } from '../grid/monetary';
+import { getMonetaryUnitText } from '../grid/monetary';
 
 const numeral = require('numeral');
 
@@ -26,7 +28,7 @@ interface StaticMasterDetailCardProps {
   title: string; // 指标名称
   detailCount: number; // 明细里面个数，超过的全部放在其他里
   formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
-  monetaryUnit?: 100000000 | 1000000 | 10000 | 1000 | 1; // 数值单位 亿 百万 万 千
+  monetaryUnit?: MonetaryUnit;
   unitText?: string; // 数值单位，个，米，万元。
   filters?: any[];
   items: CardCategoryProps[];
@@ -61,18 +63,11 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   const [total, setTotal] = useState<number>(0);
   const [detailData, setDetailData] = useState<TextValue[]>([]);
   const [itemIndex, setItemIndex] = useState<number>(0);
-
-  const getUnitText = () => {
-    let text = '';
-    if (monetaryUnit === 100000000) text = '亿';
-    else if (monetaryUnit === 1000000) text = '百万';
-    else if (monetaryUnit === 10000) text = '万';
-    else if (monetaryUnit === 1000) text = '千';
-    return text + unitText;
-  };
-
   const getValueText = (value: number) => {
-    return numeral(value / monetaryUnit).format(formatPattern) + getUnitText();
+    return (
+      numeral(value / monetaryUnit).format(formatPattern) +
+      getMonetaryUnitText(monetaryUnit, unitText)
+    );
   };
 
   useEffect(() => {

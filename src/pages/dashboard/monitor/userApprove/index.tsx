@@ -210,6 +210,7 @@ const UserApproveYearMonthColumn: React.FC = (params) => {
     });
   };
   const config: ColumnConfig = {
+    style: { height: '100%' },
     loading,
     data,
     xField: 'type',

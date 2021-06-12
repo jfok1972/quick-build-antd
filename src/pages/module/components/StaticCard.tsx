@@ -4,13 +4,17 @@ import { stringifyObjectField } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
-import { Col, message, Popover, Row, Tooltip } from 'antd';
+import { Col, message, Popover, Row, Space, Tooltip } from 'antd';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { serialize } from 'object-to-formdata';
 import React, { useEffect, useState } from 'react';
 import { DateFormat } from '../moduleUtils';
+import type { StaticFieldProps } from './StaticField';
+import { StaticField } from './StaticField';
 import styles from './StaticCard.less';
+import type { MonetaryUnit } from '../grid/monetary';
+import { getMonetaryUnitText } from '../grid/monetary';
 
 const numeral = require('numeral');
 
@@ -23,30 +27,36 @@ interface TextValue {
 
 interface ChartProps {
   type: 'line' | 'area' | 'column'; // 迷你折线图，迷你面积图，迷你柱状图
-  sectionType: 'day' | 'month' | 'year'; // 分组类型
+  sectionType?: 'day' | 'month' | 'year'; // 分组类型
   maxCount?: number; // 迷你图最大的记录个数
   orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
-  height?: number; // miniChart的高度
 }
 
 interface StaticCardProps {
   moduleName: string; // 模块名称
   title: string; // 指标名称
   fieldName: string; // 统计的字段名称
-  aggregate: 'sum' | 'count'; // 聚合类型;
+  aggregate: 'sum' | 'count' | 'avg' | 'max' | 'min'; // 聚合类型;
   dateFieldName: string; // 日期字段
-  description?: string; // 指标的描述，放在右上角的圆形感叹号里
   filters?: any[]; // 查询的条件
+  description?: string; // 指标的描述，放在右上角的圆形感叹号里
   formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
   prefix?: React.ReactNode | string; // 金额前面的符号
   suffix?: React.ReactNode | string; // 金额前面的单位
   icon?: React.ReactNode; // 指标标题前面的图标
-  height?: number; // 整个Card的高度
-  monetaryUnit?: 100000000 | 1000000 | 10000 | 1000 | 1; // 数值单位 亿 百万 万 千
+  monetaryUnit?: MonetaryUnit;
   unitText?: string; // 数值单位，个，米，万元。
-  relatives?: Relative[]; //
-  chart?: ChartProps;
+
+  height?: number; // 整个Card的高度
+  chartHeight?: number; // 中间区域的高度，chart 或者 description 属性
+
+  staticFields?: StaticFieldProps[]; // 其他聚合字段的值
+  relatives?: Relative[]; // 各种比较的数据
+  chart?: ChartProps; // 图表定义
+  // 有chart ,则 staticFields 和 relative  都在 foot 上;
+  footerRegion?: 'relative' | 'staticfield'; // foot 放置内容
+  chartRegion?: 'relative' | 'staticfield'; // chart区域放置内容
 }
 
 const sectionTitles = {
@@ -61,7 +71,7 @@ interface Relative {
   sectionNumber?: number; // 多少天、周、月之内的同比，默认为1
   monthOnMonth?: boolean; // true 为环比，其他为同比
   wholeMonth?: boolean; // 月度是否从1号开始 ，默认为false
-  containerToday?: boolean; // 同比的最后一天是否包含今天 , 默认不包含
+  containerToday?: boolean; // 同比的最后一天是否包含今天 , 默认包含
   inFooter?: boolean; // 是否放在 StaticCard 的 footer 区域中, 默认不包含
 }
 
@@ -86,29 +96,23 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   prefix,
   suffix,
   icon,
-  height,
   description,
-  relatives,
   formatPattern = '0,000',
   monetaryUnit = 1,
   unitText = '',
+  height,
+  chartHeight = 40,
+  relatives,
+  staticFields,
   chart,
+  chartRegion = 'staticfield',
+  footerRegion = 'relative',
 }) => {
   const [total, setTotal] = useState<number>(0);
   const [relativeDatas, setRelativeDatas] = useState<RelativeData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const aggregateField = `${aggregate}.${fieldName}`;
   const aggregateFieldName = getColumnDataIndex(aggregateField);
-
-  const getUnitText = () => {
-    let text = '';
-    if (monetaryUnit === 100000000) text = '亿';
-    else if (monetaryUnit === 1000000) text = '百万';
-    else if (monetaryUnit === 10000) text = '万';
-    else if (monetaryUnit === 1000) text = '千';
-    return text + unitText;
-  };
-
   const getTitle = () => {
     if (description) {
       return (
@@ -129,7 +133,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     const {
       sectionNumber = 1,
       monthOnMonth = false,
-      containerToday = false,
+      containerToday = true,
       wholeMonth = false,
     } = relative;
     // 算出数据当前区间和对比区间
@@ -244,13 +248,17 @@ export const StaticCard: React.FC<StaticCardProps> = ({
                   <th>本期期间</th>
                   <td>{startDate}</td>
                   <td>{endDate}</td>
-                  <td className={styles.tdvalue}>{numeral(thisValue).format(formatPattern)}</td>
+                  <td className={styles.tdvalue}>{`${numeral(thisValue).format(
+                    formatPattern,
+                  )} ${unitText}`}</td>
                 </tr>
                 <tr>
                   <th>对比期间</th>
                   <td>{lastStartDate}</td>
                   <td>{lastEndDate}</td>
-                  <td className={styles.tdvalue}>{numeral(lastValue).format(formatPattern)}</td>
+                  <td className={styles.tdvalue}>{`${numeral(lastValue).format(
+                    formatPattern,
+                  )} ${unitText}`}</td>
                 </tr>
                 <tr>
                   <th>增长比例</th>
@@ -285,11 +293,10 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     const [data, setData] = useState<TextValue[]>([]);
     const {
       type,
-      sectionType,
+      sectionType = 'day',
       maxCount = 18,
       orderby = 'text',
       orderDesc = false,
-      height: chartHeight = 40,
     } = chartDefine;
 
     useEffect(() => {
@@ -341,7 +348,10 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         showTitle: false,
         // tooltip 显示的格式是  日期-数值 ,不加这一条显示的是 指标-数值
         formatter: (datum: any) => {
-          return { name: datum.text, value: datum.value + getUnitText() };
+          return {
+            name: datum.text,
+            value: datum.value + getMonetaryUnitText(monetaryUnit, unitText),
+          };
         },
       },
     };
@@ -380,37 +390,67 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     });
   }, []);
 
+  const getStaticFieldsRegion = () => {
+    return (
+      <Space size={[8, 4]} wrap>
+        {staticFields?.map((staticField) => (
+          <StaticField {...staticField} />
+        ))}
+      </Space>
+    );
+  };
+
+  const getRelativeRegion = () => {
+    return (
+      <Row gutter={8}>
+        {relativeDatas.map((relative) => (
+          <Col span={12}>{getRelativeSection(relative)}</Col>
+        ))}{' '}
+      </Row>
+    );
+  };
+
+  const getFooterRegion = () => {
+    const result: any[] = [];
+    if (chart) {
+      if (staticFields) result.push(getStaticFieldsRegion());
+      if (relativeDatas.length) result.push(getRelativeRegion());
+      return result;
+    }
+    if (footerRegion === 'staticfield' && staticFields) return getStaticFieldsRegion();
+    if (footerRegion === 'relative' && relativeDatas.length) return getRelativeRegion();
+    return null;
+  };
+
+  const getDescriptionRegion = () => {
+    const style: React.CSSProperties = {
+      height: `${chartHeight}px`,
+      marginTop: '6px',
+      marginBottom: '10px',
+    };
+    if (chart) return null;
+    if (chartRegion === 'staticfield' && staticFields)
+      return <div style={style}>{getStaticFieldsRegion()}</div>;
+    if (chartRegion === 'relative' && relativeDatas.length)
+      return <div style={style}>{getRelativeRegion()}</div>;
+    return null;
+  };
+
   return (
     <StatisticCard
       className={styles.staticcard}
       style={{ height: height ? `${height}px` : '' }}
       loading={loading}
-      footer={
-        <>
-          {relativeDatas.length ? (
-            <Row gutter={8}>
-              {relativeDatas.map((relative) => (
-                <Col span={12}>{getRelativeSection(relative)}</Col>
-              ))}{' '}
-            </Row>
-          ) : null}
-
-          {/* { <div style={{ display: 'flex', marginBottom: '4px' }}>
-            <Statistic style={{ flex: 1 }} title="日同比" value="6.47%" trend="up" layout="vertical" />
-            <span style={{ width: '16px' }}></span>
-            <Statistic style={{ flex: 1 }} title="日同比" value="6.47%" trend="down" layout="vertical" />
-          </div>} */}
-        </>
-      }
+      chart={chart ? <MiniChart chartDefine={chart} /> : null}
       statistic={{
         title: getTitle(),
-        value: total / monetaryUnit,
+        value: numeral(total / monetaryUnit).format(formatPattern),
         prefix,
-        suffix: [getUnitText(), suffix],
+        suffix: [getMonetaryUnitText(monetaryUnit, unitText), suffix],
         icon,
-        // description
+        description: getDescriptionRegion(),
       }}
-      chart={chart ? <MiniChart chartDefine={chart} /> : null}
+      footer={getFooterRegion()}
     />
   );
 };

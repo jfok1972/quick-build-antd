@@ -3,6 +3,17 @@ import React from 'react';
 
 import type { TextValue } from '../data';
 
+export type MonetaryUnit = 100000000 | 1000000 | 10000 | 1000 | 1;
+
+export const getMonetaryUnitText = (unit: number, unitText = '') => {
+  let text = '';
+  if (unit === 100000000) text = '亿';
+  else if (unit === 1000000) text = '百万';
+  else if (unit === 10000) text = '万';
+  else if (unit === 1000) text = '千';
+  return text + unitText;
+};
+
 export interface MonetaryType {
   type: string;
   monetaryColoredText: any;
@@ -54,14 +65,12 @@ const monetarys = [
 ];
 
 export const getMonetarysValueText = (): TextValue[] => {
-  return monetarys.map(
-    (monerary): TextValue => {
-      return {
-        text: monerary.monerary.unittext,
-        value: monerary.type,
-      };
-    },
-  );
+  return monetarys.map((monerary): TextValue => {
+    return {
+      text: monerary.monerary.unittext,
+      value: monerary.type,
+    };
+  });
 };
 
 export const getMonetary = (key: string): MonetaryType => {
