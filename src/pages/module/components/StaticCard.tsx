@@ -391,10 +391,15 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   }, []);
 
   const getStaticFieldsRegion = () => {
+    let hasRatio = false;
+    staticFields?.forEach((field) => {
+      hasRatio = hasRatio || !!field.addRatio;
+    });
     return (
-      <Space size={[8, 4]} wrap>
+      // 如果要显示比率，则把这一行撑足
+      <Space size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
         {staticFields?.map((staticField) => (
-          <StaticField {...staticField} />
+          <StaticField {...staticField} total={total} />
         ))}
       </Space>
     );

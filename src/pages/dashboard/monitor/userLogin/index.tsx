@@ -389,6 +389,23 @@ export const UserLogin: React.FC = () => {
           dateFieldName="logindate"
           description="用户的登录信息。"
           unitText="次"
+          chartHeight={20}
+          staticFields={[
+            {
+              moduleName: 'FUserloginlog',
+              title: '今日登录次数',
+              aggregate: 'count',
+              fieldName: '*',
+              unitText: '次',
+              filters: [
+                {
+                  property: 'logindate',
+                  operator: 'daysection',
+                  value: `${moment().format(DateFormat)}--${moment().format(DateFormat)}`,
+                },
+              ],
+            },
+          ]}
           relatives={[
             {
               section: 'week',
@@ -415,6 +432,23 @@ export const UserLogin: React.FC = () => {
           fieldName="udfloginminute"
           dateFieldName="logindate"
           unitText="分钟"
+          chartHeight={20}
+          staticFields={[
+            {
+              moduleName: 'FUserloginlog',
+              title: '今日登录时长',
+              aggregate: 'sum',
+              fieldName: 'udfloginminute',
+              unitText: '分钟',
+              filters: [
+                {
+                  property: 'logindate',
+                  operator: 'daysection',
+                  value: `${moment().format(DateFormat)}--${moment().format(DateFormat)}`,
+                },
+              ],
+            },
+          ]}
           relatives={[
             {
               section: 'week',
@@ -448,6 +482,23 @@ export const UserLogin: React.FC = () => {
             },
           ]}
           unitText="分钟"
+          chartHeight={20}
+          staticFields={[
+            {
+              moduleName: 'FUserloginlog',
+              title: '今日平均时长',
+              aggregate: 'avg',
+              fieldName: 'udfloginminute',
+              unitText: '分钟',
+              filters: [
+                {
+                  property: 'logindate',
+                  operator: 'daysection',
+                  value: `${moment().format(DateFormat)}--${moment().format(DateFormat)}`,
+                },
+              ],
+            },
+          ]}
           relatives={[
             {
               section: 'week',
@@ -481,6 +532,23 @@ export const UserLogin: React.FC = () => {
             },
           ]}
           unitText="分钟"
+          chartHeight={20}
+          staticFields={[
+            {
+              moduleName: 'FUserloginlog',
+              title: '今日最大时长',
+              aggregate: 'max',
+              fieldName: 'udfloginminute',
+              unitText: '分钟',
+              filters: [
+                {
+                  property: 'logindate',
+                  operator: 'daysection',
+                  value: `${moment().format(DateFormat)}--${moment().format(DateFormat)}`,
+                },
+              ],
+            },
+          ]}
           relatives={[
             {
               section: 'week',

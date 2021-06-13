@@ -13,8 +13,9 @@ import type { TextValue } from '@/pages/module/data';
 import type { ColumnConfig } from '@ant-design/charts/es/column';
 import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionSelect } from '../../utils/DateSectionSelect';
-import { chartsColSpan } from '../../charts';
+import { chartsColSpan, staticColSpan } from '../../charts';
 import { StaticMasterDetailCard } from '@/pages/module/components/StaticMasterDetailCard';
+import { StaticCard } from '@/pages/module/components/StaticCard';
 
 const numeral = require('numeral');
 
@@ -250,7 +251,7 @@ const UserApproveYearMonthColumn: React.FC = (params) => {
     <Card
       title={
         <>
-          <span>用户审批</span>
+          <span>已审批任务</span>
           <Radio.Group
             value={sectionType}
             size="small"
@@ -278,6 +279,159 @@ const UserApproveYearMonthColumn: React.FC = (params) => {
 export const UserApprove: React.FC = () => {
   return (
     <Row gutter={[12, 12]}>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="VActHiProcinst"
+          fieldName="*"
+          aggregate="count"
+          title="审批记录总数"
+          unitText="条"
+          dateFieldName="endTime"
+          description="所有模块的已经开始审批的记录总数"
+          footerRegion="staticfield"
+          height={205}
+          chart={{
+            type: 'column',
+            sectionType: 'day',
+          }}
+          staticFields={[
+            {
+              moduleName: 'VActHiProcinst',
+              fieldName: '*',
+              aggregate: 'count',
+              title: '已审批完成',
+              filters: [
+                {
+                  property: 'endTime',
+                  operator: 'is not null',
+                },
+              ],
+              unitText: '条',
+              addRatio: true,
+            },
+            {
+              moduleName: 'VActHiProcinst',
+              fieldName: '*',
+              aggregate: 'count',
+              title: '未审批完成',
+              filters: [
+                {
+                  property: 'endTime',
+                  operator: 'is null',
+                },
+              ],
+              unitText: '条',
+              addRatio: true,
+            },
+          ]}
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="VActHiProcinst"
+          fieldName="*"
+          aggregate="count"
+          filters={[
+            {
+              property: 'endTime',
+              operator: 'is not null',
+            },
+          ]}
+          title="已审批记录数"
+          unitText="条"
+          dateFieldName="endTime"
+          footerRegion="staticfield"
+          height={205}
+          chart={{
+            type: 'line',
+            sectionType: 'day',
+          }}
+          staticFields={[
+            {
+              moduleName: 'VActHiProcinst',
+              fieldName: 'duration',
+              aggregate: 'max',
+              monetaryUnit: 3600000,
+              title: '最长审批时间',
+              unitText: '小时',
+            },
+            {
+              moduleName: 'VActHiProcinst',
+              fieldName: 'duration',
+              aggregate: 'min',
+              monetaryUnit: 3600000,
+              title: '最短审批时间',
+              unitText: '小时',
+            },
+            {
+              moduleName: 'VActHiProcinst',
+              fieldName: 'duration',
+              aggregate: 'avg',
+              monetaryUnit: 3600000,
+              title: '平均审批时间',
+              unitText: '小时',
+            },
+          ]}
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="VActAllFinishTask"
+          fieldName="*"
+          aggregate="count"
+          title="已完成任务总数"
+          unitText="次"
+          dateFieldName="actTaskEndTime"
+          description="所有模块的所有审批记录的任务总次数"
+          footerRegion="staticfield"
+          height={205}
+          chart={{
+            type: 'area',
+            sectionType: 'day',
+          }}
+          relatives={[
+            {
+              section: 'day',
+              monthOnMonth: true,
+            },
+            {
+              section: 'week',
+            },
+            {
+              section: 'month',
+            },
+          ]}
+        />
+      </Col>
+      <Col {...staticColSpan}>
+        <StaticCard
+          moduleName="VActRuTask1"
+          fieldName="*"
+          aggregate="count"
+          title="未完成任务数"
+          unitText="次"
+          dateFieldName="createTime"
+          footerRegion="staticfield"
+          height={205}
+          chart={{
+            type: 'column',
+            sectionType: 'day',
+          }}
+          relatives={[
+            {
+              section: 'day',
+              monthOnMonth: true,
+            },
+            {
+              section: 'week',
+            },
+            {
+              section: 'month',
+            },
+          ]}
+        />
+      </Col>
+
       <Col span={24}>
         <StaticMasterDetailCard
           moduleName="VActHiProcinst"
@@ -363,10 +517,10 @@ export const UserApprove: React.FC = () => {
         </Col>
       }
       <Col {...chartsColSpan}>
-        <UserApprovePie title="用户审批模块分析" groupfieldid={{ fieldname: 'objecttitle' }} />
+        <UserApprovePie title="已审批任务模块分析" groupfieldid={{ fieldname: 'objecttitle' }} />
       </Col>
       <Col {...chartsColSpan}>
-        <UserApprovePie title="用户审批结果分析" groupfieldid={{ fieldname: 'actEndActName' }} />
+        <UserApprovePie title="已审批任务结果分析" groupfieldid={{ fieldname: 'actEndActName' }} />
       </Col>
       <Col span={24}>
         <UserApproveYearMonthColumn {...cardParams} />

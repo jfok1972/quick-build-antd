@@ -2,6 +2,7 @@ import { getColumnDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
 import { stringifyObjectField } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
+import { Progress } from 'antd';
 import { serialize } from 'object-to-formdata';
 import React, { useEffect, useState } from 'react';
 import type { MonetaryUnit } from '../grid/monetary';
@@ -20,8 +21,10 @@ export interface StaticFieldProps {
   formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
   prefix?: React.ReactNode | string; // 金额前面的符号
   suffix?: React.ReactNode | string; // 金额前面的单位
-  monetaryUnit?: MonetaryUnit;
+  monetaryUnit?: MonetaryUnit | number;
   unitText?: string; // 数值单位，个，米，万元。
+  addRatio?: boolean; // 是否加入和总计的比例
+  total?: number; // 如果要加入比例，这是总计数
 }
 
 export const StaticField: React.FC<StaticFieldProps> = ({
@@ -35,6 +38,8 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   suffix,
   monetaryUnit = 1,
   unitText = '',
+  addRatio,
+  total,
 }) => {
   const [data, setData] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,16 +64,25 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   }, []);
 
   return (
-    <Statistic
-      title={[prefix, title, suffix]}
-      value={
-        loading
-          ? ''
-          : `${numeral(data / monetaryUnit).format(formatPattern)}${getMonetaryUnitText(
-              monetaryUnit,
-              unitText,
-            )}`
-      }
-    />
+    <div style={{ display: 'flex' }} className="staticfield">
+      <Statistic
+        title={[prefix, title, suffix]}
+        value={
+          loading
+            ? ''
+            : `${numeral(data / monetaryUnit).format(formatPattern)}${getMonetaryUnitText(
+                monetaryUnit,
+                unitText,
+              )}`
+        }
+      />
+      {/* 防止 99.99% 显示成 100% */}
+      {addRatio && total ? (
+        <Progress
+          percent={numeral(Math.floor((data / total) * 1000) / 10).format('0.0')}
+          style={{ padding: '0px 12px', flex: 1 }}
+        />
+      ) : null}
+    </div>
   );
 };
