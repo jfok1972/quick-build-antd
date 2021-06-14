@@ -167,6 +167,10 @@ const canUnClaim = (record: any) => {
  * 接受或退回任务
  */
 const claimOrUnClaim = (moduleName: string, record: any, dispatch: Dispatch) => {
+  if (['VActAllRuTask', 'VActAllFinishTask'].includes(moduleName)) {
+    // 所有待办任务和已完成任务之中不允许操作
+    return;
+  }
   const moduleInfo = getModuleInfo(moduleName);
   const id = record[moduleInfo.primarykey];
   const name = record[moduleInfo.namefield];
@@ -214,8 +218,8 @@ const claimOrUnClaim = (moduleName: string, record: any, dispatch: Dispatch) => 
 
 const executeProcess = (moduleState: ModuleState, record: any, dispatch: Dispatch) => {
   const { moduleName, formState } = moduleState;
-  if (moduleState.moduleName === 'VActRuTask') {
-    // 如果是在我的待办事项之中
+  if (['VActAllRuTask', 'VActAllFinishTask'].includes(moduleState.moduleName)) {
+    // 所有待办任务和已完成任务之中不允许操作
   } else {
     dispatch({
       type: 'modules/formStateChanged',
