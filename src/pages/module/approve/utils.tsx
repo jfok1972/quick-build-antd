@@ -783,11 +783,24 @@ export const approveVActRuTaskRenderer: React.FC<ApproveRenderProps> = ({
         </Tooltip>
       }
     >
-      {getApproveSteps({ moduleState, record, dispatch, direction: 'vertical', readonly: true })}
+      {getApproveSteps({
+        moduleState,
+        record,
+        dispatch,
+        direction: 'vertical',
+        // 在我的待办事项里面，流程图里面的 现在审批 按钮不可用，只能用列表里的按钮进行审批
+        readonly: true,
+      })}
     </Card>
   );
   if (canClaim(record))
-    return getCanClaimPopover({ moduleName, record, className, tips, dispatch });
+    return getCanClaimPopover({
+      moduleName: moduleState.moduleName,
+      record,
+      className,
+      tips,
+      dispatch,
+    });
   if (canApprove(record)) {
     const CreatePaymentButton = () => {
       const context = useContext(DetailModelContext);

@@ -21,6 +21,7 @@ import {
 import PinStatus from './widget/pinStatus';
 import ModuleForm from './form';
 import StartEndDateSectionSelect from './grid/sqlparams';
+import { moduleStaticCards } from './staticCard/system';
 
 interface ModuleProps {
   dispatch: Dispatch<any>;
@@ -198,6 +199,9 @@ const ModuleUrlEntry: React.FC<ModuleProps> = (params) => {
         // extraContent={<span id={spanid}> </span>}
       >
         <GridContent>
+          {moduleStaticCards[moduleName] ? (
+            <Layout style={{ marginBottom: '16px' }}>{moduleStaticCards[moduleName]}</Layout>
+          ) : null}
           <Layout>
             <NavigateSider moduleState={moduleState} dispatch={dispatch} />
             <Content style={hasCardNavigate && navVisible ? { margin: '0 0 0 16px' } : {}}>

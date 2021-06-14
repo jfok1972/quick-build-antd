@@ -101,7 +101,7 @@ const getIntegerValue = (
           {field.aggregate
             ? getOneToManyInfoButton(record, {
                 fieldtitle: field.fieldtitle,
-                fieldname: field.fieldname,
+                // fieldname: field.fieldname,
                 childModuleName: formFieldDefine.additionObjectname,
                 fieldahead: formFieldDefine.fieldahead,
                 moduleInfo,
@@ -136,7 +136,7 @@ const getDoubleValue = (
           {field.aggregate
             ? getOneToManyInfoButton(record, {
                 fieldtitle: field.fieldtitle,
-                fieldname: field.fieldname,
+                // fieldname: field.fieldname,
                 childModuleName: formFieldDefine.additionObjectname,
                 fieldahead: formFieldDefine.fieldahead,
                 moduleInfo,
@@ -170,7 +170,7 @@ const getOneToManyValue = (
         {` ${field.unittext || '条'}`}
         {getOneToManyInfoButton(record, {
           fieldtitle: field.fieldtitle,
-          fieldname: field.fieldname,
+          // fieldname: field.fieldname,
           childModuleName: field.fieldtype.substring(
             field.fieldtype.indexOf('<') + 1,
             field.fieldtype.indexOf('>'),

@@ -25,6 +25,7 @@ export interface StaticFieldProps {
   unitText?: string; // 数值单位，个，米，万元。
   addRatio?: boolean; // 是否加入和总计的比例
   total?: number; // 如果要加入比例，这是总计数
+  value?: number; // 传入的已经计算好的数据，直接显示即可
 }
 
 export const StaticField: React.FC<StaticFieldProps> = ({
@@ -39,6 +40,7 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   monetaryUnit = 1,
   unitText = '',
   addRatio,
+  value,
   total,
 }) => {
   const [data, setData] = useState<number>(0);
@@ -47,6 +49,11 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   const aggregateFieldName = getColumnDataIndex(aggregateField);
 
   useEffect(() => {
+    if (value) {
+      setData(value);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
       method: 'POST',
@@ -69,7 +76,7 @@ export const StaticField: React.FC<StaticFieldProps> = ({
         title={[prefix, title, suffix]}
         value={
           loading
-            ? ''
+            ? ' '
             : `${numeral(data / monetaryUnit).format(formatPattern)}${getMonetaryUnitText(
                 monetaryUnit,
                 unitText,
