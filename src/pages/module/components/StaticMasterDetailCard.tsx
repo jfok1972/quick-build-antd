@@ -32,6 +32,7 @@ interface StaticMasterDetailCardProps {
   monetaryUnit?: MonetaryUnit;
   unitText?: string; // 数值单位，个，米，万元。
   filters?: any[];
+  description?: any;
   items: CardCategoryProps[];
 }
 
@@ -55,6 +56,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   monetaryUnit = 1,
   unitText = '',
   title,
+  description,
   filters,
   items,
 }) => {
@@ -153,28 +155,26 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
     <StatisticCard
       className={styles.staticcard}
       statistic={{
-        title,
+        title: <div>{[title, items.length > 1
+          ? <span style={{ marginLeft: '16px' }}>{items.map((item, index) => (
+            <Tooltip title={item.groupTitle} placement="bottom">
+              <span
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setItemIndex(index);
+                }}
+              >
+                <Badge
+                  status={index === itemIndex ? 'success' : 'default'}
+                  title={item.groupTitle}
+                />
+              </span>
+            </Tooltip>
+          ))}</span>
+          : null,]}</div>,
         value: getValueText(total),
-        description:
-          items.length > 1
-            ? items.map((item, index) => (
-                <Tooltip title={item.groupTitle} placement="bottom">
-                  <span
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      setItemIndex(index);
-                    }}
-                  >
-                    <Badge
-                      status={index === itemIndex ? 'success' : 'default'}
-                      title={item.groupTitle}
-                    />
-                  </span>
-                </Tooltip>
-              ))
-            : null,
+        description: <div>{[description, items[itemIndex].description]}</div>,
       }}
-      footer={items[itemIndex].description}
     />
   );
   const getDetailCard = (detail: TextValue) => (

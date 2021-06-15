@@ -460,6 +460,7 @@ export const UserOperator: React.FC = () => {
             {
               groupField: { fieldname: 'dotype' },
               groupTitle: '操作类型',
+              description: '所有操作根据操作类型分组',
               otherTitle: '其他操作',
               orderby: 'value',
               orderDesc: true,
