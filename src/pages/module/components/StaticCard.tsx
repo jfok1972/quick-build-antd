@@ -72,7 +72,6 @@ interface Relative {
   monthOnMonth?: boolean; // true 为环比，其他为同比
   wholeMonth?: boolean; // 月度是否从1号开始 ，默认为false
   containerToday?: boolean; // 同比的最后一天是否包含今天 , 默认包含
-  inFooter?: boolean; // 是否放在 StaticCard 的 footer 区域中, 默认不包含
 }
 
 interface RelativeData {
@@ -447,6 +446,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       style={{ height: height ? `${height}px` : '' }}
       loading={loading}
       chart={chart ? <MiniChart chartDefine={chart} /> : null}
+      chartPlacement="bottom"
       statistic={{
         title: getTitle(),
         value: numeral(total / monetaryUnit).format(formatPattern),

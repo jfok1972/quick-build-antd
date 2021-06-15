@@ -453,7 +453,7 @@ export const UserOperator: React.FC = () => {
         <StaticMasterDetailCard
           moduleName="FUseroperatelog"
           aggregateField="count.*"
-          detailCount={4}
+          detailCount={7}
           title="记录操作次数"
           unitText="次"
           items={[

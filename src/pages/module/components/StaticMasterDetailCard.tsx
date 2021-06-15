@@ -27,6 +27,7 @@ interface StaticMasterDetailCardProps {
   aggregateField: string; // 聚合字段， count.* ,sum.fieldname , avg.fieldname
   title: string; // 指标名称
   detailCount: number; // 明细里面个数，超过的全部放在其他里
+  maxColCount?: number; // 每行最多显示几列，默认为4
   formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
   monetaryUnit?: MonetaryUnit;
   unitText?: string; // 数值单位，个，米，万元。
@@ -49,6 +50,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   moduleName,
   aggregateField,
   detailCount,
+  maxColCount = 4,
   formatPattern = '0,000',
   monetaryUnit = 1,
   unitText = '',
@@ -57,7 +59,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   items,
 }) => {
   const aggregateFieldName = getColumnDataIndex(aggregateField);
-  const [responsive, setResponsive] = useState<boolean>(false);
+  const [colCount, setColCount] = useState<number>(maxColCount);
   const [loading, setLoading] = useState<boolean>(true);
   const [firstloading, setFirstloading] = useState<boolean>(true);
   const [total, setTotal] = useState<number>(0);
@@ -192,7 +194,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
     />
   );
 
-  const getResponsiveChildren = () => {
+  const getTwoColChildren = () => {
     const children: any[] = [];
     if (detailData.length % 2 === 1) {
       // 如果有奇数个，则总计和第一个在一起
@@ -225,37 +227,91 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
         );
       }
     }
-    for (let i = children.length - 1; i >= 0; i -= 1) {
+    for (let i = children.length - 1; i > 0; i -= 1) {
       children.splice(i, 0, <Divider type="horizontal" />);
     }
     return children;
   };
 
+  /**
+   * 总数超过了总列，并且不是2列的
+   * @returns
+   */
+  const getMultRowChildren = () => {
+    const children: any[] = [];
+    const allArray: any[] = [getSumCard(), ...detailData.map((detail) => getDetailCard(detail))];
+    const row: any[] = [];
+    for (let i = 0; i < allArray.length; i += 1) {
+      const rownumber: number = Math.trunc(i / maxColCount);
+      if (row.length < rownumber + 1) row.push([]);
+      row[rownumber].push(allArray[i]);
+    }
+    for (let i = 0; i < row.length; i += 1) {
+      children.push(
+        <StatisticCard.Group>
+          {(row[i] as any[]).map((item, index, array) => [
+            item,
+            index === array.length - 1 ? null : <Divider type="vertical" />,
+          ])}
+        </StatisticCard.Group>,
+      );
+    }
+    for (let i = children.length - 1; i > 0; i -= 1) {
+      children.splice(i, 0, <Divider type="horizontal" />);
+    }
+    return children;
+  };
+
+  let children;
+  if (colCount === 2 && detailData.length > 1) {
+    children = (
+      <StatisticCard.Group
+        className={styles.staticcardgroup}
+        direction="column"
+        loading={firstloading && loading}
+      >
+        {getTwoColChildren()}
+      </StatisticCard.Group>
+    );
+  } else if (colCount !== 1 && detailData.length >= maxColCount) {
+    children = (
+      <StatisticCard.Group
+        className={styles.staticcardgroup}
+        loading={firstloading && loading}
+        direction="column"
+      >
+        {getMultRowChildren()}
+      </StatisticCard.Group>
+    );
+  } else {
+    children = (
+      <StatisticCard.Group
+        className={styles.staticcardgroup}
+        loading={firstloading && loading}
+        direction={colCount === 1 ? 'column' : 'row'}
+      >
+        {getSumCard()}
+        {detailData.length ? <Divider type={colCount === 1 ? 'horizontal' : 'vertical'} /> : null}
+        {detailData.map((detail, index) => [
+          getDetailCard(detail),
+          index === detailData.length - 1 ? null : (
+            <Divider type={colCount === 1 ? 'horizontal' : 'vertical'} />
+          ),
+        ])}
+      </StatisticCard.Group>
+    );
+  }
+
   return (
     <RcResizeObserver
       key="resize-observer"
       onResize={(offset) => {
-        setResponsive(offset.width < 768);
+        if (offset.width < 480) setColCount(1);
+        else if (offset.width < 992) setColCount(2);
+        else setColCount(maxColCount);
       }}
     >
-      {responsive && detailData.length > 1 ? (
-        <StatisticCard.Group
-          className={styles.staticcardgroup}
-          direction="column"
-          loading={firstloading && loading}
-        >
-          {getResponsiveChildren()}
-        </StatisticCard.Group>
-      ) : (
-        <StatisticCard.Group className={styles.staticcardgroup} loading={firstloading && loading}>
-          {getSumCard()}
-          {detailData.length ? <Divider type="vertical" /> : null}
-          {detailData.map((detail, index) => [
-            getDetailCard(detail),
-            index === detailData.length - 1 ? null : <Divider type="vertical" />,
-          ])}
-        </StatisticCard.Group>
-      )}
+      {children}
     </RcResizeObserver>
   );
 };
