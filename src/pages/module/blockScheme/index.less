@@ -1,5 +1,10 @@
 @import '~antd/es/style/themes/default.less';
 
+.blocktab {
+  height: 100%;
+  background: @layout-body-background !important;
+}
+
 .blockcard {
   padding: 12px;
   background: @layout-body-background !important;
@@ -7,4 +12,20 @@
 
 .subcol {
   background: @layout-body-background !important;
+}
+
+.innercard {
+  height: 100%;
+  min-height: 50px;
+  background-color: white;
+  :global {
+    .ant-card {
+      height: 100%;
+    }
+    .ant-card-body {
+      height: 100%;
+      margin: 0;
+      padding: 0 12px;
+    }
+  }
 }
