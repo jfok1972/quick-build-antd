@@ -34,11 +34,26 @@ const getColSpan = (cols: number | undefined) => {
 const BlockScheme = ({ block }: { block: any }) => {
   console.log(block);
   return (
-    <Row gutter={[12, 12]}>
-      {block.items[0].items
-        ? block.items[0].items.map((item: any) => (
-            <Col key={item.detailid} {...getColSpan(item.cols)} style={{ height: '100px' }}>
-              <Card style={{ height: '100%' }}>{item.title}</Card>
+    <Row gutter={[12, 12]} className={styles.subcol}>
+      {block.items
+        ? block.items.map((item: any) => (
+            <Col
+              key={item.detailid}
+              {...getColSpan(item.cols)}
+              className={item.items ? styles.subcol : ''}
+              style={{ height: item.height ? `${item.height}px` : 'auto' }}
+            >
+              <Card
+                title={item.title}
+                style={{ height: '100%' }}
+                bodyStyle={{ padding: 0, margin: 0, height: '100%' }}
+              >
+                {item.items ? (
+                  <BlockScheme block={item}></BlockScheme>
+                ) : (
+                  <span>111{item.title}</span>
+                )}
+              </Card>
             </Col>
           ))
         : null}
@@ -71,7 +86,7 @@ export const BlockSchemes: React.FC = () => {
               key={block.homepageschemeid}
               className={styles.blockcard}
             >
-              <BlockScheme key={block.detailid} block={block} />
+              <BlockScheme key={block.items[0].detailid} block={block.items[0]} />
             </TabPane>
           ))}
         </Tabs>
@@ -79,7 +94,7 @@ export const BlockSchemes: React.FC = () => {
     }
     return (
       <Card>
-        <BlockScheme key={BlockSchemes[0]} block={BlockSchemes[0]} />
+        <BlockScheme key={BlockSchemes[0].items[0].detailid} block={BlockSchemes[0].items[0]} />
       </Card>
     );
   }
