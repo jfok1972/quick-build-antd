@@ -29,7 +29,7 @@ export const halfColSpan: any = {
 export const quarterInnerBlockColSpan: any = {
   xs: 24,
   sm: 12,
-  md: 12,
+  md: 6,
   lg: 12,
   xl: 6,
   xxl: 6,
@@ -44,21 +44,31 @@ export const halfInnerColSpan: any = {
   xxl: 12,
 };
 
+/**
+ * 顶层的格子获取宽度
+ * @param cols
+ * @returns
+ */
 const getColSpan = (cols: number | undefined) => {
   if (cols === 2) return halfColSpan;
   if (cols === 4) return { span: 24 };
   return quarterBlockColSpan;
 };
 
+/**
+ * 在一个格子中再次进行进行分拆时获取宽度
+ * @param cols
+ * @returns
+ */
 const getInnerColSpan = (cols: number | undefined) => {
   if (cols === 2) return halfInnerColSpan;
   if (cols === 4) return { span: 24 };
   return quarterInnerBlockColSpan;
 };
 
-const BlockScheme = ({ block, inner = false }: { block: any; inner?: boolean }) => {
+const BlockDetail = ({ block, inner = false }: { block: any; inner?: boolean }) => {
   console.log(block);
-  if (block.xtype === 'tabPanel') {
+  if (block.xtype && (block.xtype as string).toLowerCase() === 'tabpanel') {
     return (
       <Card>
         <Tabs>
@@ -73,7 +83,7 @@ const BlockScheme = ({ block, inner = false }: { block: any; inner?: boolean }) 
               key={tab.detailid}
               className={styles.blocktab}
             >
-              <BlockScheme key={tab.detailid} block={tab} />
+              <BlockDetail key={tab.detailid} block={tab} />
             </TabPane>
           ))}
         </Tabs>
@@ -85,13 +95,13 @@ const BlockScheme = ({ block, inner = false }: { block: any; inner?: boolean }) 
       {block.items.map((item: any) => (
         <Col
           key={item.detailid}
-          {...(inner ? getInnerColSpan(item.cols) : getColSpan(item.cols))}
+          {...(inner && block.cols !== 4 ? getInnerColSpan(item.cols) : getColSpan(item.cols))}
           className={item.items ? styles.subcol : ''}
           style={{ height: item.height ? `${item.height}px` : 'auto' }}
         >
           <div className={styles.innercard}>
             {item.items ? (
-              <BlockScheme block={item} inner={true}></BlockScheme>
+              <BlockDetail block={item} inner={true}></BlockDetail>
             ) : (
               <span>111{item.title}</span>
             )}
@@ -133,7 +143,7 @@ export const BlockSchemes: React.FC = () => {
               key={block.homepageschemeid}
               className={styles.blockcard}
             >
-              <BlockScheme key={block.items[0].detailid} block={block.items[0]} />
+              <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
             </TabPane>
           ))}
         </Tabs>
@@ -141,7 +151,7 @@ export const BlockSchemes: React.FC = () => {
     }
     return (
       <div className={styles.innercard}>
-        <BlockScheme key={schemes[0].items[0].detailid} block={schemes[0].items[0]} />
+        <BlockDetail key={schemes[0].items[0].detailid} block={schemes[0].items[0]} />
       </div>
     );
   }
