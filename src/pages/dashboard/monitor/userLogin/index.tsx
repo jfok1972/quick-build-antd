@@ -3,7 +3,7 @@ import type { CardProps } from 'antd';
 import { Card, Col, Radio, Row } from 'antd';
 import request, { API_HEAD } from '@/utils/request';
 import { serialize } from 'object-to-formdata';
-import { apply, stringifyObjectField } from '@/utils/utils';
+import { apply, stringifyObjectField, uuid } from '@/utils/utils';
 import { getColumnDataIndex } from '@/pages/datamining/utils';
 import { currentUser } from 'umi';
 import moment from 'moment';
@@ -569,6 +569,7 @@ export const UserLogin: React.FC = () => {
       </Col>
       <Col span={24}>
         <StaticMasterDetailCard
+          key={uuid()}
           moduleName="FUserloginlog"
           aggregateField="count.*"
           detailCount={3}
@@ -586,15 +587,30 @@ export const UserLogin: React.FC = () => {
                   if (rec.value === 'null') {
                     apply(rec, {
                       text: '登出异常',
-                      icon: <CloseCircleOutlined style={{ color: 'red', paddingRight: '4px' }} />,
+                      icon: (
+                        <CloseCircleOutlined
+                          key={uuid()}
+                          style={{ color: 'red', paddingRight: '4px' }}
+                        />
+                      ),
                     });
                   } else if (rec.value === '超时登出') {
                     apply(rec, {
-                      icon: <ClockCircleOutlined style={{ color: 'green', paddingRight: '4px' }} />,
+                      icon: (
+                        <ClockCircleOutlined
+                          key={uuid()}
+                          style={{ color: 'green', paddingRight: '4px' }}
+                        />
+                      ),
                     });
                   } else if (rec.value === '正常登出') {
                     apply(rec, {
-                      icon: <CheckCircleOutlined style={{ color: 'blue', paddingRight: '4px' }} />,
+                      icon: (
+                        <CheckCircleOutlined
+                          key={uuid()}
+                          style={{ color: 'blue', paddingRight: '4px' }}
+                        />
+                      ),
                     });
                   }
                 });

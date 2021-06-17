@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import request, { API_HEAD } from '@/utils/request';
-import { apply, stringifyObjectField } from '@/utils/utils';
+import { apply, stringifyObjectField, uuid } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
 import { serialize } from 'object-to-formdata';
 import RcResizeObserver from 'rc-resize-observer';
@@ -41,6 +41,7 @@ interface CardCategoryProps {
   groupField: any; // 分组的字段  { fieldname : dotype} ,
   groupTitle: string; // 指标名称
   otherTitle?: string;
+  detailCount?: number; // 明细里面个数，超过的全部放在其他里, 如果没设置，使用上面的
   description?: string; // 汇总指标的描述
   orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
@@ -94,6 +95,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       }
       let sumValue: number = 0;
       const sortField = items[itemIndex].orderby || 'value';
+      const detailMaxCount = items[itemIndex].detailCount || detailCount;
       const detailArray: TextValue[] = response
         .map((rec) => {
           const obj = {
@@ -111,7 +113,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           if (rec1[sortField] < rec2[sortField]) return items[itemIndex].orderDesc ? 1 : -1;
           return 0;
         });
-      if (detailArray.length > detailCount) {
+      if (detailArray.length > detailMaxCount) {
         let restCount = 0;
         const other: TextValue = {
           text: items[itemIndex].otherTitle || '其他',
@@ -119,13 +121,13 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           percent: 0,
         };
         detailArray
-          .filter((rec, order) => order >= detailCount - 1)
+          .filter((rec, order) => order >= detailMaxCount - 1)
           .forEach((rec) => {
             other.value += rec.value;
             restCount += 1;
           });
         other.text += `(${restCount}个)`;
-        detailArray.splice(detailCount - 1, detailArray.length - detailCount + 1, other);
+        detailArray.splice(detailMaxCount - 1, detailArray.length - detailMaxCount + 1, other);
       }
       detailArray.forEach((rec) => {
         if (sumValue) apply(rec, { percent: Math.round((rec.value * 10000) / sumValue) / 10000 });
@@ -153,25 +155,35 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   };
   const getSumCard = () => (
     <StatisticCard
+      key={uuid()}
       className={styles.staticcard}
       statistic={{
-        title: <div>{[title, items.length > 1
-          ? <span style={{ marginLeft: '16px' }}>{items.map((item, index) => (
-            <Tooltip title={item.groupTitle} placement="bottom">
-              <span
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  setItemIndex(index);
-                }}
-              >
-                <Badge
-                  status={index === itemIndex ? 'success' : 'default'}
-                  title={item.groupTitle}
-                />
-              </span>
-            </Tooltip>
-          ))}</span>
-          : null,]}</div>,
+        title: (
+          <div>
+            {[
+              title,
+              items.length > 1 ? (
+                <span key={uuid()} style={{ marginLeft: '16px' }}>
+                  {items.map((item, index) => (
+                    <Tooltip key={uuid()} title={item.groupTitle} placement="bottom">
+                      <span
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setItemIndex(index);
+                        }}
+                      >
+                        <Badge
+                          status={index === itemIndex ? 'success' : 'default'}
+                          title={item.groupTitle}
+                        />
+                      </span>
+                    </Tooltip>
+                  ))}
+                </span>
+              ) : null,
+            ]}
+          </div>
+        ),
         value: getValueText(total),
         description: <div>{[description, items[itemIndex].description]}</div>,
       }}
@@ -179,6 +191,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   );
   const getDetailCard = (detail: TextValue) => (
     <StatisticCard
+      key={uuid()}
       loading={!firstloading && loading}
       className={styles.staticcard}
       statistic={{
@@ -199,7 +212,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
     if (detailData.length % 2 === 1) {
       // 如果有奇数个，则总计和第一个在一起
       children.push(
-        <StatisticCard.Group>
+        <StatisticCard.Group key={uuid()}>
           {getSumCard()}
           <Divider type="vertical" />
           {getDetailCard(detailData[0])}
@@ -207,7 +220,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       );
       for (let i = 0; i < (detailData.length - 1) / 2; i += 1) {
         children.push(
-          <StatisticCard.Group>
+          <StatisticCard.Group key={uuid()}>
             {getDetailCard(detailData[i * 2 + 1])}
             <Divider type="vertical" />
             {getDetailCard(detailData[i * 2 + 2])}
@@ -216,10 +229,10 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       }
     } else {
       // 有偶数个，总计占一行
-      children.push(<StatisticCard.Group>{getSumCard()}</StatisticCard.Group>);
+      children.push(<StatisticCard.Group key={uuid()}>{getSumCard()}</StatisticCard.Group>);
       for (let i = 0; i < detailData.length / 2; i += 1) {
         children.push(
-          <StatisticCard.Group>
+          <StatisticCard.Group key={uuid()}>
             {getDetailCard(detailData[i * 2])}
             <Divider type="vertical" />
             {getDetailCard(detailData[i * 2 + 1])}
@@ -248,7 +261,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
     }
     for (let i = 0; i < row.length; i += 1) {
       children.push(
-        <StatisticCard.Group>
+        <StatisticCard.Group key={uuid()}>
           {(row[i] as any[]).map((item, index, array) => [
             item,
             index === array.length - 1 ? null : <Divider type="vertical" />,
@@ -257,7 +270,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       );
     }
     for (let i = children.length - 1; i > 0; i -= 1) {
-      children.splice(i, 0, <Divider type="horizontal" />);
+      children.splice(i, 0, <Divider key={uuid()} type="horizontal" />);
     }
     return children;
   };

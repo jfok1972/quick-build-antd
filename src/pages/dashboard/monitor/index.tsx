@@ -4,6 +4,7 @@ import { UserOperator } from './userOperator';
 import { UserLogin } from './userLogin';
 import { UserApprove } from './userApprove';
 import styles from './index.less';
+import { BlockSchemes } from '@/pages/module/blockScheme';
 
 const Monitor: React.FC = () => {
   return (
@@ -12,6 +13,8 @@ const Monitor: React.FC = () => {
       bodyStyle={{ padding: '0px 0px 16px 0px', margin: '0px 16px 16px' }}
       style={{ margin: '-8px' }}
     >
+      <BlockSchemes />
+
       <Tabs>
         <Tabs.TabPane
           tab="用户操作分析"

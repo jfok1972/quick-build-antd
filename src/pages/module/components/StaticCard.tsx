@@ -1,6 +1,6 @@
 import { getColumnDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
-import { stringifyObjectField } from '@/utils/utils';
+import { stringifyObjectField, uuid } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
@@ -396,9 +396,9 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     });
     return (
       // 如果要显示比率，则把这一行撑足
-      <Space size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
+      <Space key={uuid()} size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
         {staticFields?.map((staticField) => (
-          <StaticField {...staticField} total={total} />
+          <StaticField key={uuid()} {...staticField} total={total} />
         ))}
       </Space>
     );
@@ -406,9 +406,11 @@ export const StaticCard: React.FC<StaticCardProps> = ({
 
   const getRelativeRegion = () => {
     return (
-      <Row gutter={8}>
+      <Row key={uuid()} gutter={8}>
         {relativeDatas.map((relative) => (
-          <Col span={12}>{getRelativeSection(relative)}</Col>
+          <Col key={uuid()} span={12}>
+            {getRelativeSection(relative)}
+          </Col>
         ))}{' '}
       </Row>
     );
