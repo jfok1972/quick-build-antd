@@ -1,6 +1,6 @@
 import { getColumnDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
-import { stringifyObjectField, uuid } from '@/utils/utils';
+import { getAwesomeIcon, stringifyObjectField, uuid } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
@@ -454,7 +454,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         value: numeral(total / monetaryUnit).format(formatPattern),
         prefix,
         suffix: [getMonetaryUnitText(monetaryUnit, unitText), suffix],
-        icon,
+        icon: typeof icon === 'string' ? getAwesomeIcon(icon) : icon,
         description: getDescriptionRegion(),
       }}
       footer={getFooterRegion()}

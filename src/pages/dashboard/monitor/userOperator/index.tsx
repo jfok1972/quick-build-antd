@@ -315,7 +315,6 @@ export const UserOperator: React.FC = () => {
           dateFieldName="odate"
           description="所有模块记录的各种操作都统计在内，包括新增、修改、删除、执行SQL语句等。"
           unitText="次"
-          height={180}
           relatives={[
             {
               section: 'week',
