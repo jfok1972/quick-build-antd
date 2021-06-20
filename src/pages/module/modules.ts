@@ -45,6 +45,7 @@ export const generateModuleInfo = (module: any): ModuleModal => {
     objectname: obj.objectname,
     title: obj.title,
     primarykey: obj.primarykey,
+    parentkey: obj.parentkey,
     namefield: obj.namefield,
     namefieldtpl: obj.namefieldtpl,
     description: obj.description,
@@ -696,6 +697,7 @@ export const getDefaultModuleState = ({
       gridSize: parentFilter ? 'small' : 'middle',
       canDragToNavigate: false,
       canDragChangeRecno: false,
+      canDragToLeafNode: false,
     },
     gridExportSetting: {
       usemonetary: false,

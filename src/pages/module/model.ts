@@ -72,6 +72,7 @@ export interface ModuleModelType {
     gridSizeChanged: Reducer<ModalState>;
 
     toggleCanDragToNavigate: Reducer<ModalState>;
+    toggleCanDragToLeafNode: Reducer<ModalState>;
     toggleCanDragChangeRecno: Reducer<ModalState>;
   };
 }
@@ -498,15 +499,8 @@ const Model: ModuleModelType = {
       const result = {
         ...state,
       };
-      const {
-        curpage,
-        limit,
-        start,
-        total,
-        totalpage,
-        expandedRowKeys,
-        remoteRoot,
-      } = action.payload;
+      const { curpage, limit, start, total, totalpage, expandedRowKeys, remoteRoot } =
+        action.payload;
 
       // 把不是当页的选中的记录全部清除掉。默认刷新过后，不保留非当前页的选中记录
       // 树形结构的只保留根结点的选中状态
@@ -532,16 +526,13 @@ const Model: ModuleModelType = {
             ? moduleState.expandedRowKeys
             : expandedRowKeys
           : moduleState.expandedRowKeys,
-        selectedTextValue: selectedRowKeys.map(
-          (key: string): TextValue => {
-            const rec =
-              allRecord.find((record: any) => record[moduleInfo.primarykey] === key) || {};
-            return {
-              text: rec[moduleInfo.namefield],
-              value: key,
-            };
-          },
-        ),
+        selectedTextValue: selectedRowKeys.map((key: string): TextValue => {
+          const rec = allRecord.find((record: any) => record[moduleInfo.primarykey] === key) || {};
+          return {
+            text: rec[moduleInfo.namefield],
+            value: key,
+          };
+        }),
         currSetting,
         recordOrderChanged: false,
       };
@@ -628,16 +619,13 @@ const Model: ModuleModelType = {
         ? getAllTreeRecord(moduleState.dataSource)
         : moduleState.dataSource;
       selectedTextValue.push(
-        ...outKeys.map(
-          (key: string): TextValue => {
-            const rec =
-              allRecord.find((record: any) => record[moduleInfo.primarykey] === key) || {};
-            return {
-              text: rec[moduleInfo.namefield],
-              value: key,
-            };
-          },
-        ),
+        ...outKeys.map((key: string): TextValue => {
+          const rec = allRecord.find((record: any) => record[moduleInfo.primarykey] === key) || {};
+          return {
+            text: rec[moduleInfo.namefield],
+            value: key,
+          };
+        }),
       );
       result[moduleName] = {
         ...moduleState,
@@ -760,6 +748,20 @@ const Model: ModuleModelType = {
               ? true
               : moduleState.currSetting.navigate.visible,
           },
+        },
+      };
+      return result;
+    },
+
+    toggleCanDragToLeafNode(state = {}, action) {
+      const { moduleName } = action.payload;
+      const moduleState: ModuleState = state[moduleName] as ModuleState;
+      const result = { ...state };
+      result[moduleName] = {
+        ...moduleState,
+        currSetting: {
+          ...moduleState.currSetting,
+          canDragToLeafNode: !moduleState.currSetting.canDragToLeafNode,
         },
       };
       return result;

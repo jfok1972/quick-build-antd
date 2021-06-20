@@ -116,7 +116,12 @@ export const DragableBodyRow = ({
         }
       } else if (record[PARENT_RECORD] === dragRecord[PARENT_RECORD]) {
         // 是树形结构，判断是不是在同一个节点之下
-        if (dragIndex !== index) moveRow(dragIndex, index, dragRecord);
+        if (dragIndex !== index) {
+          // 如果可以拖动到叶节点下
+          if (state.currSetting.canDragToLeafNode)
+            moveToNewParent(dragIndex, index, dragRecord, record);
+          else moveRow(dragIndex, index, dragRecord);
+        }
       } else {
         // 在不同节点之下，移动位置了
         // 当前节点不能拖动到子节点下

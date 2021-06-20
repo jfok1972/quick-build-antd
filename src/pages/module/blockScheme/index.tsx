@@ -104,6 +104,7 @@ const BlockDetail = ({
   const [innerForceUpdateCount, setInnerForceUpdateCount] = useState<number>(0);
 
   console.log(block);
+  // 如果是一个tabPanel
   if (block.xtype && (block.xtype as string).toLowerCase() === 'tabpanel') {
     return (
       <Card bordered={false}>
@@ -135,7 +136,8 @@ const BlockDetail = ({
       </Card>
     );
   }
-  if (block.items && block.items.length)
+  // 如果当前的块级有子块
+  if (block.items && block.items.length) {
     return (
       <Row gutter={[12, 12]} className={styles.subcol}>
         {block.items.map((item: any) => {
@@ -156,21 +158,14 @@ const BlockDetail = ({
               style={style}
             >
               <div className={styles.innercard}>
-                {item.items ? (
-                  <BlockDetail
-                    block={item}
-                    inner={true}
-                    forceUpdateCount={forceUpdateCount}
-                  ></BlockDetail>
-                ) : (
-                  <span>111{item.title}</span>
-                )}
+                <BlockDetail block={item} inner={true} forceUpdateCount={forceUpdateCount} />
               </div>
             </Col>
           );
         })}
       </Row>
     );
+  }
   let thisBlock = null;
   if (block.staticCard) thisBlock = <StaticCard {...block.staticCard} />;
   else thisBlock = <EchartsDemo id={`${block.detailid}id`} forceUpdateCount={forceUpdateCount} />;

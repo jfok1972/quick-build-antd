@@ -35,6 +35,18 @@ export async function updateToModuleFunction(params: any) {
 }
 
 /**
+ * 分析而方案（主页方案）加入到公司模块
+ * @param params
+ * @returns
+ */
+export async function addHomePageToModuleApi(params: any) {
+  return request(`${API_HEAD}/platform/module/addtocompanymodule.do`, {
+    method: 'POST',
+    params,
+  });
+}
+
+/**
  * 读取用户的所有操作权限,是所有权限和角色的并集
  * @param params
  */

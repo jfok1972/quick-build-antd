@@ -189,7 +189,8 @@ interface ModuleSetting {
   userFilterRestHidden: boolean; // 筛选字段是否隐藏 展开，收起 restHidden : false ，默认隐藏
   gridSize: 'default' | 'middle' | 'small';
   canDragToNavigate: boolean;
-  canDragChangeRecno: boolean;
+  canDragChangeRecno: boolean; // 可以拖动记录改变顺序
+  canDragToLeafNode: boolean; // 树形结构可以拖动至叶节点之下
 }
 
 export interface ExcelSchemeState {
@@ -269,6 +270,7 @@ export interface ModuleModal {
   objectname: string;
   title: string; // 实体对象中文名称
   primarykey: string; // 主键
+  parentkey?: string; // 树状父记录字段
   namefield: string; // 名称字段，该字段可以用来描述唯一的记录
   namefieldtpl?: string; // 名称定段tpl,如果单个字段不能用来描述唯一记录，可以用组合字段
   description?: string; // 模块描述

@@ -78,12 +78,14 @@ export const EchartsDemo = ({ id, forceUpdateCount }: { id: string; forceUpdateC
 
   useEffect(() => {
     window.addEventListener('resize', () => {
+      console.log('resize');
       myChart.resize();
     });
     const chartDom: any = document.getElementById(id);
     myChart = echarts.init(chartDom);
     myChart.setOption(option);
     return () => {
+      console.log('remove resize');
       window.removeEventListener('resize', myChart.resize());
     };
   }, [forceUpdateCount]);

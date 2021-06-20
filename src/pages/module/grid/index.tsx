@@ -366,6 +366,10 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
   // 鼠标拖动树形结构的位置,将一个节点拖动至另一个节点之下
   const moveToNewParent = useCallback(
     (dragIndex, hoverIndex, dragRecord, hoverRecord) => {
+      // 拖动到叶节点下的时候，发现是非叶节点
+      if (moduleState.currSetting.canDragToLeafNode && Array.isArray(hoverRecord.children)) {
+        return;
+      }
       let data: any[] = moduleState.dataSource;
       if (dragRecord[PARENT_RECORD]) {
         // 如果是树形结构的移动
@@ -377,9 +381,20 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
       apply(dragRecord, {
         [PARENT_RECORD]: hoverRecord[PARENT_RECORD],
       });
+      let parentkey = hoverRecord[PARENT_RECORD]
+        ? hoverRecord[PARENT_RECORD][moduleInfo.primarykey]
+        : null;
       if (hoverRecord[PARENT_RECORD]) {
         // 如果是树形结构的移动
-        hoverData = hoverRecord[PARENT_RECORD].children;
+        if (moduleState.currSetting.canDragToLeafNode && !Array.isArray(hoverRecord.children)) {
+          // 可以拖动到叶节点之下
+          parentkey = hoverRecord[moduleInfo.primarykey];
+          apply(dragRecord, {
+            [PARENT_RECORD]: hoverRecord,
+          });
+          apply(hoverRecord, { children: [] });
+          hoverData = hoverRecord.children;
+        } else hoverData = hoverRecord[PARENT_RECORD].children;
       }
       hoverData.splice(hoverIndex + 1, 0, dragRow);
       dispatch({
@@ -393,12 +408,10 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
       updateParentKey({
         objectname: moduleName,
         id: dragRecord[moduleInfo.primarykey],
-        parentkey: hoverRecord[PARENT_RECORD]
-          ? hoverRecord[PARENT_RECORD][moduleInfo.primarykey]
-          : null,
+        parentkey,
       });
     },
-    [moduleState.dataSource],
+    [moduleState.dataSource, moduleState.currSetting.canDragToLeafNode],
   );
 
   return (

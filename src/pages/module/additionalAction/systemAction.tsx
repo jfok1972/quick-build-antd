@@ -11,6 +11,7 @@ import {
   queryCreatePersonnelUser,
   queryResetUserPassword,
   updateToModuleFunction,
+  addHomePageToModuleApi,
 } from './systemActionService';
 import { DisplayUserLimits, SetUserLimits, SetRoleLimits } from './userLimit';
 import { activitiModeler } from '../approve/ProcessManage/activitiModeler';
@@ -141,6 +142,34 @@ const updateToCompanyModuleFunction = (params: ActionParamsModal) => {
         if (response.success)
           message.success(`${((response.msg || '') as string).replaceAll('<br/>', '')}更新成功！`);
         else message.error(`更新失败：${response.msg}`);
+      });
+    },
+  });
+};
+
+/**
+ * 将分析页方案（原主页方案）增加到公司模块中，可以在用户操作权限中进行设置是否启用
+ * @param params
+ */
+const addHomePageToModule = (params: ActionParamsModal) => {
+  const {
+    record,
+    moduleInfo: { primarykey, namefield },
+  } = params;
+  const mess = `将『${record[namefield]}』加入到到公司模块`;
+  Modal.confirm({
+    title: `确定要${mess}吗?`,
+    width: 500,
+    icon: <ExclamationCircleOutlined />,
+    onOk() {
+      addHomePageToModuleApi({ homepageschemeid: record[primarykey] }).then((response: any) => {
+        if (response.success)
+          if (response.msg)
+            message.success(
+              `${((response.msg || '') as string).replaceAll('<br/>', '')}加入成功！`,
+            );
+          else message.success('本分析页方案原先已经加入到公司模块了！');
+        else message.error(`加入失败：${response.msg}`);
       });
     },
   });
@@ -654,6 +683,8 @@ export const systemActions: ActionStore = apply(
     importSchemaTable: dataSourceImportTableAndView,
     // 更新模块附加功能
     updatetocompanymodulefunction: updateToCompanyModuleFunction,
+    // 把分析页加入到公司模块中
+    addHomePageToModule,
     designform: designForm,
     designGrid,
     designUserFilter,

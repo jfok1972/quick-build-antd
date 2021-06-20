@@ -135,6 +135,23 @@ const GridSettingButton: React.FC<any> = ({
               />
             </Menu.Item>
           ) : null}
+          {moduleInfo.istreemodel && moduleInfo.parentkey ? (
+            <Menu.Item key="dragtochangerecno">
+              <span style={{ marginRight: '24px' }}>将要拖动至叶节点下</span>
+              <Switch
+                checked={moduleState.currSetting.canDragToLeafNode}
+                onChange={() => {
+                  dispatch({
+                    type: 'modules/toggleCanDragToLeafNode',
+                    payload: {
+                      moduleName,
+                    },
+                  });
+                }}
+                style={{ float: 'right' }}
+              />
+            </Menu.Item>
+          ) : null}
         </Menu.ItemGroup>
       ) : null}
     </Menu>
