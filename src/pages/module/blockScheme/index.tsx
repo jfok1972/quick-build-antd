@@ -5,7 +5,6 @@ import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
 import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
 import { StaticCard } from '../components/StaticCard';
-import { EchartsDemo } from '@/pages/dashboard/charts/pm/echartsDemo';
 import { DataobjectWidget } from './DataobjectWidget';
 
 const { TabPane } = Tabs;
@@ -102,6 +101,7 @@ const BlockDetail = ({
   forceUpdateCount: number;
 }) => {
   // 防止echarts 在切换tabs后不渲染的问题
+  // eslint-disable-next-line
   const [innerForceUpdateCount, setInnerForceUpdateCount] = useState<number>(0);
 
   console.log(block);
@@ -112,7 +112,7 @@ const BlockDetail = ({
         <Tabs
           className={styles.innertabs}
           onChange={() => {
-            setInnerForceUpdateCount((value) => value + 1);
+            // setInnerForceUpdateCount((value) => value + 1);
           }}
         >
           {block.items.map((tab: any, index: number) => (
@@ -140,7 +140,7 @@ const BlockDetail = ({
   // 如果当前的块级有子块
   if (block.items && block.items.length) {
     return (
-      <Row gutter={[12, 12]} className={styles.subcol}>
+      <Row gutter={[12, 12]} className={styles.subrow}>
         {block.items.map((item: any) => {
           // 如果在附加设置中设置了response,如果没设置，就用内置的
           let { response } = item;
@@ -152,12 +152,7 @@ const BlockDetail = ({
           const style = { height: item.height ? `${item.height}px` : 'auto' };
           if (item.style) apply(style, item.style);
           return (
-            <Col
-              key={item.detailid}
-              {...response}
-              className={item.items ? styles.subcol : ''}
-              style={style}
-            >
+            <Col key={item.detailid} {...response} style={style}>
               <div className={styles.innercard}>
                 <BlockDetail block={item} inner={true} forceUpdateCount={forceUpdateCount} />
               </div>
@@ -171,7 +166,7 @@ const BlockDetail = ({
   if (block.fovDataobjectwidget)
     thisBlock = <DataobjectWidget widget={block.fovDataobjectwidget} />;
   else if (block.staticCard) thisBlock = <StaticCard {...block.staticCard} />;
-  else thisBlock = <EchartsDemo id={`${block.detailid}id`} forceUpdateCount={forceUpdateCount} />;
+  // else thisBlock = <EchartsDemo id={`${block.detailid}id`} forceUpdateCount={forceUpdateCount} />;
   return <div style={{ height: '100%' }}>{thisBlock}</div>;
 };
 
@@ -179,7 +174,7 @@ export const BlockSchemes: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
   // 防止echarts 在切换tabs后不渲染的问题
-
+  // eslint-disable-next-line
   const [forceUpdateCount, setForceUpdateCount] = useState<number>(0);
   useEffect(() => {
     if (blockSchemes.length === 0) {
@@ -202,7 +197,7 @@ export const BlockSchemes: React.FC = () => {
         <Card bordered={false} className={styles.globalcard}>
           <Tabs
             onChange={() => {
-              setForceUpdateCount((value) => value + 1);
+              // setForceUpdateCount((value) => value + 1);
             }}
           >
             {schemes.map((block, index) => (

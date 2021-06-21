@@ -9,6 +9,7 @@ import { Badge, Progress, Tooltip } from 'antd';
 import styles from './StaticMasterDetailCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 const numeral = require('numeral');
 
@@ -181,11 +182,18 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
                   ))}
                 </span>
               ) : null,
+              description ? (
+                <span style={{ float: 'right' }}>
+                  <Tooltip title={description} trigger={['click']}>
+                    <InfoCircleOutlined />
+                  </Tooltip>
+                </span>
+              ) : null,
             ]}
           </div>
         ),
         value: getValueText(total),
-        description: <div>{[description, items[itemIndex].description]}</div>,
+        description: <div>{[items[itemIndex].description]}</div>,
       }}
     />
   );
