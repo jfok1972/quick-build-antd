@@ -297,6 +297,32 @@ export const applyAllOtherSetting = (object: any) => {
   }
 };
 
+const getParameterNames = (fn: any) => {
+  if (typeof fn !== 'function') return [];
+  const COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
+  const code = fn.toString().replace(COMMENTS, '');
+  const result = code.slice(code.indexOf('(') + 1, code.indexOf(')')).match(/([^\s,]+)/g);
+  return result === null ? [] : result;
+};
+
+/**
+ * 从后台传过来的json串中，如果二个对象是相同的，则会有一个传入$ref,需要修正
+ * @param moduleinfo
+ * @param object
+ */
+export const replaceRef = (moduleinfo: any, object: any) => {
+  const params = getParameterNames(replaceRef);
+  if (object.$ref) {
+    // eslint-disable-next-line
+    apply(object, eval(object.$ref.replace('$', params[0])));
+    const o = object;
+    delete o.$ref;
+  }
+  Object.keys(object).forEach((i) => {
+    if (Array.isArray(object[i]) || object[i] instanceof Object) replaceRef(moduleinfo, object[i]);
+  });
+};
+
 // urlEncode
 export const urlEncode = (param: any, key: any = null, encode: any = null) => {
   if (param === null) return '';

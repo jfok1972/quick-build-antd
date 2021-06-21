@@ -3,9 +3,10 @@ import { useEffect } from 'react';
 import { Card, Col, Row, Tabs, Result } from 'antd';
 import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
-import { apply, applyAllOtherSetting, getAwesomeIcon } from '@/utils/utils';
+import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
 import { StaticCard } from '../components/StaticCard';
 import { EchartsDemo } from '@/pages/dashboard/charts/pm/echartsDemo';
+import { DataobjectWidget } from './DataobjectWidget';
 
 const { TabPane } = Tabs;
 const blockSchemes: any[] = [];
@@ -167,7 +168,9 @@ const BlockDetail = ({
     );
   }
   let thisBlock = null;
-  if (block.staticCard) thisBlock = <StaticCard {...block.staticCard} />;
+  if (block.fovDataobjectwidget)
+    thisBlock = <DataobjectWidget widget={block.fovDataobjectwidget} />;
+  else if (block.staticCard) thisBlock = <StaticCard {...block.staticCard} />;
   else thisBlock = <EchartsDemo id={`${block.detailid}id`} forceUpdateCount={forceUpdateCount} />;
   return <div style={{ height: '100%' }}>{thisBlock}</div>;
 };
@@ -184,6 +187,7 @@ export const BlockSchemes: React.FC = () => {
         method: 'POST',
       }).then((response: any[]) => {
         blockSchemes.push(...response);
+        replaceRef(blockSchemes, blockSchemes);
         applyAllOtherSetting(blockSchemes);
         setSchemes(blockSchemes);
         setLoaded(true);
