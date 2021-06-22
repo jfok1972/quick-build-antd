@@ -3,6 +3,7 @@ import { StaticCard } from '../components/StaticCard';
 import { applyIf, applyOtherSetting } from '@/utils/utils';
 import moment from 'moment';
 import { StaticMasterDetailCard } from '../components/StaticMasterDetailCard';
+import { AntdCharts } from '../components/antdCharts';
 
 // 设置一些常用的函数
 window.moment = moment;
@@ -24,6 +25,10 @@ export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => 
   }
   if (widget.widgettype === 'staticMasterDetailCard') {
     return <StaticMasterDetailCard {...params} />;
+  }
+
+  if (widget.widgettype === 'antdCharts') {
+    return <AntdCharts {...params} />;
   }
 
   return <span></span>;

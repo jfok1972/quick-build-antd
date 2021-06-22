@@ -1,4 +1,3 @@
-import { getColumnDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
 import { stringifyObjectField } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
@@ -46,8 +45,6 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   const [data, setData] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const aggregateField = aggregate ? `${aggregate}.${fieldName}` : fieldName;
-  const aggregateFieldName = getColumnDataIndex(aggregateField);
-
   useEffect(() => {
     if (value) {
       setData(value);
@@ -62,10 +59,11 @@ export const StaticField: React.FC<StaticFieldProps> = ({
           moduleName,
           fields: [aggregateField],
           navigatefilters: filters,
+          isnumberordername: true,
         }),
       ),
     }).then(async (response: any[]) => {
-      setData(response[0][aggregateFieldName]);
+      setData(response[0].jf001);
       setLoading(false);
     });
   }, []);

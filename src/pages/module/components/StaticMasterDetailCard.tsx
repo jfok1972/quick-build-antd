@@ -4,7 +4,6 @@ import { apply, stringifyObjectField, uuid } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
 import { serialize } from 'object-to-formdata';
 import RcResizeObserver from 'rc-resize-observer';
-import { getColumnDataIndex } from '@/pages/datamining/utils';
 import { Badge, Progress, Tooltip } from 'antd';
 import styles from './StaticMasterDetailCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
@@ -62,7 +61,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   filters,
   items,
 }) => {
-  const aggregateFieldName = getColumnDataIndex(aggregateField);
+  const aggregateFieldName = 'jf001';
   const [colCount, setColCount] = useState<number>(maxColCount);
   const [loading, setLoading] = useState<boolean>(true);
   const [firstloading, setFirstloading] = useState<boolean>(true);
@@ -86,6 +85,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           fields: [aggregateField],
           groupfieldid: items[itemIndex].groupField,
           navigatefilters: filters,
+          isnumberordername: true,
         }),
       ),
     }).then((response: any[]) => {

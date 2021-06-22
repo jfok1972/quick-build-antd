@@ -1,4 +1,3 @@
-import { getColumnDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
 import { getAwesomeIcon, stringifyObjectField, uuid } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
@@ -111,7 +110,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   const [relativeDatas, setRelativeDatas] = useState<RelativeData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const aggregateField = `${aggregate}.${fieldName}`;
-  const aggregateFieldName = getColumnDataIndex(aggregateField);
+  const aggregateFieldName = 'jf001';
   const getTitle = () => {
     if (description) {
       return (
@@ -201,6 +200,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
                 value: `${start.format(DateFormat)}--${end.format(DateFormat)}`,
               },
             ],
+            isnumberordername: true,
           }),
         ),
       });
@@ -307,6 +307,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
             fields: [aggregateField],
             navigatefilters: filters,
             groupfieldid: { fieldname: dateFieldName, function: groupFunction[sectionType] },
+            isnumberordername: true,
           }),
         ),
       }).then((response: any[]) => {
@@ -373,6 +374,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
           moduleName,
           fields: [aggregateField],
           navigatefilters: filters,
+          isnumberordername: true,
         }),
       ),
     }).then(async (response: any[]) => {
