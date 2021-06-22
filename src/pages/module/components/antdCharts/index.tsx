@@ -3,9 +3,11 @@ import { Card } from 'antd';
 import type { MonetaryUnit } from '../../grid/monetary';
 import { Column } from '@ant-design/charts';
 import { apply } from '@/utils/utils';
+import { getDataSet } from './dataset';
 
 interface AntdChartsProps {
   type: 'line' | 'area' | 'column' | 'bar' | 'pie' | 'dualAxes' | 'gauge';
+  datasetProperty: DataSetProps; // 可以有二个dataSet
   config: any;
 }
 
@@ -16,6 +18,8 @@ interface AggregateFieldProps {
   fieldname: string; // 聚合字段的设置'count.*','sum.amount'
   title: string; // 指标的描述
   monetaryUnit?: MonetaryUnit; // 指标的数值单位
+  formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
+  unitText?: string; // 数值单位，个，米，万元。
 }
 
 export interface DataSetProps {
@@ -32,41 +36,14 @@ export interface DataSetProps {
   callback?: Function; // 数据获取后的回调函数
 }
 
-export const AntdCharts: React.FC<AntdChartsProps> = ({ type, config }) => {
+export const AntdCharts: React.FC<AntdChartsProps> = ({ type, datasetProperty, config }) => {
   const [dataSet, setDataSet] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     setLoading(true);
-    setDataSet([
-      {
-        type: '家具家电',
-        sales: 38,
-      },
-      {
-        type: '粮油副食',
-        sales: 52,
-      },
-      {
-        type: '生鲜水果',
-        sales: 61,
-      },
-      {
-        type: '美容洗护',
-        sales: 145,
-      },
-      {
-        type: '母婴用品',
-        sales: 48,
-      },
-      {
-        type: '进口食品',
-        sales: 38,
-      },
-      {
-        type: '食品饮料',
-        sales: 38,
-      },
-    ]);
+    getDataSet(datasetProperty).then((response: any) => {
+      setDataSet(response);
+    });
     setLoading(false);
   }, []);
 
@@ -82,6 +59,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({ type, config }) => {
   }, [config, loading, dataSet]);
 
   console.log('render chart');
+  console.log(datasetProperty);
   return (
     <Card bordered={false}>
       <Card

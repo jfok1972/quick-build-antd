@@ -17,7 +17,7 @@ export const getDataSet = (dataSet: DataSetProps) => {
     categoryName = 'text',
     groupfieldid2,
   } = dataSet;
-  request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
+  return request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
     method: 'POST',
     data: serialize(
       stringifyObjectField({
@@ -38,8 +38,9 @@ export const getDataSet = (dataSet: DataSetProps) => {
       };
       // 聚合字段从jf001开始，如果是有条件的，则是jf001jxy001
       fields.forEach((field, index) => {
+        const f = `jf${`${index + 1}`.padStart(3, '0')}`;
         apply(record, {
-          [field.title]: record[`jf${`${index + 1}`.padStart(3, '0')}`],
+          [field.title]: rec[f],
         });
       });
       return record;
