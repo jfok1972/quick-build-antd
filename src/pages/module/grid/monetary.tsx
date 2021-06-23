@@ -5,7 +5,7 @@ import type { TextValue } from '../data';
 
 export type MonetaryUnit = 100000000 | 1000000 | 10000 | 1000 | 1;
 
-export const getMonetaryUnitText = (unit: number, unitText = '') => {
+export const getMonetaryUnitText = (unit: number | undefined, unitText = '') => {
   let text = '';
   if (unit === 100000000) text = '亿';
   else if (unit === 1000000) text = '百万';

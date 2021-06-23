@@ -17,6 +17,7 @@ export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => 
   applyOtherSetting(params, widget.detailsproperty);
   applyIf(params, {
     moduleName: widget.moduleName,
+    title: widget.title,
     description: widget.description,
   });
 

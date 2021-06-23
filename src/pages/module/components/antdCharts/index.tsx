@@ -1,12 +1,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card } from 'antd';
+import { Card, Tooltip } from 'antd';
 import type { MonetaryUnit } from '../../grid/monetary';
-import { Column } from '@ant-design/charts';
-import { apply } from '@/utils/utils';
+import { getMonetaryUnitText } from '../../grid/monetary';
+import { Area, Bar, Column, Line, Pie, Rose } from '@ant-design/charts';
+import { apply, uuid } from '@/utils/utils';
 import { getDataSet } from './dataset';
+import styles from './index.less';
+import { InfoCircleOutlined } from '@ant-design/icons';
+
+const numeral = require('numeral');
 
 interface AntdChartsProps {
-  type: 'line' | 'area' | 'column' | 'bar' | 'pie' | 'dualAxes' | 'gauge';
+  type: 'line' | 'area' | 'column' | 'bar' | 'pie' | 'rose' | 'dualAxes' | 'gauge';
+  title: string;
+  description?: string;
   datasetProperty: DataSetProps; // 可以有二个dataSet
   config: any;
 }
@@ -26,49 +33,98 @@ export interface DataSetProps {
   moduleName: string; // 模块名称
   fields: AggregateFieldProps[]; // 聚合字段 ['count.*','sum.amount']
   groupfieldid: string; // 第一个指标的定义
-  categoryName?: string; // 第一个指标的名称，默认为text，可以用中文作为字段名称
+  categoryName: string; // 第一个指标的名称，默认为text，可以用中文作为字段名称
   groupfieldid2?: string; // 第二个指标的字段定义
   categoryName2?: string; // 第二个指标的名称，可以用中文作为字段名称
   filters?: any[]; // 查询的条件
-  maxCount?: number; // 迷你图最大的记录个数
-  orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
+  maxCount?: number; // 最大的记录个数
+  otherTitle?: string; // 剩余的所有的描述,如果没有设置otherTitle,则后面的全部删除
+  orderby?: 'text' | 'code' | any; // 按什么排序,对于有序的如数据字典，可以按code排序 , 或者第一个数值 jf001
   orderDesc?: boolean; // 排序顺序
   callback?: Function; // 数据获取后的回调函数
 }
 
-export const AntdCharts: React.FC<AntdChartsProps> = ({ type, datasetProperty, config }) => {
+export const AntdCharts: React.FC<AntdChartsProps> = ({
+  type,
+  title,
+  description,
+  datasetProperty,
+  config,
+}) => {
   const [dataSet, setDataSet] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     setLoading(true);
     getDataSet(datasetProperty).then((response: any) => {
       setDataSet(response);
+      setLoading(false);
     });
-    setLoading(false);
   }, []);
 
   const chartConfig = useMemo(() => {
-    const cConfig = { ...config };
+    const cConfig: any = { ...config };
     apply(cConfig, {
       data: dataSet,
       appendPadding: 12,
       loading,
       type,
     });
+    // 如果没有定义,则设置一个缺省的
+    if (cConfig.tooltip === undefined) {
+      const field_1 = datasetProperty.fields[0];
+      cConfig.tooltip = {
+        showTitle: false,
+        formatter: (datum: any) => {
+          return {
+            name: datum[datasetProperty.categoryName],
+            value:
+              numeral(datum[field_1.title] / (field_1.monetaryUnit || 1)).format(
+                field_1.formatPattern || '0',
+              ) + getMonetaryUnitText(field_1.monetaryUnit, field_1.unitText),
+          };
+        },
+      };
+    }
+    if (cConfig.label === undefined) {
+      cConfig.label = {
+        formatter: (datum: any) => {
+          const field_1 = datasetProperty.fields[0];
+          return (
+            numeral(datum[field_1.title] / (field_1.monetaryUnit || 1)).format(
+              field_1.formatPattern || '0',
+            ) + getMonetaryUnitText(field_1.monetaryUnit)
+          );
+        },
+      };
+    }
     return cConfig;
   }, [config, loading, dataSet]);
 
   console.log('render chart');
   console.log(datasetProperty);
   return (
-    <Card bordered={false}>
-      <Card
-        bordered={false}
-        style={{ padding: 0, margin: 0 }}
-        bodyStyle={{ padding: '12px 0 0 0', margin: 0 }}
-      >
-        <Column {...chartConfig} />
-      </Card>
+    <Card
+      className={styles.imagecard}
+      title={
+        <span>
+          {[
+            title,
+            description ? (
+              <Tooltip key={uuid()} title={description} trigger={['click']}>
+                <InfoCircleOutlined className={styles.infoicon} />
+              </Tooltip>
+            ) : null,
+          ]}
+        </span>
+      }
+      bordered={false}
+    >
+      {type === 'column' ? <Column {...chartConfig} /> : null}
+      {type === 'bar' ? <Bar {...chartConfig} /> : null}
+      {type === 'line' ? <Line {...chartConfig} /> : null}
+      {type === 'area' ? <Area {...chartConfig} /> : null}
+      {type === 'pie' ? <Pie {...chartConfig} /> : null}
+      {type === 'rose' ? <Rose {...chartConfig} /> : null}
     </Card>
   );
 };

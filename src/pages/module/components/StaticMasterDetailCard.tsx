@@ -183,7 +183,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
                 </span>
               ) : null,
               description ? (
-                <span style={{ float: 'right' }}>
+                <span key={uuid()} style={{ float: 'right' }}>
                   <Tooltip title={description} trigger={['click']}>
                     <InfoCircleOutlined />
                   </Tooltip>
