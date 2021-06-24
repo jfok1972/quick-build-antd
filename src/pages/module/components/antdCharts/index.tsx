@@ -1,16 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, Tooltip } from 'antd';
+import { Card, Tooltip, Popover, Button } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
 import { Area, Bar, Column, Line, Pie, Rose } from '@ant-design/charts';
 import { apply, uuid } from '@/utils/utils';
 import type { DataSetProps } from './dataset';
 import { getDataSet } from './dataset';
 import styles from './index.less';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DateSectionSelect } from '@/pages/dashboard/utils/DateSectionSelect';
+import { getDefaultModuleState } from '../../modules';
+import UserDefineFilter from '../../../module/UserDefineFilter';
+
 
 const numeral = require('numeral');
 
 interface AntdChartsProps {
+  moduleName: string;
   type: 'line' | 'area' | 'column' | 'bar' | 'pie' | 'rose' | 'dualAxes' | 'gauge';
   title: string;
   description?: string;
@@ -19,6 +24,7 @@ interface AntdChartsProps {
 }
 
 export const AntdCharts: React.FC<AntdChartsProps> = ({
+  moduleName,
   type,
   title,
   description,
@@ -92,7 +98,29 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
         </span>
       }
       bordered={false}
-      extra="aa"
+      extra={<>
+        <DateSectionSelect dateSection={[]} setDateSection={() => { }} />
+        <Popover trigger={['click']}
+          title={<span>设置筛选条件
+            <span style={{ float: 'right' }}>
+              <Button size='small' type='link'>重置</Button>
+              <Button size='small' type='link'>查询</Button>
+            </span>
+          </span>}
+          content={
+          
+            <UserDefineFilter
+            visible={true}
+            moduleState={getDefaultModuleState({moduleName})}
+            dispatch={()=>{}}
+          />
+        
+        
+        }
+        >
+          <FilterOutlined />
+        </Popover>
+      </>}
     >
       {/* 加这个 Card 是为了 loading 的时候标题正常显示 */}
       <Card className="spacecard" bordered={false}>
