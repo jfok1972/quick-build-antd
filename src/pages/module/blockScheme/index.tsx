@@ -104,7 +104,7 @@ const BlockDetail = ({
   // eslint-disable-next-line
   const [innerForceUpdateCount, setInnerForceUpdateCount] = useState<number>(0);
 
-  console.log(block);
+  // console.log(block);
   // 如果是一个tabPanel
   if (block.xtype && (block.xtype as string).toLowerCase() === 'tabpanel') {
     return (

@@ -1,11 +1,9 @@
-import request, { API_HEAD } from '@/utils/request';
-import { stringifyObjectField } from '@/utils/utils';
+import React, { useEffect, useState } from 'react';
 import { StatisticCard } from '@ant-design/pro-card';
 import { Progress } from 'antd';
-import { serialize } from 'object-to-formdata';
-import React, { useEffect, useState } from 'react';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
+import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
 
 const numeral = require('numeral');
 
@@ -52,17 +50,12 @@ export const StaticField: React.FC<StaticFieldProps> = ({
       return;
     }
     setLoading(true);
-    request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
-      method: 'POST',
-      data: serialize(
-        stringifyObjectField({
-          moduleName,
-          fields: [aggregateField],
-          navigatefilters: filters,
-          isnumberordername: true,
-        }),
-      ),
-    }).then(async (response: any[]) => {
+    fetchDataminingDataWithCatch({
+      moduleName,
+      fields: [aggregateField],
+      navigatefilters: filters,
+      isnumberordername: true,
+    }).then(async (response: any) => {
       setData(response[0].jf001);
       setLoading(false);
     });

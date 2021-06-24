@@ -1,19 +1,18 @@
-import request, { API_HEAD } from '@/utils/request';
-import { getAwesomeIcon, stringifyObjectField, uuid } from '@/utils/utils';
+import React, { useEffect, useState } from 'react';
+import { getAwesomeIcon, uuid } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
 import { Col, message, Popover, Row, Space, Tooltip } from 'antd';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { serialize } from 'object-to-formdata';
-import React, { useEffect, useState } from 'react';
 import { DateFormat } from '../moduleUtils';
 import type { StaticFieldProps } from './StaticField';
 import { StaticField } from './StaticField';
 import styles from './StaticCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
+import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
 
 const numeral = require('numeral');
 
@@ -186,26 +185,21 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       ratio: undefined,
     };
     const getSectionValue = async (start: Moment, end: Moment) => {
-      return await request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
-        method: 'POST',
-        data: serialize(
-          stringifyObjectField({
-            moduleName,
-            fields: [aggregateField],
-            navigatefilters: filters,
-            userfilters: [
-              {
-                property: dateFieldName,
-                operator: 'daysection',
-                value: `${start.format(DateFormat)}--${end.format(DateFormat)}`,
-              },
-            ],
-            isnumberordername: true,
-          }),
-        ),
+      return await fetchDataminingDataWithCatch({
+        moduleName,
+        fields: [aggregateField],
+        navigatefilters: filters,
+        userfilters: [
+          {
+            property: dateFieldName,
+            operator: 'daysection',
+            value: `${start.format(DateFormat)}--${end.format(DateFormat)}`,
+          },
+        ],
+        isnumberordername: true,
       });
     };
-    let rec = await getSectionValue(startDate, endDate);
+    let rec: any = await getSectionValue(startDate, endDate);
     result.thisValue = rec[0][aggregateFieldName];
     rec = await getSectionValue(lastStartDate, lastEndDate);
     result.lastValue = rec[0][aggregateFieldName];
@@ -299,19 +293,14 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     } = chartDefine;
 
     useEffect(() => {
-      request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
-        method: 'POST',
-        data: serialize(
-          stringifyObjectField({
-            moduleName,
-            fields: [aggregateField],
-            navigatefilters: filters,
-            groupfieldid: { fieldname: dateFieldName, function: groupFunction[sectionType] },
-            isnumberordername: true,
-          }),
-        ),
-      }).then((response: any[]) => {
-        const detailArray: TextValue[] = response
+      fetchDataminingDataWithCatch({
+        moduleName,
+        fields: [aggregateField],
+        navigatefilters: filters,
+        groupfieldid: { fieldname: dateFieldName, function: groupFunction[sectionType] },
+        isnumberordername: true,
+      }).then((response: any) => {
+        const detailArray: TextValue[] = (response as any[])
           .map((rec) => {
             const obj = {
               text: rec.text,
@@ -367,17 +356,12 @@ export const StaticCard: React.FC<StaticCardProps> = ({
 
   useEffect(() => {
     setLoading(true);
-    request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
-      method: 'POST',
-      data: serialize(
-        stringifyObjectField({
-          moduleName,
-          fields: [aggregateField],
-          navigatefilters: filters,
-          isnumberordername: true,
-        }),
-      ),
-    }).then(async (response: any[]) => {
+    fetchDataminingDataWithCatch({
+      moduleName,
+      fields: [aggregateField],
+      navigatefilters: filters,
+      isnumberordername: true,
+    }).then(async (response: any) => {
       setTotal(response[0][aggregateFieldName]);
       if (relatives && relatives.length) {
         for (let i = 0; i < relatives.length; i += 1) {

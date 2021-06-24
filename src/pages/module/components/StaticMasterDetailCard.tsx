@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import request, { API_HEAD } from '@/utils/request';
-import { apply, stringifyObjectField, uuid } from '@/utils/utils';
+import { apply, uuid } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
-import { serialize } from 'object-to-formdata';
 import RcResizeObserver from 'rc-resize-observer';
 import { Badge, Progress, Tooltip } from 'antd';
 import styles from './StaticMasterDetailCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
 
 const numeral = require('numeral');
 
@@ -77,18 +76,13 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
 
   useEffect(() => {
     setLoading(true);
-    request(`${API_HEAD}/platform/datamining/fetchdata.do`, {
-      method: 'POST',
-      data: serialize(
-        stringifyObjectField({
-          moduleName,
-          fields: [aggregateField],
-          groupfieldid: items[itemIndex].groupField,
-          navigatefilters: filters,
-          isnumberordername: true,
-        }),
-      ),
-    }).then((response: any[]) => {
+    fetchDataminingDataWithCatch({
+      moduleName,
+      fields: [aggregateField],
+      groupfieldid: items[itemIndex].groupField,
+      navigatefilters: filters,
+      isnumberordername: true,
+    }).then((response: any) => {
       // 生成 detailData , 根据结果排序，生成后取前count-1个，其他的全部加在一起
       const callback = items[itemIndex].detailCallback;
       if (callback) {
@@ -98,7 +92,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       const sortField = items[itemIndex].orderby || 'value';
       const detailMaxCount = items[itemIndex].detailCount || detailCount;
       const detailArray: TextValue[] = response
-        .map((rec) => {
+        .map((rec: any) => {
           const obj = {
             code: rec.value,
             text: rec.text,
@@ -109,7 +103,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
           sumValue += obj.value;
           return obj;
         })
-        .sort((rec1, rec2) => {
+        .sort((rec1: any, rec2: any) => {
           if (rec1[sortField] > rec2[sortField]) return items[itemIndex].orderDesc ? -1 : 1;
           if (rec1[sortField] < rec2[sortField]) return items[itemIndex].orderDesc ? 1 : -1;
           return 0;

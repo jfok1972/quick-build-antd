@@ -1,4 +1,3 @@
-import React from 'react';
 import { parse } from 'querystring';
 import pathRegexp from 'path-to-regexp';
 import type { Route } from '@/models/connect';
