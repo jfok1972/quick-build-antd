@@ -78,7 +78,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   console.log(datasetProperty);
   return (
     <Card
-      className={styles.imagecard}
+      className="imagecard"
       title={
         <span>
           {[
@@ -92,13 +92,17 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
         </span>
       }
       bordered={false}
+      extra="aa"
     >
-      {type === 'column' ? <Column {...chartConfig} /> : null}
-      {type === 'bar' ? <Bar {...chartConfig} /> : null}
-      {type === 'line' ? <Line {...chartConfig} /> : null}
-      {type === 'area' ? <Area {...chartConfig} /> : null}
-      {type === 'pie' ? <Pie {...chartConfig} /> : null}
-      {type === 'rose' ? <Rose {...chartConfig} /> : null}
+      {/* 加这个 Card 是为了 loading 的时候标题正常显示 */}
+      <Card className="spacecard" bordered={false}>
+        {type === 'column' ? <Column {...chartConfig} /> : null}
+        {type === 'bar' ? <Bar {...chartConfig} /> : null}
+        {type === 'line' ? <Line {...chartConfig} /> : null}
+        {type === 'area' ? <Area {...chartConfig} /> : null}
+        {type === 'pie' ? <Pie {...chartConfig} /> : null}
+        {type === 'rose' ? <Rose {...chartConfig} /> : null}
+      </Card>
     </Card>
   );
 };
