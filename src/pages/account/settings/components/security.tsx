@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { Dispatch } from 'redux';
 import { Card, Form, List, message, Modal } from 'antd';
 import Password from 'antd/lib/input/Password';

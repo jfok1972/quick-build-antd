@@ -1,4 +1,3 @@
-import React from 'react';
 import { List, Badge, Tooltip, Descriptions, Popover, Space } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import type { ColumnFilter, ModuleState, UserFilter } from '../data';
@@ -65,7 +64,7 @@ const FilterInfoButton = ({
               </Item>
               <Item style={{ width: 205, paddingBottom: 0 }} key="value">
                 {/* eslint-disable */}
-                <span dangerouslySetInnerHTML={{ __html: item.value }} />
+                <span dangerouslySetInnerHTML={{ __html: item.value as string }} />
                 {/* eslint-enable */}
               </Item>
               <Item style={{ width: 40, paddingBottom: 0 }} key="action">

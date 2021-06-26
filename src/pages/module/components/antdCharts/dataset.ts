@@ -83,7 +83,7 @@ export const fetchDataminingDataWithCatch = (params: DataminingFetchProps) => {
  *
  * @param dataSet
  */
-export const getDataSet = (dataSet: DataSetProps) => {
+export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
   const {
     moduleName,
     fields,
@@ -100,6 +100,7 @@ export const getDataSet = (dataSet: DataSetProps) => {
     moduleName,
     fields: fields.map((field) => field.fieldname),
     navigatefilters: filters,
+    userfilters,
     groupfieldid,
     groupfieldid2,
     isnumberordername: true,

@@ -15,10 +15,12 @@ export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => 
   applyOtherSetting(params, widget.subfieldsproperty);
   applyOtherSetting(params, widget.chartproperty);
   applyOtherSetting(params, widget.detailsproperty);
+  applyOtherSetting(params, widget.othersetting);
   applyIf(params, {
     moduleName: widget.moduleName,
     title: widget.title,
     description: widget.description,
+    filterSchemeid: widget.filterSchemeid, // 筛选方案
   });
 
   if (widget.widgettype === 'staticCard') {

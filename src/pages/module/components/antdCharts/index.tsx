@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, Tooltip, Popover, Button } from 'antd';
+import { Card, Tooltip, Popover, Badge } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
 import { Area, Bar, Column, Line, Pie, Rose } from '@ant-design/charts';
 import { apply, uuid } from '@/utils/utils';
@@ -7,10 +7,12 @@ import type { DataSetProps } from './dataset';
 import { getDataSet } from './dataset';
 import styles from './index.less';
 import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { DateSectionSelect } from '@/pages/dashboard/utils/DateSectionSelect';
 import { getDefaultModuleState } from '../../modules';
-import UserDefineFilter from '../../../module/UserDefineFilter';
-
+import UserDefineFilter, {
+  changeUserFilterToParam,
+  UserInlineDefineFilter,
+} from '../../../module/UserDefineFilter';
+import type { ModuleState } from '../../data';
 
 const numeral = require('numeral');
 
@@ -18,6 +20,8 @@ interface AntdChartsProps {
   moduleName: string;
   type: 'line' | 'area' | 'column' | 'bar' | 'pie' | 'rose' | 'dualAxes' | 'gauge';
   title: string;
+  filterSchemeid?: string;
+  filterPosition?: 'inline' | 'inPopover';
   description?: string;
   datasetProperty: DataSetProps; // 可以有二个dataSet
   config: any;
@@ -27,19 +31,26 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   moduleName,
   type,
   title,
+  filterSchemeid,
+  filterPosition,
   description,
   datasetProperty,
   config,
 }) => {
   const [dataSet, setDataSet] = useState<any[]>([]);
+  const [userfilters, setUserfilters] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [filterVisible, setFilterVisible] = useState<boolean>(false);
+  const [moduleState, setModuleState] = useState<ModuleState>(
+    getDefaultModuleState({ moduleName }),
+  );
   useEffect(() => {
     setLoading(true);
-    getDataSet(datasetProperty).then((response: any) => {
+    getDataSet(datasetProperty, userfilters).then((response: any) => {
       setDataSet(response);
       setLoading(false);
     });
-  }, []);
+  }, [userfilters]);
 
   const chartConfig = useMemo(() => {
     const cConfig: any = { ...config };
@@ -82,6 +93,65 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
 
   console.log('render chart');
   console.log(datasetProperty);
+  let userFilter = null;
+
+  if (filterSchemeid) {
+    if (filterPosition === 'inline') {
+      userFilter = (
+        <UserInlineDefineFilter
+          moduleState={moduleState}
+          dispatch={(params: any) => {
+            // 在重置的时候，需要把UserDefineFilter中的记录都清空，因此加了这一个moduleState
+            if (params.type === 'modules/filterChanged') {
+              moduleState.filters.userfilter = params.payload.userfilter;
+              setModuleState({ ...moduleState });
+              setUserfilters(changeUserFilterToParam(params.payload.userfilter));
+            }
+            setFilterVisible(false);
+          }}
+          filterSchemeid={filterSchemeid}
+        />
+      );
+    } else {
+      userFilter = (
+        <Popover
+          visible={filterVisible}
+          onVisibleChange={(v) => {
+            setFilterVisible(v);
+          }}
+          trigger={['click']}
+          title={<span>设置筛选条件</span>}
+          content={
+            <UserDefineFilter
+              visible={true}
+              moduleState={moduleState}
+              dispatch={(params: any) => {
+                // 在重置的时候，需要把UserDefineFilter中的记录都清空，因此加了这一个moduleState
+                if (params.type === 'modules/filterChanged') {
+                  moduleState.filters.userfilter = params.payload.userfilter;
+                  setModuleState({ ...moduleState });
+                  setUserfilters(changeUserFilterToParam(params.payload.userfilter));
+                }
+                setFilterVisible(false);
+              }}
+              filterSchemeid={filterSchemeid}
+              inPopover
+            />
+          }
+        >
+          <Badge
+            count={userfilters.length}
+            dot={false}
+            offset={[-6, 6]}
+            style={{ backgroundColor: '#108ee9' }}
+          >
+            <FilterOutlined className={styles.filtericon} />
+          </Badge>
+        </Popover>
+      );
+    }
+  }
+
   return (
     <Card
       className="imagecard"
@@ -98,29 +168,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
         </span>
       }
       bordered={false}
-      extra={<>
-        <DateSectionSelect dateSection={[]} setDateSection={() => { }} />
-        <Popover trigger={['click']}
-          title={<span>设置筛选条件
-            <span style={{ float: 'right' }}>
-              <Button size='small' type='link'>重置</Button>
-              <Button size='small' type='link'>查询</Button>
-            </span>
-          </span>}
-          content={
-          
-            <UserDefineFilter
-            visible={true}
-            moduleState={getDefaultModuleState({moduleName})}
-            dispatch={()=>{}}
-          />
-        
-        
-        }
-        >
-          <FilterOutlined />
-        </Popover>
-      </>}
+      extra={userFilter}
     >
       {/* 加这个 Card 是为了 loading 的时候标题正常显示 */}
       <Card className="spacecard" bordered={false}>

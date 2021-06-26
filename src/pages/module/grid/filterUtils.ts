@@ -143,35 +143,33 @@ export const getGridColumnFiltersDescription = (
   sepatater: string = ',',
 ): ColumnFilter[] => {
   let result: ColumnFilter[] = [];
-  result = filters.map(
-    (filter): ColumnFilter => {
-      const { comboValue } = columnFilterInfo[filter.property];
-      if (comboValue) {
-        const array = filter.value.split(',');
-        return {
-          dataIndex: filter.property,
-          property: columnFilterInfo[filter.property].title,
-          operator: getOperateTitle(filter.operator),
-          value: array
-            .map((item: string) => {
-              /* eslint-disable */
-              for (const i in comboValue) {
-                if (comboValue[i].value === item) return comboValue[i].text;
-              }
-              /* eslint-enable */
-              return '';
-            })
-            .join(sepatater),
-        };
-      }
+  result = filters.map((filter): ColumnFilter => {
+    const { comboValue } = columnFilterInfo[filter.property];
+    if (comboValue) {
+      const array = (filter.value as string).split(',');
       return {
         dataIndex: filter.property,
         property: columnFilterInfo[filter.property].title,
         operator: getOperateTitle(filter.operator),
-        value: filter.value,
+        value: array
+          .map((item: string) => {
+            /* eslint-disable */
+            for (const i in comboValue) {
+              if (comboValue[i].value === item) return comboValue[i].text;
+            }
+            /* eslint-enable */
+            return '';
+          })
+          .join(sepatater),
       };
-    },
-  );
+    }
+    return {
+      dataIndex: filter.property,
+      property: columnFilterInfo[filter.property].title,
+      operator: getOperateTitle(filter.operator),
+      value: filter.value,
+    };
+  });
   return result;
 };
 
@@ -301,7 +299,7 @@ export const getColumnFilterValue = (
 export const getDateColumnFilterValue = (columnFilter: ColumnFilter[] = [], columnKey: string) => {
   for (let i = 0; i < columnFilter.length; i += 1) {
     if (columnFilter[i].property === columnKey)
-      if (columnFilter[i].value) return columnFilter[i].value.split('--');
+      if (columnFilter[i].value) return (columnFilter[i].value as string).split('--');
       else return [null, null];
   }
   return null;
@@ -313,7 +311,7 @@ export const getStringColumnFilterValue = (
 ): Key[] | null => {
   for (let i = 0; i < columnFilter.length; i += 1) {
     if (columnFilter[i].property === columnKey)
-      if (columnFilter[i].value) return [columnFilter[i].value];
+      if (columnFilter[i].value) return [columnFilter[i].value as Key];
   }
   return null;
 };
@@ -324,7 +322,7 @@ export const getNumberColumnFilterValue = (
 ): Key[] | null => {
   for (let i = 0; i < columnFilter.length; i += 1) {
     if (columnFilter[i].property === columnKey)
-      if (columnFilter[i].value) return [columnFilter[i].operator, columnFilter[i].value];
+      if (columnFilter[i].value) return [columnFilter[i].operator, columnFilter[i].value as Key];
   }
   return null;
 };

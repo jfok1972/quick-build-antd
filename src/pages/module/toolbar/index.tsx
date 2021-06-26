@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Space, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ModuleModal, ModuleState, TextValue } from '../data';
@@ -40,6 +39,15 @@ const ModuleToolbar = ({
             }}
           >
             选中返回
+          </Button>
+        ) : null}
+        {manyToOneInfo ? (
+          <Button
+            onClick={() => {
+              manyToOneInfo.setTextValue({});
+            }}
+          >
+            清除选择
           </Button>
         ) : null}
         {hasInsert(moduleInfo) && !readOnly ? (

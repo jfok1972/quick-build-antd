@@ -373,9 +373,9 @@ const getManyToOneFilter: React.FC<UserFilterProps> = ({
   filterField,
   labelWarrapCol,
 }): any => {
-  let dictData: TextValue[] = getModuleComboDataSource(
-    filterField.manyToOneInfo.objectname,
-  ).map((rec: any) => ({ ...rec, label: rec.text }));
+  let dictData: TextValue[] = getModuleComboDataSource(filterField.manyToOneInfo.objectname).map(
+    (rec: any) => ({ ...rec, label: rec.text }),
+  );
   dictData = addCountToText(dictData, moduleState, filterField);
   if (filterField.allowEmpty)
     dictData.splice(0, 0, { value: 'null', text: '未定义', label: '未定义' });
@@ -580,25 +580,30 @@ const UserDefineFilter = ({
   moduleState,
   dispatch,
   visible,
+  filterSchemeid,
+  inPopover,
 }: {
   moduleState: ModuleState | any;
   dispatch: any;
   visible: boolean;
+  filterSchemeid?: string;
+  inPopover?: boolean;
 }) => {
   const {
     moduleName,
     currSetting: { userFilterRestHidden, userFilterRestNumber },
   } = moduleState;
   const moduleInfo = getModuleInfo(moduleName);
-  const scheme = getFilterScheme(moduleInfo);
+  const scheme = getFilterScheme(moduleInfo, filterSchemeid);
   const [form] = Form.useForm();
   const getACol = (filterField: any, cols: number): any => {
     const labelWarrapCol = { style: { marginBottom: '6px', marginTop: '6px' } };
     const colspan = Math.min(filterField.colspan || 1, cols);
-    if (cols === 1) {
+    if (scheme.labelCol) {
+      // 自定义标题的span,否则为默认
       apply(labelWarrapCol, {
-        labelCol: { span: 4 },
-        wrapperCol: { span: 18 },
+        labelCol: { span: scheme.labelCol },
+        wrapperCol: { span: scheme.wrapperCol || 24 - scheme.labelCol },
       });
     }
     const params = { moduleState, filterField, form, labelWarrapCol };
@@ -631,8 +636,8 @@ const UserDefineFilter = ({
   };
 
   const onSearch = () => {
-    const filter: object = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
-    const formValues: object = form.getFieldsValue();
+    const filter: Record<string, any> = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
+    const formValues: Record<string, any> = form.getFieldsValue();
     // console.log(formValues);
     const userfilter: any[] = [];
     Object.keys(formValues).forEach((key) => {
@@ -651,7 +656,7 @@ const UserDefineFilter = ({
   };
   const onReset = () => {
     const userfilter: any[] = [];
-    const filter: object = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
+    const filter: Record<string, any> = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
     Object.keys(filter).forEach((key) => {
       userfilter.push(filter[key]);
     });
@@ -692,6 +697,7 @@ const UserDefineFilter = ({
           </Button>
         ) : (
           <Button
+            style={{ display: inPopover ? 'none' : 'inherit' }}
             type="link"
             onClick={() => {
               dispatch({
@@ -731,11 +737,11 @@ const UserDefineFilter = ({
       </Row>
     );
   };
-  const getStateInitValues = (): object => {
+  const getStateInitValues = (): Record<string, any> => {
     // console.log('取得筛选条件')
     const { filters } = moduleState;
     const { userfilter } = filters;
-    const values: object = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
+    const values: Record<string, any> = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
     if (userfilter)
       userfilter.forEach((filter: any) => {
         if (values[filter.property]) {
@@ -754,11 +760,126 @@ const UserDefineFilter = ({
     }, 0);
   }, [moduleState.filters.userfilter]);
   return (
-    <Card style={{ marginBottom: 16, display: visible ? 'inherit' : 'none' }} bordered>
+    <Card
+      className={inPopover ? 'popoverfiltercard' : 'filtercard'}
+      style={{
+        display: visible ? 'inherit' : 'none',
+        width: scheme.width ? `${scheme.width}px` : '',
+      }}
+      bodyStyle={{ width: scheme.width ? `${scheme.width}px` : '' }}
+      bordered={!inPopover}
+    >
       <Form {...LabelColLayout} form={form} autoComplete="off">
         {getFilterForm(scheme, !!userFilterRestHidden)}
       </Form>
     </Card>
+  );
+};
+
+/**
+ * 生成一个mini的用户自定义筛选方案，一般只有1，2个字段，在同一行上
+ * @param param0
+ * @returns
+ */
+export const UserInlineDefineFilter = ({
+  moduleState,
+  dispatch,
+  filterSchemeid,
+}: {
+  moduleState: ModuleState | any;
+  dispatch: any;
+  filterSchemeid?: string;
+}) => {
+  const { moduleName } = moduleState;
+  const moduleInfo = getModuleInfo(moduleName);
+  const scheme = getFilterScheme(moduleInfo, filterSchemeid);
+  const [form] = Form.useForm();
+  const getACol = (filterField: any): any => {
+    const labelWarrapCol = {};
+    if (scheme.labelCol) {
+      // 自定义标题的span,否则为默认
+      apply(labelWarrapCol, {
+        labelCol: { span: scheme.labelCol },
+        wrapperCol: { span: scheme.wrapperCol || 24 - scheme.labelCol },
+      });
+    }
+    const params = { moduleState, filterField, form, labelWarrapCol };
+    /* eslint-disable */
+    return filterField.comboThisField
+      ? getComboThisFieldFilter(params)
+      : filterField.fDictionaryid
+      ? getDictionaryFilter(params)
+      : filterField.isNumberField
+      ? getNumberFilter(params)
+      : filterField.isDateField
+      ? getDateFilter(params)
+      : filterField.isBooleanField
+      ? getBooleanFilter(params)
+      : filterField.xtype === 'usermanytoonetreefilter'
+      ? getManyToOneTreeFilter(params)
+      : filterField.manyToOneInfo
+      ? getManyToOneFilter(params)
+      : getStringFilter(params);
+    /* eslint-enable */
+  };
+
+  const onSearch = () => {
+    const filter: Record<string, any> = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
+    const formValues: Record<string, any> = form.getFieldsValue();
+    // console.log(formValues);
+    const userfilter: any[] = [];
+    Object.keys(formValues).forEach((key) => {
+      if (!filter[key]) filter[key] = {};
+      apply(filter[key], formValues[key]);
+      userfilter.push(filter[key]);
+    });
+    dispatch({
+      type: 'modules/filterChanged',
+      payload: {
+        moduleName,
+        type: 'userDefineFilter',
+        userfilter,
+      },
+    });
+  };
+  const getStateInitValues = (): Record<string, any> => {
+    // console.log('取得筛选条件')
+    const { filters } = moduleState;
+    const { userfilter } = filters;
+    const values: Record<string, any> = JSON.parse(JSON.stringify(getFilterInitValues(moduleName)));
+    if (userfilter)
+      userfilter.forEach((filter: any) => {
+        if (values[filter.property]) {
+          values[filter.property].operator = filter.operator;
+          values[filter.property].value = filter.value;
+          values[filter.property].operator1 = filter.operator1;
+          values[filter.property].text = filter.text;
+        }
+      });
+    return values;
+  };
+  useEffect(() => {
+    setTimeout(() => {
+      form.setFieldsValue(getStateInitValues());
+    }, 0);
+  }, [moduleState.filters.userfilter]);
+  return (
+    <Form
+      {...LabelColLayout}
+      form={form}
+      autoComplete="off"
+      layout="inline"
+      size="middle"
+      colon={false}
+      style={{ width: scheme.width ? `${scheme.width}px` : '' }}
+      onFieldsChange={() => {
+        onSearch();
+      }}
+    >
+      <div style={{ width: '100%' }}>
+        {scheme.details[0].details.map((item: any) => getACol(item))}
+      </div>
+    </Form>
   );
 };
 

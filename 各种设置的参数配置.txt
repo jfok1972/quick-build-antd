@@ -116,6 +116,11 @@
  * 
  * 日期字段的设置
  * operator : 'day','year','quarter','week','month' // 可以用来设置选择的月，年，季，周不设置为日区间
+ *
+ * 在筛选方案中设置 labelCol ，wrapperCol 可以控制 label 的大小
+
+
+
  */
 
 

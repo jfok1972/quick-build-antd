@@ -30,7 +30,7 @@ const getDateSectionFilter = ({
         <Form.Item name={[filterField.fieldname, 'operator']} noStyle>
           <Input style={{ display: 'none' }} />
         </Form.Item>
-        <DateSectionQuickSelect form={form} fieldName={filterField.fieldname} />
+        <DateSectionQuickSelect form={form} fieldName={filterField.fieldname} autoHidden />
         <Form.Item noStyle name={[filterField.fieldname, 'value']}>
           <RangePicker
             allowEmpty={[true, true]}

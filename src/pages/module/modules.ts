@@ -116,10 +116,17 @@ export const hasModuleInfo = (moduleName: string): boolean => !!modules[moduleNa
  * 返回一个自定义筛选方案，如果有多个，那么先选一个，一般只有一个
  * @param moduleInfo
  */
-export const getFilterScheme = (moduleInfo: ModuleModal): any => {
+export const getFilterScheme = (moduleInfo: ModuleModal, filterSchemeid?: string): any => {
   const s = moduleInfo.filterSchemes;
-  // eslint-disable-next-line
-  return s.system ? s.system[0] : s.owner ? s.owner[0] : s.othershare ? s.othershare[0] : null;
+  // 找到指定id的筛选方案
+  const schemes = [];
+  if (s.system) schemes.push(...s.system);
+  if (s.owner) schemes.push(...s.owner);
+  if (s.othershare) schemes.push(...s.othershare);
+  if (filterSchemeid) {
+    return schemes.find((scheme) => scheme.filterschemeid === filterSchemeid);
+  }
+  return schemes.length ? schemes[0] : undefined;
 };
 
 export const setModuleInfo = (moduleName: string, moduleModal: ModuleModal) => {

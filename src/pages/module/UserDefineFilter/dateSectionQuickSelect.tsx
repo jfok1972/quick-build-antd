@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Popover, Space } from 'antd';
 import { LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import type { FormInstance } from 'antd/es/form';
 
 const allSections: any[] = [
   [
@@ -56,14 +57,14 @@ export const DateSectionQuickSelect = ({
   callback,
   autoHidden,
 }: {
-  form?: any;
+  form?: FormInstance<any>;
   fieldName?: string;
   callback?: Function;
   autoHidden?: boolean;
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
   const onButtonClick = (section: any) => {
-    const name = [fieldName, 'value'];
+    const name: any = [fieldName, 'value'];
     if (!section.before) {
       const startDate = moment().add(section.add, section.prop).startOf(section.prop);
       const endDate = moment().add(section.add, section.prop).endOf(section.prop);
