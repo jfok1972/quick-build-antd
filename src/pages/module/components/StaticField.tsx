@@ -15,6 +15,7 @@ export interface StaticFieldProps {
   fieldName: string; // 统计的字段名称
   aggregate?: 'sum' | 'count' | 'avg' | 'max' | 'min'; // 聚合类型;
   filters?: any[]; // 查询的条件
+  userfilters?: any[];
   formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
   prefix?: React.ReactNode | string; // 金额前面的符号
   suffix?: React.ReactNode | string; // 金额前面的单位
@@ -31,6 +32,7 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   fieldName,
   aggregate,
   filters,
+  userfilters,
   formatPattern = '0,000',
   prefix,
   suffix,
@@ -54,12 +56,13 @@ export const StaticField: React.FC<StaticFieldProps> = ({
       moduleName,
       fields: [aggregateField],
       navigatefilters: filters,
+      userfilters,
       isnumberordername: true,
     }).then(async (response: any) => {
       setData(response[0].jf001);
       setLoading(false);
     });
-  }, []);
+  }, [userfilters]);
 
   return (
     <div style={{ display: 'flex' }} className="staticfield">

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getAwesomeIcon, uuid } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
-import { Col, message, Popover, Row, Space, Tooltip } from 'antd';
+import { Badge, Col, message, Popover, Row, Space, Tooltip } from 'antd';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { DateFormat } from '../moduleUtils';
@@ -13,6 +13,10 @@ import styles from './StaticCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
 import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
+import UserDefineFilter, { changeUserFilterToParam } from '../UserDefineFilter';
+import type { ModuleState } from '../data';
+import { getDefaultModuleState } from '../modules';
+import { useMemo } from 'react';
 
 const numeral = require('numeral');
 
@@ -38,6 +42,7 @@ interface StaticCardProps {
   aggregate: 'sum' | 'count' | 'avg' | 'max' | 'min'; // 聚合类型;
   dateFieldName: string; // 日期字段
   filters?: any[]; // 查询的条件
+  filterSchemeid?: string;
   description?: string; // 指标的描述，放在右上角的圆形感叹号里
   formatPattern?: string; // 数值format样式, 默认 0,000 , 0.000.00
   prefix?: React.ReactNode | string; // 金额前面的符号
@@ -90,6 +95,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   aggregate,
   dateFieldName,
   filters,
+  filterSchemeid,
   prefix,
   suffix,
   icon,
@@ -108,18 +114,73 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   const [total, setTotal] = useState<number>(0);
   const [relativeDatas, setRelativeDatas] = useState<RelativeData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const [filterVisible, setFilterVisible] = useState<boolean>(false);
+  const [userfilters, setUserfilters] = useState<any[]>([]);
+  const [moduleState, setModuleState] = useState<ModuleState>(
+    getDefaultModuleState({ moduleName }),
+  );
   const aggregateField = `${aggregate}.${fieldName}`;
   const aggregateFieldName = 'jf001';
+  const userFilter = filterSchemeid ? (
+    <Popover
+      visible={filterVisible}
+      onVisibleChange={(v) => {
+        setFilterVisible(v);
+      }}
+      trigger={['click']}
+      title={<span>设置筛选条件</span>}
+      content={
+        <UserDefineFilter
+          visible={true}
+          moduleState={moduleState}
+          dispatch={(params: any) => {
+            // 在重置的时候，需要把UserDefineFilter中的记录都清空，因此加了这一个moduleState
+            if (params.type === 'modules/filterChanged') {
+              moduleState.filters.userfilter = params.payload.userfilter;
+              setModuleState({ ...moduleState });
+              setUserfilters(changeUserFilterToParam(params.payload.userfilter));
+            }
+            setFilterVisible(false);
+          }}
+          filterSchemeid={filterSchemeid}
+          inPopover
+        />
+      }
+    >
+      {userfilters.length ? (
+        <Badge
+          count={userfilters.length}
+          dot={false}
+          offset={[-6, 6]}
+          style={{ backgroundColor: '#108ee9' }}
+        >
+          <FilterOutlined
+            style={{
+              paddingRight: '20px',
+            }}
+            className={styles.filtericon}
+          />
+        </Badge>
+      ) : (
+        <FilterOutlined className={styles.filtericon} />
+      )}
+    </Popover>
+  ) : null;
+
   const getTitle = () => {
-    if (description) {
+    if (description || filterSchemeid) {
       return (
         <div>
           <span>{title}</span>
-          <span style={{ float: 'right' }}>
-            <Tooltip title={description} trigger={['click']}>
-              <InfoCircleOutlined />
-            </Tooltip>
-          </span>
+          <Space style={{ float: 'right' }}>
+            {description ? (
+              <Tooltip title={description} trigger={['click']}>
+                <InfoCircleOutlined />
+              </Tooltip>
+            ) : null}
+            {userFilter}
+          </Space>
         </div>
       );
     }
@@ -195,7 +256,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
             operator: 'daysection',
             value: `${start.format(DateFormat)}--${end.format(DateFormat)}`,
           },
-        ],
+        ].concat(...userfilters),
         isnumberordername: true,
       });
     };
@@ -297,6 +358,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         moduleName,
         fields: [aggregateField],
         navigatefilters: filters,
+        userfilters,
         groupfieldid: { fieldname: dateFieldName, function: groupFunction[sectionType] },
         isnumberordername: true,
       }).then((response: any) => {
@@ -316,7 +378,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
           .filter((value, index, array) => array.length - index <= maxCount);
         setData(detailArray);
       });
-    }, []);
+    }, [userfilters]);
 
     const config: any = {
       height: chartHeight,
@@ -360,6 +422,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       moduleName,
       fields: [aggregateField],
       navigatefilters: filters,
+      userfilters,
       isnumberordername: true,
     }).then(async (response: any) => {
       setTotal(response[0][aggregateFieldName]);
@@ -373,7 +436,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       }
       setLoading(false);
     });
-  }, []);
+  }, [userfilters]);
 
   const getStaticFieldsRegion = () => {
     let hasRatio = false;
@@ -384,7 +447,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       // 如果要显示比率，则把这一行撑足
       <Space key={uuid()} size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
         {staticFields?.map((staticField) => (
-          <StaticField key={uuid()} {...staticField} total={total} />
+          <StaticField key={uuid()} {...staticField} userfilters={userfilters} total={total} />
         ))}
       </Space>
     );
@@ -428,12 +491,20 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     return null;
   };
 
+  const miniChart = useMemo(() => {
+    return chart ? <MiniChart chartDefine={chart} /> : null;
+  }, [userfilters]);
+
+  const footer = useMemo(() => {
+    return getFooterRegion();
+  }, [userfilters]);
+  console.log(footer);
   return (
     <StatisticCard
       className={styles.staticcard}
       style={{ height: height ? `${height}px` : '' }}
       loading={loading}
-      chart={chart ? <MiniChart chartDefine={chart} /> : null}
+      chart={miniChart}
       chartPlacement="bottom"
       statistic={{
         title: getTitle(),
@@ -443,7 +514,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         icon: typeof icon === 'string' ? getAwesomeIcon(icon) : icon,
         description: getDescriptionRegion(),
       }}
-      footer={getFooterRegion()}
+      footer={footer}
     />
   );
 };

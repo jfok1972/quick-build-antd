@@ -67,7 +67,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
         showTitle: false,
         formatter: (datum: any) => {
           return {
-            name: datum[datasetProperty.categoryName],
+            name: datum[datasetProperty.categoryName as string],
             value:
               numeral(datum[field_1.title] / (field_1.monetaryUnit || 1)).format(
                 field_1.formatPattern || '0',

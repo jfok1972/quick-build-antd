@@ -7,6 +7,11 @@
     flex-direction: column;
   }
 
+  // 防止card title 区域被userfilter 撑高
+  .ant-card.imagecard .ant-card-extra {
+    padding: 0;
+  }
+
   // 图片设置为 100%， 会多出title 的高度，使用flex布局则解决此问题
   .ant-card.imagecard > div.ant-card-body {
     flex: 1;

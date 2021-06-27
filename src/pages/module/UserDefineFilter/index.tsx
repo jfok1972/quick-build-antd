@@ -333,7 +333,9 @@ const getComboThisFieldFilter: React.FC<UserFilterProps> = ({
     text: (
       <span>
         {rec.text}
-        <span className={styles.filterCount}>{`(${rec.count})`}</span>
+        {filterField.addCount !== false ? (
+          <span className={styles.filterCount}>{`(${rec.count})`}</span>
+        ) : null}
       </span>
     ),
   }));

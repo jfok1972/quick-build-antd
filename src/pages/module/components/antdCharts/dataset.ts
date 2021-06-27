@@ -17,8 +17,8 @@ interface AggregateFieldProps {
 export interface DataSetProps {
   moduleName: string; // 模块名称
   fields: AggregateFieldProps[]; // 聚合字段 ['count.*','sum.amount']
-  groupfieldid: string; // 第一个指标的定义
-  categoryName: string; // 第一个指标的名称，默认为text，可以用中文作为字段名称
+  groupfieldid?: string | Record<string, any>; // 第一个指标的定义
+  categoryName?: string; // 第一个指标的名称，默认为text，可以用中文作为字段名称
   groupfieldid2?: string; // 第二个指标的字段定义
   categoryName2?: string; // 第二个指标的名称，可以用中文作为字段名称
   filters?: any[]; // 查询的条件
