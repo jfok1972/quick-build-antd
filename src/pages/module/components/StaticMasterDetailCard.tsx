@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { apply, uuid } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
 import RcResizeObserver from 'rc-resize-observer';
-import { Badge, Progress, Tooltip } from 'antd';
+import { Badge, Popover, Progress, Space, Tooltip } from 'antd';
 import styles from './StaticMasterDetailCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
+import UserDefineFilter, { changeUserFilterToParam } from '../UserDefineFilter';
+import type { ModuleState } from '../data';
+import { getDefaultModuleState } from '../modules';
 
 const numeral = require('numeral');
 
@@ -31,6 +34,7 @@ interface StaticMasterDetailCardProps {
   monetaryUnit?: MonetaryUnit;
   unitText?: string; // 数值单位，个，米，万元。
   filters?: any[];
+  filterSchemeid?: string;
   description?: any;
   items: CardCategoryProps[];
 }
@@ -58,6 +62,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   title,
   description,
   filters,
+  filterSchemeid,
   items,
 }) => {
   const aggregateFieldName = 'jf001';
@@ -67,6 +72,12 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   const [total, setTotal] = useState<number>(0);
   const [detailData, setDetailData] = useState<TextValue[]>([]);
   const [itemIndex, setItemIndex] = useState<number>(0);
+  const [filterVisible, setFilterVisible] = useState<boolean>(false);
+  const [userfilters, setUserfilters] = useState<any[]>([]);
+  const [moduleState, setModuleState] = useState<ModuleState>(
+    getDefaultModuleState({ moduleName }),
+  );
+
   const getValueText = (value: number) => {
     return (
       numeral(value / monetaryUnit).format(formatPattern) +
@@ -81,6 +92,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       fields: [aggregateField],
       groupfieldid: items[itemIndex].groupField,
       navigatefilters: filters,
+      userfilters,
       isnumberordername: true,
     }).then((response: any) => {
       // 生成 detailData , 根据结果排序，生成后取前count-1个，其他的全部加在一起
@@ -132,7 +144,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       setLoading(false);
       setFirstloading(false);
     });
-  }, [itemIndex]);
+  }, [itemIndex, userfilters]);
 
   const getRingProgress = (value: number, color: string) => {
     return (
@@ -148,6 +160,53 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       />
     );
   };
+
+  const userFilter = filterSchemeid ? (
+    <Popover
+      visible={filterVisible}
+      onVisibleChange={(v) => {
+        setFilterVisible(v);
+      }}
+      trigger={['click']}
+      title={<span>设置筛选条件</span>}
+      content={
+        <UserDefineFilter
+          visible={true}
+          moduleState={moduleState}
+          dispatch={(params: any) => {
+            // 在重置的时候，需要把UserDefineFilter中的记录都清空，因此加了这一个moduleState
+            if (params.type === 'modules/filterChanged') {
+              moduleState.filters.userfilter = params.payload.userfilter;
+              setModuleState({ ...moduleState });
+              setUserfilters(changeUserFilterToParam(params.payload.userfilter));
+            }
+            setFilterVisible(false);
+          }}
+          filterSchemeid={filterSchemeid}
+          inPopover
+        />
+      }
+    >
+      {userfilters.length ? (
+        <Badge
+          count={userfilters.length}
+          dot={false}
+          offset={[-6, 6]}
+          style={{ backgroundColor: '#108ee9' }}
+        >
+          <FilterOutlined
+            style={{
+              paddingRight: '20px',
+            }}
+            className={styles.filtericon}
+          />
+        </Badge>
+      ) : (
+        <FilterOutlined className={styles.filtericon} />
+      )}
+    </Popover>
+  ) : null;
+
   const getSumCard = () => (
     <StatisticCard
       key={uuid()}
@@ -176,12 +235,15 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
                   ))}
                 </span>
               ) : null,
-              description ? (
-                <span key={uuid()} style={{ float: 'right' }}>
-                  <Tooltip title={description} trigger={['click']}>
-                    <InfoCircleOutlined />
-                  </Tooltip>
-                </span>
+              description || filterSchemeid ? (
+                <Space key={uuid()} style={{ float: 'right' }}>
+                  {description ? (
+                    <Tooltip title={description} trigger={['click']}>
+                      <InfoCircleOutlined />
+                    </Tooltip>
+                  ) : null}
+                  {userFilter}
+                </Space>
               ) : null,
             ]}
           </div>

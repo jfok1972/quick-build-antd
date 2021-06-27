@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, Tooltip, Popover, Badge } from 'antd';
+import { Card, Tooltip, Popover, Badge, Radio } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
 import { Area, Bar, Column, Line, Pie, Rose } from '@ant-design/charts';
 import { apply, uuid } from '@/utils/utils';
@@ -23,8 +23,8 @@ interface AntdChartsProps {
   filterSchemeid?: string;
   filterPosition?: 'inline' | 'inPopover';
   description?: string;
-  datasetProperty: DataSetProps; // 可以有二个dataSet
-  config: any;
+  datasetProperty: DataSetProps | DataSetProps[]; // 可以有二个dataSet
+  config: any; // 如果有多个dataset,则可以定义 config : [{},{}]来对应每一个dataSet
 }
 
 export const AntdCharts: React.FC<AntdChartsProps> = ({
@@ -34,10 +34,14 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   filterSchemeid,
   filterPosition,
   description,
-  datasetProperty,
+  // 可以定义为DataSetProps，或者是一个数组，可以切换不同的分组方式
+  datasetProperty: datasetDefine,
   config,
 }) => {
   const [dataSet, setDataSet] = useState<any[]>([]);
+  const [datasetProperty, setDatasetProperty] = useState<DataSetProps>(
+    Array.isArray(datasetDefine) ? datasetDefine[0] : datasetDefine,
+  );
   const [userfilters, setUserfilters] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [filterVisible, setFilterVisible] = useState<boolean>(false);
@@ -47,13 +51,20 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   useEffect(() => {
     setLoading(true);
     getDataSet(datasetProperty, userfilters).then((response: any) => {
-      setDataSet(response);
       setLoading(false);
+      setDataSet(response);
     });
-  }, [userfilters]);
+  }, [userfilters, datasetProperty]);
 
   const chartConfig = useMemo(() => {
-    const cConfig: any = { ...config };
+    let cConfig: any = { ...config };
+    if (Array.isArray(config)) {
+      // 设置当前dataSet在数组中位置的config
+      const index = (datasetDefine as DataSetProps[]).findIndex(
+        (rec) => rec.menuText === datasetProperty.menuText,
+      );
+      cConfig = { ...config[Math.max(0, Math.min(config.length - 1, index))] };
+    }
     apply(cConfig, {
       data: dataSet,
       appendPadding: 12,
@@ -89,7 +100,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
       };
     }
     return cConfig;
-  }, [config, loading, dataSet]);
+  }, [loading, dataSet]);
 
   console.log('render chart');
   console.log(datasetProperty);
@@ -139,18 +150,62 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
             />
           }
         >
-          <Badge
-            count={userfilters.length}
-            dot={false}
-            offset={[-6, 6]}
-            style={{ backgroundColor: '#108ee9' }}
-          >
+          {userfilters.length ? (
+            <Badge
+              count={userfilters.length}
+              dot={false}
+              offset={[-6, 6]}
+              style={{ backgroundColor: '#108ee9' }}
+            >
+              <FilterOutlined
+                style={{
+                  paddingRight: '20px',
+                }}
+                className={styles.filtericon}
+              />
+            </Badge>
+          ) : (
             <FilterOutlined className={styles.filtericon} />
-          </Badge>
+          )}
         </Popover>
       );
     }
   }
+
+  const titleComponent: any[] = [];
+  if (Array.isArray(datasetDefine)) {
+    const sepa = title.split('--');
+    titleComponent.push(sepa[0]);
+    titleComponent.push(
+      <Radio.Group
+        value={datasetProperty.menuText}
+        size="small"
+        style={{ margin: '0px 8px', fontWeight: 400 }}
+        onChange={(e) => {
+          setDatasetProperty(
+            datasetDefine.find((rec) => rec.menuText === e.target.value) as DataSetProps,
+          );
+        }}
+      >
+        {datasetDefine.map((rec) => (
+          <Radio.Button key={rec.menuText} value={rec.menuText}>
+            {rec.menuText}
+          </Radio.Button>
+        ))}
+      </Radio.Group>,
+    );
+    if (sepa.length > 1) titleComponent.push(sepa[1]);
+  } else titleComponent.push(title);
+
+  const chart = () => {
+    if (type === 'column') return <Column key={uuid()} {...chartConfig} />;
+    if (type === 'bar') return <Bar key={uuid()} {...chartConfig} />;
+    if (type === 'line') return <Line key={uuid()} {...chartConfig} />;
+    if (type === 'area') return <Area key={uuid()} {...chartConfig} />;
+    if (type === 'pie') return <Pie key={uuid()} {...chartConfig} />;
+    if (type === 'rose') return <Rose key={uuid()} {...chartConfig} />;
+    return null;
+  };
 
   return (
     <Card
@@ -158,7 +213,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
       title={
         <span>
           {[
-            title,
+            titleComponent,
             description ? (
               <Tooltip key={uuid()} title={description} trigger={['click']}>
                 <InfoCircleOutlined className={styles.infoicon} />
@@ -172,12 +227,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     >
       {/* 加这个 Card 是为了 loading 的时候标题正常显示 */}
       <Card className="spacecard" bordered={false}>
-        {type === 'column' ? <Column {...chartConfig} /> : null}
-        {type === 'bar' ? <Bar {...chartConfig} /> : null}
-        {type === 'line' ? <Line {...chartConfig} /> : null}
-        {type === 'area' ? <Area {...chartConfig} /> : null}
-        {type === 'pie' ? <Pie {...chartConfig} /> : null}
-        {type === 'rose' ? <Rose {...chartConfig} /> : null}
+        {chart()}
       </Card>
     </Card>
   );

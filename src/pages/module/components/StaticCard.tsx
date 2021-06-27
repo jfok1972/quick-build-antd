@@ -427,6 +427,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     }).then(async (response: any) => {
       setTotal(response[0][aggregateFieldName]);
       if (relatives && relatives.length) {
+        relativeDatas.splice(0, relativeDatas.length);
         for (let i = 0; i < relatives.length; i += 1) {
           // eslint-disable-next-line
           const value = await getRelativeDate(relatives[i]);
@@ -495,10 +496,6 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     return chart ? <MiniChart chartDefine={chart} /> : null;
   }, [userfilters]);
 
-  const footer = useMemo(() => {
-    return getFooterRegion();
-  }, [userfilters]);
-  console.log(footer);
   return (
     <StatisticCard
       className={styles.staticcard}
@@ -514,7 +511,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         icon: typeof icon === 'string' ? getAwesomeIcon(icon) : icon,
         description: getDescriptionRegion(),
       }}
-      footer={footer}
+      footer={getFooterRegion()}
     />
   );
 };

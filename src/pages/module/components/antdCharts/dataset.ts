@@ -21,6 +21,7 @@ export interface DataSetProps {
   categoryName?: string; // 第一个指标的名称，默认为text，可以用中文作为字段名称
   groupfieldid2?: string; // 第二个指标的字段定义
   categoryName2?: string; // 第二个指标的名称，可以用中文作为字段名称
+  menuText?: string; // 如果有多个可以选择的dataSet,设置group中显示的文字
   filters?: any[]; // 查询的条件
   maxCount?: number; // 最大的记录个数
   otherTitle?: string; // 剩余的所有的描述,如果没有设置otherTitle,则后面的全部删除
