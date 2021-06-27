@@ -57,19 +57,18 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   }, [userfilters, datasetProperty]);
 
   const chartConfig = useMemo(() => {
-    let cConfig: any = { ...config };
+    let cConfig: any = { type, ...config };
     if (Array.isArray(config)) {
       // 设置当前dataSet在数组中位置的config
       const index = (datasetDefine as DataSetProps[]).findIndex(
         (rec) => rec.menuText === datasetProperty.menuText,
       );
-      cConfig = { ...config[Math.max(0, Math.min(config.length - 1, index))] };
+      cConfig = { type, ...config[Math.max(0, Math.min(config.length - 1, index))] };
     }
     apply(cConfig, {
       data: dataSet,
       appendPadding: 12,
       loading,
-      type,
     });
     // 如果没有定义,则设置一个缺省的
     if (cConfig.tooltip === undefined) {
@@ -198,12 +197,13 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   } else titleComponent.push(title);
 
   const chart = () => {
-    if (type === 'column') return <Column key={uuid()} {...chartConfig} />;
-    if (type === 'bar') return <Bar key={uuid()} {...chartConfig} />;
-    if (type === 'line') return <Line key={uuid()} {...chartConfig} />;
-    if (type === 'area') return <Area key={uuid()} {...chartConfig} />;
-    if (type === 'pie') return <Pie key={uuid()} {...chartConfig} />;
-    if (type === 'rose') return <Rose key={uuid()} {...chartConfig} />;
+    const t = chartConfig.type;
+    if (t === 'column') return <Column key={uuid()} {...chartConfig} />;
+    if (t === 'bar') return <Bar key={uuid()} {...chartConfig} />;
+    if (t === 'line') return <Line key={uuid()} {...chartConfig} />;
+    if (t === 'area') return <Area key={uuid()} {...chartConfig} />;
+    if (t === 'pie') return <Pie key={uuid()} {...chartConfig} />;
+    if (t === 'rose') return <Rose key={uuid()} {...chartConfig} />;
     return null;
   };
 
