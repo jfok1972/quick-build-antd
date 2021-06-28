@@ -1,9 +1,11 @@
 import React from 'react';
+import { Card } from 'antd';
 import { StaticCard } from '../components/StaticCard';
 import { applyIf, applyOtherSetting } from '@/utils/utils';
 import moment from 'moment';
 import { StaticMasterDetailCard } from '../components/StaticMasterDetailCard';
 import { AntdCharts } from '../components/antdCharts';
+import { Datamining } from '@/pages/datamining';
 
 // 设置一些常用的函数
 window.moment = moment;
@@ -29,10 +31,15 @@ export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => 
   if (widget.widgettype === 'staticMasterDetailCard') {
     return <StaticMasterDetailCard {...params} />;
   }
-
   if (widget.widgettype === 'antdCharts') {
     return <AntdCharts {...params} />;
   }
-
+  if (widget.widgettype === 'datamining') {
+    return (
+      <Card>
+        <Datamining moduleName={widget.moduleName} inTab />
+      </Card>
+    );
+  }
   return <span></span>;
 };

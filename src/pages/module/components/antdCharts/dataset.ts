@@ -24,6 +24,7 @@ export interface DataSetProps {
   menuText?: string; // 如果有多个可以选择的dataSet,设置group中显示的文字
   filters?: any[]; // 查询的条件
   maxCount?: number; // 最大的记录个数
+  restHead?: boolean; // 如果设置为true,则把头部的合并或删除，如果未设置，则将尾部的合并或删除
   otherTitle?: string; // 剩余的所有的描述,如果没有设置otherTitle,则后面的全部删除
   orderby?: 'text' | 'code' | any; // 按什么排序,对于有序的如数据字典，可以按code排序 , 或者第一个数值 jf001
   orderDesc?: boolean; // 排序顺序
@@ -96,6 +97,7 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
     orderby,
     orderDesc,
     maxCount,
+    restHead,
     otherTitle,
   } = dataSet;
   return fetchDataminingDataWithCatch({
@@ -130,7 +132,6 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
           });
           return crecord;
         });
-        console.log(array);
         return array;
       }
       // 聚合字段从jf001开始，如果是有条件的，则是jf001jxy001
@@ -178,6 +179,8 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
               [field.title]: 0,
             });
           });
+          // 如果是合并或删除头上的，先反转
+          if (restHead) data.reverse();
           data
             .filter((rec, order) => order >= maxCount - 1)
             .forEach((rec) => {
@@ -188,14 +191,16 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
             });
           other[categoryName] += `(${restCount}个)`;
           data.splice(maxCount - 1, data.length - maxCount + 1, other);
-        } else {
-          // 如果没有设置otherTitle,则把后面的全部删除
-          data.splice(maxCount, data.length - maxCount);
-        }
+          // 如果是合并或删除头上的，再反转过来
+          if (restHead) data.reverse();
+        } else if (restHead)
+          // 把前面的全部删除
+          data.splice(0, data.length - maxCount);
+        // 如果没有设置otherTitle,则把后面的全部删除
+        else data.splice(maxCount, data.length - maxCount);
       }
     }
     return new Promise((resolve) => {
-      console.log(data);
       resolve(data);
     });
   });

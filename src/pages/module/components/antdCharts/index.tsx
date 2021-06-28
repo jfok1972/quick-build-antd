@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useLayoutEffect } from 'react';
 import { Card, Tooltip, Popover, Badge, Radio } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
-import { Area, Bar, Column, DualAxes, Line, Pie, Rose } from '@ant-design/charts';
+import { Area, Bar, BidirectionalBar, Column, DualAxes, Line, Pie, Rose } from '@ant-design/charts';
 import { apply, uuid } from '@/utils/utils';
 import type { DataSetProps } from './dataset';
 import { getDataSet } from './dataset';
@@ -18,7 +18,16 @@ const numeral = require('numeral');
 
 interface AntdChartsProps {
   moduleName: string;
-  type: 'line' | 'area' | 'column' | 'bar' | 'pie' | 'rose' | 'dualAxes' | 'gauge';
+  type:
+    | 'line'
+    | 'area'
+    | 'column'
+    | 'bar'
+    | 'pie'
+    | 'rose'
+    | 'dualAxes'
+    | 'bidirectionalBar'
+    | 'gauge';
   title: string;
   filterSchemeid?: string;
   filterPosition?: 'inline' | 'inPopover';
@@ -51,6 +60,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     setLoading(true);
     getDataSet(datasetProperty, userfilters).then((response: any) => {
       setLoading(false);
+      console.log(response);
       setDataSet(response);
     });
   }, [userfilters, datasetProperty]);
@@ -70,7 +80,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
       loading,
     });
     // 如果没有定义,则设置一个缺省的
-    if (cConfig.type !== 'dualAxes') {
+    if (!['dualAxes', 'bidirectionalBar'].includes(cConfig.type)) {
       if (cConfig.tooltip === undefined) {
         const field_1 = datasetProperty.fields[0];
         cConfig.tooltip = {
@@ -102,8 +112,6 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     return cConfig;
   }, [loading, dataSet]);
 
-  console.log('render chart');
-  console.log(datasetProperty);
   let userFilter = null;
 
   const PopoverFilter = () => {
@@ -210,6 +218,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     if (t === 'pie') return <Pie key={uuid()} {...chartConfig} />;
     if (t === 'rose') return <Rose key={uuid()} {...chartConfig} />;
     if (t === 'dualAxes') return <DualAxes key={uuid()} {...chartConfig} />;
+    if (t === 'bidirectionalBar') return <BidirectionalBar key={uuid()} {...chartConfig} />;
     return null;
   }, [chartConfig]);
 

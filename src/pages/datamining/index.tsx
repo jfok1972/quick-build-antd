@@ -116,17 +116,20 @@ const DataminingModule: React.FC<any> = ({ inTab }: { inTab?: boolean }) => {
     }
   }, [state.currSetting.filtersRegionVisible]);
 
-  const resultTree = useMemo(() => <ResultTree state={state} dispatch={dispatch} />, [
-    state.schemeState.dataSource,
-    state.selectedRowKeys,
-    state.expandedRowKeys,
-    state.fetchLoading,
-    state.monetary,
-    state.monetaryPosition,
-    state.schemeState.columnGroup,
-    state.schemeState.fieldGroup,
-    state.currSetting.fieldGroupFixedLeft,
-  ]);
+  const resultTree = useMemo(
+    () => <ResultTree state={state} dispatch={dispatch} />,
+    [
+      state.schemeState.dataSource,
+      state.selectedRowKeys,
+      state.expandedRowKeys,
+      state.fetchLoading,
+      state.monetary,
+      state.monetaryPosition,
+      state.schemeState.columnGroup,
+      state.schemeState.fieldGroup,
+      state.currSetting.fieldGroupFixedLeft,
+    ],
+  );
   const title = (
     <span>
       {getModuleIcon(moduleInfo)} {moduleInfo.title}
