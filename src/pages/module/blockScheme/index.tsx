@@ -91,30 +91,12 @@ const getInnerColSpan = (colspan: number | undefined) => {
   return quarterInnerBlockColSpan;
 };
 
-const BlockDetail = ({
-  block,
-  inner = false,
-  forceUpdateCount,
-}: {
-  block: any;
-  inner?: boolean;
-  forceUpdateCount: number;
-}) => {
-  // 防止echarts 在切换tabs后不渲染的问题
-  // eslint-disable-next-line
-  const [innerForceUpdateCount, setInnerForceUpdateCount] = useState<number>(0);
-
-  // console.log(block);
-  // 如果是一个tabPanel
+export const BlockDetail = ({ block, inner = false }: { block: any; inner?: boolean }) => {
+  // 防止echarts 在切换tabs后不渲染的问题,需要弄一个tabs转换的计数器，现在没有加
   if (block.xtype && (block.xtype as string).toLowerCase() === 'tabpanel') {
     return (
       <Card bordered={false}>
-        <Tabs
-          className={styles.innertabs}
-          onChange={() => {
-            // setInnerForceUpdateCount((value) => value + 1);
-          }}
-        >
+        <Tabs className={styles.innertabs}>
           {block.items.map((tab: any, index: number) => (
             <TabPane
               tab={
@@ -126,11 +108,7 @@ const BlockDetail = ({
               key={tab.detailid}
               className={styles.blocktab}
             >
-              <BlockDetail
-                key={tab.detailid}
-                block={tab}
-                forceUpdateCount={forceUpdateCount + innerForceUpdateCount}
-              />
+              <BlockDetail key={tab.detailid} block={tab} />
             </TabPane>
           ))}
         </Tabs>
@@ -154,7 +132,7 @@ const BlockDetail = ({
           return (
             <Col key={item.detailid} {...response} style={style}>
               <div className={styles.innercard}>
-                <BlockDetail block={item} inner={true} forceUpdateCount={forceUpdateCount} />
+                <BlockDetail block={item} inner={true} />
               </div>
             </Col>
           );
@@ -166,7 +144,6 @@ const BlockDetail = ({
   if (block.fovDataobjectwidget)
     thisBlock = <DataobjectWidget widget={block.fovDataobjectwidget} />;
   else if (block.staticCard) thisBlock = <StaticCard {...block.staticCard} />;
-  // else thisBlock = <EchartsDemo id={`${block.detailid}id`} forceUpdateCount={forceUpdateCount} />;
   return <div style={{ height: '100%' }}>{thisBlock}</div>;
 };
 
@@ -175,7 +152,6 @@ export const BlockSchemes: React.FC = () => {
   const [loaded, setLoaded] = useState<boolean>(false);
   // 防止echarts 在切换tabs后不渲染的问题
   // eslint-disable-next-line
-  const [forceUpdateCount, setForceUpdateCount] = useState<number>(0);
   useEffect(() => {
     if (blockSchemes.length === 0) {
       request(`${API_HEAD}/platform/homepage/getinfo.do`, {
@@ -195,11 +171,7 @@ export const BlockSchemes: React.FC = () => {
     if (schemes.length > 1) {
       return (
         <Card bordered={false} className={styles.globalcard}>
-          <Tabs
-            onChange={() => {
-              // setForceUpdateCount((value) => value + 1);
-            }}
-          >
+          <Tabs>
             {schemes.map((block, index) => (
               <TabPane
                 tab={
@@ -211,11 +183,7 @@ export const BlockSchemes: React.FC = () => {
                 key={block.homepageschemeid}
                 className={styles.blockcard}
               >
-                <BlockDetail
-                  key={block.items[0].detailid}
-                  block={block.items[0]}
-                  forceUpdateCount={forceUpdateCount}
-                />
+                <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
               </TabPane>
             ))}
           </Tabs>
@@ -224,11 +192,7 @@ export const BlockSchemes: React.FC = () => {
     }
     return (
       <div className={styles.innercard}>
-        <BlockDetail
-          key={schemes[0].items[0].detailid}
-          block={schemes[0].items[0]}
-          forceUpdateCount={forceUpdateCount}
-        />
+        <BlockDetail key={schemes[0].items[0].detailid} block={schemes[0].items[0]} />
       </div>
     );
   }

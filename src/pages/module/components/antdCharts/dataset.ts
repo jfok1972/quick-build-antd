@@ -92,6 +92,7 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
     groupfieldid,
     categoryName = 'text',
     groupfieldid2,
+    categoryName2 = 'text2',
     orderby,
     orderDesc,
     maxCount,
@@ -112,6 +113,26 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
         rowid: rec.rowid,
         [categoryName]: rec.text,
       };
+      if (groupfieldid2) {
+        // 如果设置了二个分组字段，那么第二级的所有都在 children 中
+        const array = rec.children.map((crec: any) => {
+          const crecord: any = {
+            ...record,
+            code2: crec.value, // 加入第二个指标的code值
+            rowid: crec.rowid, // rowid 覆盖掉
+            [categoryName2]: crec.text,
+          };
+          fields.forEach((field, index) => {
+            const f = `jf${`${index + 1}`.padStart(3, '0')}`;
+            apply(crecord, {
+              [field.title]: crec[f],
+            });
+          });
+          return crecord;
+        });
+        console.log(array);
+        return array;
+      }
       // 聚合字段从jf001开始，如果是有条件的，则是jf001jxy001
       fields.forEach((field, index) => {
         const f = `jf${`${index + 1}`.padStart(3, '0')}`;
@@ -131,6 +152,11 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
        */
       return record;
     });
+    if (groupfieldid2) {
+      const array: any[] = [];
+      data.forEach((aArray) => array.push(...aArray));
+      data.splice(0, data.length, ...array);
+    }
     // 如果设置了排序字段，则根据设置的字段进行排序，orderby要设置成列名，可能是中文的
     if (orderby) {
       data.sort((rec1, rec2) => {

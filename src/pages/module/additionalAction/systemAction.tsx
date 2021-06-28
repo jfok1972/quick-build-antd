@@ -1,9 +1,8 @@
-import React from 'react';
 import { message, Modal } from 'antd';
 import type { Dispatch } from 'redux';
 import { EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { DrawerProps } from 'antd/lib/drawer';
-import request, { API_HEAD } from '@/utils/request';
+import request, { API_HEAD, syncRequest } from '@/utils/request';
 import { apply, download } from '@/utils/utils';
 import { setGlobalDrawerProps, setGlobalModalProps } from '@/layouts/BasicLayout';
 import type { ModuleModal, ModuleState, AdditionFunctionModal } from '../data';
@@ -28,6 +27,8 @@ import { DesignNavigate } from '../design/DesignNavigate';
 import { DesignSort } from '../design/DesignSort';
 import type { ConditionType } from '../design/DesignConditionExpression';
 import { DesignConditionExpression } from '../design/DesignConditionExpression';
+import { DataobjectWidget } from '../blockScheme/DataobjectWidget';
+import { BlockDetail } from '../blockScheme';
 
 export interface ActionParamsModal {
   moduleInfo: ModuleModal;
@@ -656,6 +657,57 @@ const createManyToManyField = (params: ActionParamsModal) => {
   });
 };
 
+/**
+ * 预览实体对象组件
+ * @param params
+ */
+const previewWidget = (params: ActionParamsModal) => {
+  const { record } = params;
+  setGlobalModalProps({
+    onCancel: () => setGlobalModalProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '60%',
+    footer: null,
+    title: `预览 ${record['fDataobject.title']}『${record.title}』的组件`,
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: (
+      <DataobjectWidget
+        widget={syncRequest(`${API_HEAD}/platform/systemcommon/widgetdefine.do`, {
+          params: {
+            widgetid: record.widgetid,
+          },
+        })}
+      />
+    ),
+  });
+};
+
+/**
+ * 预览分析页方案
+ * @param params
+ */
+const previewHopepageScheme = (params: ActionParamsModal) => {
+  const { record } = params;
+  const block = syncRequest(`${API_HEAD}/platform/systemcommon/homepageschemedefine.do`, {
+    params: {
+      homepageschemeid: record.homepageschemeid,
+    },
+  });
+  setGlobalDrawerProps({
+    onClose: () => setGlobalDrawerProps(() => ({ visible: false })),
+    zIndex: 120,
+    destroyOnClose: true,
+    visible: true,
+    width: '90%',
+    footer: null,
+    title: `分析页方案『${record.schemename}』的预览`,
+    bodyStyle: { padding: '16px 16px 16px 16px', backgroundColor: '#f0f2f5' },
+    children: <BlockDetail key={block.items[0].detailid} block={block.items[0]} />,
+  });
+};
+
 type ActionStore = Record<string, Function>;
 
 /**
@@ -697,6 +749,8 @@ export const systemActions: ActionStore = apply(
     setDataCanSelectFilterRoleLimit,
     createonetomanyfield: createOneToManyField,
     createmanytomanyfield: createManyToManyField,
+    previewWidget,
+    previewHopepageScheme,
   },
   businessActions,
 ) as ActionStore;

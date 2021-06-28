@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import * as echarts from 'echarts';
 import { useMemo } from 'react';
 
-export const EchartsDemo = ({ id, forceUpdateCount }: { id: string; forceUpdateCount: number }) => {
+export const EchartsDemo = ({ id }: { id: string }) => {
   let myChart: any;
   const option = useMemo(
     () => ({
@@ -88,7 +88,7 @@ export const EchartsDemo = ({ id, forceUpdateCount }: { id: string; forceUpdateC
       console.log('remove resize');
       window.removeEventListener('resize', myChart.resize());
     };
-  }, [forceUpdateCount]);
+  }, []);
 
   return <div id={id} style={{ minHeight: '430px', height: '100%' }} />;
 };
