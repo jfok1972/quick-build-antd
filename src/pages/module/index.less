@@ -39,11 +39,6 @@
     margin: 16px 16px 0 !important;
   }
 
-  // 加了table的选择框不居中
-  .ant-checkbox-wrapper {
-    //margin-right: 8px;
-  }
-
   .ant-checkbox-wrapper + .ant-checkbox-wrapper {
     margin-left: 0;
   }
@@ -145,6 +140,11 @@
   .moduletable button.ant-table-row-expand-icon.ant-table-row-expand-icon-spaced {
     border-right: @border-color-base 1px solid;
     visibility: visible;
+  }
+
+  // 嵌套子表格默认上面的第一行的border是不显示, moduletable中嵌套moduletable,则让其显示
+  .moduletable .ant-table-cell .ant-table-container:first-child {
+    border-top: 1px solid @table-border-color;
   }
 }
 

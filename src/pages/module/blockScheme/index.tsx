@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { Card, Col, Row, Tabs, Result } from 'antd';
+import { Card, Col, Row, Tabs, Result, Empty, Collapse } from 'antd';
 import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
 import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
-import { StaticCard } from '../components/StaticCard';
 import { DataobjectWidget } from './DataobjectWidget';
 
 const { TabPane } = Tabs;
@@ -93,27 +92,51 @@ const getInnerColSpan = (colspan: number | undefined) => {
 
 export const BlockDetail = ({ block, inner = false }: { block: any; inner?: boolean }) => {
   // 防止echarts 在切换tabs后不渲染的问题,需要弄一个tabs转换的计数器，现在没有加
-  if (block.xtype && (block.xtype as string).toLowerCase() === 'tabpanel') {
-    return (
-      <Card bordered={false}>
-        <Tabs className={styles.innertabs}>
-          {block.items.map((tab: any, index: number) => (
-            <TabPane
-              tab={
-                <span>
-                  {tab.iconCls ? getAwesomeIcon(tab.iconCls) : null} {tab.title}
-                </span>
-              }
-              tabKey={`block-${index}`}
-              key={tab.detailid}
-              className={styles.blocktab}
-            >
-              <BlockDetail key={tab.detailid} block={tab} />
-            </TabPane>
-          ))}
-        </Tabs>
-      </Card>
-    );
+  if (block.xtype) {
+    const xtype = (block.xtype as string).toLowerCase();
+    if (xtype === 'tabpanel') {
+      return (
+        <Card className="blocktabscard" bordered={false}>
+          <Tabs className={styles.innertabs}>
+            {block.items.map((tab: any, index: number) => (
+              <TabPane
+                tab={
+                  <span>
+                    {tab.iconCls ? getAwesomeIcon(tab.iconCls) : null} {tab.title}
+                  </span>
+                }
+                tabKey={`block-${index}`}
+                key={tab.detailid}
+                className={styles.blocktab}
+              >
+                <BlockDetail key={tab.detailid} block={tab} />
+              </TabPane>
+            ))}
+          </Tabs>
+        </Card>
+      );
+    }
+    if (xtype === 'collapse') {
+      return (
+        <Card className="blockcollapsecard" bordered={false}>
+          <Collapse className={styles.innercollapse} bordered>
+            {block.items.map((tab: any) => (
+              <Collapse.Panel
+                header={
+                  <span>
+                    {tab.iconCls ? getAwesomeIcon(tab.iconCls) : null} {tab.title}
+                  </span>
+                }
+                key={tab.detailid}
+                className={styles.blocktab}
+              >
+                <BlockDetail key={tab.detailid} block={tab} />
+              </Collapse.Panel>
+            ))}
+          </Collapse>
+        </Card>
+      );
+    }
   }
   // 如果当前的块级有子块
   if (block.items && block.items.length) {
@@ -131,7 +154,7 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
           if (item.style) apply(style, item.style);
           return (
             <Col key={item.detailid} {...response} style={style}>
-              <div className={styles.innercard}>
+              <div className="innercard">
                 <BlockDetail block={item} inner={true} />
               </div>
             </Col>
@@ -140,11 +163,8 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
       </Row>
     );
   }
-  let thisBlock = null;
-  if (block.fovDataobjectwidget)
-    thisBlock = <DataobjectWidget widget={block.fovDataobjectwidget} />;
-  else if (block.staticCard) thisBlock = <StaticCard {...block.staticCard} />;
-  return <div style={{ height: '100%' }}>{thisBlock}</div>;
+  if (block.fovDataobjectwidget) return <DataobjectWidget widget={block.fovDataobjectwidget} />;
+  return <Empty description="未设置实体对象组件"></Empty>;
 };
 
 export const BlockSchemes: React.FC = () => {
@@ -170,7 +190,7 @@ export const BlockSchemes: React.FC = () => {
   if (schemes.length > 0) {
     if (schemes.length > 1) {
       return (
-        <Card bordered={false} className={styles.globalcard}>
+        <Card bordered={false} className="globalcard">
           <Tabs>
             {schemes.map((block, index) => (
               <TabPane
@@ -191,7 +211,7 @@ export const BlockSchemes: React.FC = () => {
       );
     }
     return (
-      <div className={styles.innercard}>
+      <div className="innercard">
         <BlockDetail key={schemes[0].items[0].detailid} block={schemes[0].items[0]} />
       </div>
     );

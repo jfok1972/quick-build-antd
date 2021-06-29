@@ -60,7 +60,6 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     setLoading(true);
     getDataSet(datasetProperty, userfilters).then((response: any) => {
       setLoading(false);
-      console.log(response);
       setDataSet(response);
     });
   }, [userfilters, datasetProperty]);
