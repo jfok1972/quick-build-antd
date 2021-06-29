@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { Card, Col, Row, Tabs, Result, Empty, Collapse } from 'antd';
+import { Card, Col, List, Row, Tabs, Result, Empty, Collapse } from 'antd';
 import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
 import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
@@ -134,6 +134,27 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
               </Collapse.Panel>
             ))}
           </Collapse>
+        </Card>
+      );
+    }
+    if (xtype === 'list') {
+      return (
+        <Card className="blocklistcard" bordered={false}>
+          <List
+            className={styles.innercollapse}
+            bordered
+            header={
+              <span>
+                {block.iconCls ? getAwesomeIcon(block.iconCls) : null} {block.title}
+              </span>
+            }
+          >
+            {block.items.map((tab: any) => (
+              <List.Item key={tab.detailid} className={styles.blocktab}>
+                <BlockDetail key={tab.detailid} block={tab} />
+              </List.Item>
+            ))}
+          </List>
         </Card>
       );
     }
