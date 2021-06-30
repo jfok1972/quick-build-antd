@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { Card, Col, List, Row, Tabs, Result, Empty, Collapse } from 'antd';
+import { Col, List, Row, Tabs, Result, Empty, Collapse } from 'antd';
+import RcResizeObserver from 'rc-resize-observer';
 import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
 import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
@@ -90,79 +91,69 @@ const getInnerColSpan = (colspan: number | undefined) => {
   return quarterInnerBlockColSpan;
 };
 
+const getTitle = (block: any) => {
+  return (
+    <span>
+      {block.iconCls ? getAwesomeIcon(block.iconCls) : null} {block.title}
+    </span>
+  );
+};
+
 export const BlockDetail = ({ block, inner = false }: { block: any; inner?: boolean }) => {
   // 防止echarts 在切换tabs后不渲染的问题,需要弄一个tabs转换的计数器，现在没有加
   if (block.xtype) {
     const xtype = (block.xtype as string).toLowerCase();
     if (xtype === 'tabpanel') {
       return (
-        <Card className="blocktabscard" bordered={false}>
-          <Tabs className={styles.innertabs}>
-            {block.items.map((tab: any, index: number) => (
-              <TabPane
-                tab={
-                  <span>
-                    {tab.iconCls ? getAwesomeIcon(tab.iconCls) : null} {tab.title}
-                  </span>
-                }
-                tabKey={`block-${index}`}
-                key={tab.detailid}
-                className={styles.blocktab}
-              >
+        <Tabs tabPosition={block.tabPosition || 'top'} className="blocktabs">
+          {block.items.map((tab: any, index: number) => (
+            <TabPane tab={getTitle(tab)} tabKey={`block-${index}`} key={tab.detailid}>
+              <div className={styles.outsiderect}>
                 <BlockDetail key={tab.detailid} block={tab} />
-              </TabPane>
-            ))}
-          </Tabs>
-        </Card>
+              </div>
+            </TabPane>
+          ))}
+        </Tabs>
       );
     }
     if (xtype === 'collapse') {
       return (
-        <Card className="blockcollapsecard" bordered={false}>
-          <Collapse className={styles.innercollapse} bordered>
-            {block.items.map((tab: any) => (
-              <Collapse.Panel
-                header={
-                  <span>
-                    {tab.iconCls ? getAwesomeIcon(tab.iconCls) : null} {tab.title}
-                  </span>
-                }
-                key={tab.detailid}
-                className={styles.blocktab}
-              >
+        <Collapse
+          className="blockcollapse"
+          bordered
+          // 是否是手风琴模式，只多只能展开一个
+          accordion={block.accordion}
+          // 设置 active: false ,默认折叠
+          defaultActiveKey={block.items.map((b: any) => (b.active === false ? null : b.detailid))}
+        >
+          {block.items.map((tab: any) => (
+            <Collapse.Panel header={getTitle(tab)} key={tab.detailid}>
+              <div className={styles.outsiderect}>
                 <BlockDetail key={tab.detailid} block={tab} />
-              </Collapse.Panel>
-            ))}
-          </Collapse>
-        </Card>
+              </div>
+            </Collapse.Panel>
+          ))}
+        </Collapse>
       );
     }
     if (xtype === 'list') {
       return (
-        <Card className="blocklistcard" bordered={false}>
-          <List
-            className={styles.innercollapse}
-            bordered
-            header={
-              <span>
-                {block.iconCls ? getAwesomeIcon(block.iconCls) : null} {block.title}
-              </span>
-            }
-          >
-            {block.items.map((tab: any) => (
-              <List.Item key={tab.detailid} className={styles.blocktab}>
+        <List className="blocklist" bordered header={getTitle(block)}>
+          {block.items.map((tab: any) => (
+            <List.Item key={tab.detailid}>
+              <div className={styles.outsiderect}>
                 <BlockDetail key={tab.detailid} block={tab} />
-              </List.Item>
-            ))}
-          </List>
-        </Card>
+              </div>
+            </List.Item>
+          ))}
+        </List>
       );
     }
   }
   // 如果当前的块级有子块
   if (block.items && block.items.length) {
     return (
-      <Row gutter={[12, 12]} className={styles.subrow}>
+      <Row gutter={[12, 12]} className={styles.blockrow}>
         {block.items.map((item: any) => {
           // 如果在附加设置中设置了response,如果没设置，就用内置的
           let { response } = item;
@@ -191,6 +182,8 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
 export const BlockSchemes: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
+  // 如果宽度小于480，设置xtype=collapse,则tabpanel作为 collapse
+  const [xtype, setXtype] = useState<any>(null);
   // 防止echarts 在切换tabs后不渲染的问题
   // eslint-disable-next-line
   useEffect(() => {
@@ -208,40 +201,61 @@ export const BlockSchemes: React.FC = () => {
       setSchemes(blockSchemes);
     }
   }, []);
+  let schemeWidget: any = null;
   if (schemes.length > 0) {
     if (schemes.length > 1) {
-      return (
-        <Card bordered={false} className="globalcard">
-          <Tabs>
+      schemeWidget =
+        xtype === 'collapse' ? (
+          <Collapse
+            className="blockcollapse"
+            bordered
+            defaultActiveKey={schemes.map((b: any) => b.homepageschemeid)}
+          >
+            {schemes.map((block: any) => (
+              <Collapse.Panel header={getTitle(block)} key={block.homepageschemeid}>
+                <div className={styles.outsiderect}>
+                  <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
+                </div>
+              </Collapse.Panel>
+            ))}
+          </Collapse>
+        ) : (
+          <Tabs tabPosition="top" className="blocktabs">
             {schemes.map((block, index) => (
-              <TabPane
-                tab={
-                  <span>
-                    {block.iconCls ? getAwesomeIcon(block.iconCls) : null} {block.title}
-                  </span>
-                }
-                tabKey={`block-${index}`}
-                key={block.homepageschemeid}
-                className={styles.blockcard}
-              >
-                <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
+              <TabPane tab={getTitle(block)} tabKey={`block-${index}`} key={block.homepageschemeid}>
+                <div className={styles.outsiderect}>
+                  <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
+                </div>
               </TabPane>
             ))}
           </Tabs>
-        </Card>
+        );
+    } else
+      schemeWidget = (
+        <div className="innercard">
+          <BlockDetail key={schemes[0].items[0].detailid} block={schemes[0].items[0]} />
+        </div>
       );
-    }
-    return (
-      <div className="innercard">
-        <BlockDetail key={schemes[0].items[0].detailid} block={schemes[0].items[0]} />
-      </div>
-    );
-  }
-  return loaded ? (
-    <Result
-      status="warning"
-      title="未设置分析页方案"
-      subTitle="尚未设置您的分析页方案，请咨询管理员进行设置！"
-    />
-  ) : null;
+  } else
+    schemeWidget = loaded ? (
+      <Result
+        status="warning"
+        title="未设置分析页方案"
+        subTitle="尚未设置您的分析页方案，请咨询管理员进行设置！"
+      />
+    ) : null;
+
+  return (
+    <RcResizeObserver
+      key="resize-observer"
+      onResize={(offset) => {
+        console.log(offset.width);
+        if (offset.width < 480) {
+          if (xtype !== 'collapse') setXtype('collapse');
+        } else if (xtype) setXtype(null);
+      }}
+    >
+      {schemeWidget}
+    </RcResizeObserver>
+  );
 };
