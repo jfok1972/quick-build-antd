@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, Tooltip, Popover, Badge, Radio } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
 import { Area, Bar, BidirectionalBar, Column, DualAxes, Line, Pie, Rose } from '@ant-design/charts';
@@ -56,7 +56,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   const [moduleState, setModuleState] = useState<ModuleState>(
     getDefaultModuleState({ moduleName }),
   );
-  useLayoutEffect(() => {
+  useEffect(() => {
     setLoading(true);
     getDataSet(datasetProperty, userfilters).then((response: any) => {
       setLoading(false);
