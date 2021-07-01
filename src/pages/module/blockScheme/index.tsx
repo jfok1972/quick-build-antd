@@ -286,7 +286,6 @@ export const BlockSchemes: React.FC = () => {
     <RcResizeObserver
       key="resize-observer"
       onResize={(offset) => {
-        console.log(offset.width);
         if (offset.width <= 576) {
           if (!compact) setCompact(true);
         } else if (compact) setCompact(false);
