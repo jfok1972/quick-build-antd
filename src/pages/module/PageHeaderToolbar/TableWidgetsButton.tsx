@@ -1,5 +1,5 @@
 import { Tooltip, Button } from 'antd';
-import { FilterOutlined, FilterFilled } from '@ant-design/icons';
+import { FundFilled, FundOutlined } from '@ant-design/icons';
 import type { ModuleState } from '../data';
 
 const TableWidgetsButton = ({
@@ -22,7 +22,7 @@ const TableWidgetsButton = ({
   return (
     <Tooltip title={visible ? '隐藏分析内容' : '显示分析内容'}>
       <Button type={visible ? 'link' : 'text'} size="small" onClick={changeVisible}>
-        {visible ? <FilterFilled /> : <FilterOutlined />} 分析
+        {visible ? <FundFilled /> : <FundOutlined />} 分析
       </Button>
     </Tooltip>
   );

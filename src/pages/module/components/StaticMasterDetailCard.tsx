@@ -7,7 +7,7 @@ import styles from './StaticMasterDetailCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
 import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
+import { fetchDataminingDataWithCache } from './antdCharts/dataset';
 import UserDefineFilter, { changeUserFilterToParam } from '../UserDefineFilter';
 import type { ModuleState } from '../data';
 import { getDefaultModuleState } from '../modules';
@@ -87,7 +87,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
 
   useEffect(() => {
     setLoading(true);
-    fetchDataminingDataWithCatch({
+    fetchDataminingDataWithCache({
       moduleName,
       fields: [aggregateField],
       groupfieldid: items[itemIndex].groupField,

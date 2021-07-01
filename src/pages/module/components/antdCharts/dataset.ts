@@ -46,7 +46,7 @@ interface DataminingFetchProps {
  */
 const dataminingDataMap: Map<string, string> = new Map();
 
-export const fetchDataminingDataWithCatch = (params: DataminingFetchProps) => {
+export const fetchDataminingDataWithCache = (params: DataminingFetchProps) => {
   const strobj = stringifyObjectField(params);
   const strmd5 = MD5(
     Object.keys(strobj)
@@ -71,8 +71,8 @@ export const fetchDataminingDataWithCatch = (params: DataminingFetchProps) => {
   if (dataminingDataMap.get(strmd5) === 'loading') {
     // 如果数据正在读取，则等待读取结果后再返回
     return new Promise((resolve) => {
-      // 每10毫秒检查一下数据是否已经获取成功
-      setTimeout(() => resolve(fetchDataminingDataWithCatch(params)), 10);
+      // 每100毫秒检查一下数据是否已经获取成功
+      setTimeout(() => resolve(fetchDataminingDataWithCache(params)), 100);
     });
   }
   return new Promise((resolve) => {
@@ -100,7 +100,7 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
     restHead,
     otherTitle,
   } = dataSet;
-  return fetchDataminingDataWithCatch({
+  return fetchDataminingDataWithCache({
     moduleName,
     fields: fields.map((field) => field.fieldname),
     navigatefilters: filters,

@@ -12,7 +12,7 @@ import { StaticField } from './StaticField';
 import styles from './StaticCard.less';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
-import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
+import { fetchDataminingDataWithCache } from './antdCharts/dataset';
 import UserDefineFilter, { changeUserFilterToParam } from '../UserDefineFilter';
 import type { ModuleState } from '../data';
 import { getDefaultModuleState } from '../modules';
@@ -246,7 +246,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       ratio: undefined,
     };
     const getSectionValue = async (start: Moment, end: Moment) => {
-      return await fetchDataminingDataWithCatch({
+      return await fetchDataminingDataWithCache({
         moduleName,
         fields: [aggregateField],
         navigatefilters: filters,
@@ -354,7 +354,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     } = chartDefine;
 
     useEffect(() => {
-      fetchDataminingDataWithCatch({
+      fetchDataminingDataWithCache({
         moduleName,
         fields: [aggregateField],
         navigatefilters: filters,
@@ -418,7 +418,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
 
   useEffect(() => {
     setLoading(true);
-    fetchDataminingDataWithCatch({
+    fetchDataminingDataWithCache({
       moduleName,
       fields: [aggregateField],
       navigatefilters: filters,

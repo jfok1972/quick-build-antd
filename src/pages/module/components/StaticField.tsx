@@ -3,7 +3,7 @@ import { StatisticCard } from '@ant-design/pro-card';
 import { Progress } from 'antd';
 import type { MonetaryUnit } from '../grid/monetary';
 import { getMonetaryUnitText } from '../grid/monetary';
-import { fetchDataminingDataWithCatch } from './antdCharts/dataset';
+import { fetchDataminingDataWithCache } from './antdCharts/dataset';
 
 const numeral = require('numeral');
 
@@ -52,7 +52,7 @@ export const StaticField: React.FC<StaticFieldProps> = ({
       return;
     }
     setLoading(true);
-    fetchDataminingDataWithCatch({
+    fetchDataminingDataWithCache({
       moduleName,
       fields: [aggregateField],
       navigatefilters: filters,
