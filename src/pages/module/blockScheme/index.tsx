@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { Col, List, Row, Tabs, Result, Empty, Collapse } from 'antd';
 import RcResizeObserver from 'rc-resize-observer';
+import classNames from 'classnames';
 import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
 import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
@@ -70,11 +71,11 @@ export const halfInnerColSpan: any = {
  * @param colspan
  * @returns
  */
-const getColSpan = (colspan: number | undefined) => {
-  if (colspan === 2) return halfColSpan;
-  if (colspan === 4) return { span: 24 };
-  if (colspan === 3) return threequartersBlockColSpan;
-  if (colspan === -1) return threeRestQuartersBlockColSpan;
+const getColSpan = (colspan: number | string | undefined) => {
+  if (colspan === 2 || colspan === '2') return halfColSpan;
+  if (colspan === 4 || colspan === '4') return { span: 24 };
+  if (colspan === 3 || colspan === '3') return threequartersBlockColSpan;
+  if (colspan === -1 || colspan === '-1') return threeRestQuartersBlockColSpan;
   return quarterBlockColSpan;
 };
 
@@ -99,16 +100,51 @@ const getTitle = (block: any) => {
   );
 };
 
+const BlockCompactContext = createContext<Record<string, any>>({
+  compact: false,
+});
+
+// 生成table 上面自定义的组件
+export const TableBlockDetails = ({ tableWidgets }: { tableWidgets: any[] }) => {
+  return (
+    <Row gutter={[12, 12]} className={styles.blockrow}>
+      {tableWidgets.map((item: any) => {
+        // 如果在附加设置中设置了response,如果没设置，就用内置的
+        let { response } = item;
+        if (!response) response = getColSpan(item.colspan);
+        const style = { height: item.height ? `${item.height}px` : 'auto' };
+        if (item.style) apply(style, item.style);
+        return (
+          <Col key={item.detailid} {...response} style={style}>
+            <div className="innercard">
+              <DataobjectWidget widget={item} />
+            </div>
+          </Col>
+        );
+      })}
+    </Row>
+  );
+};
+
 export const BlockDetail = ({ block, inner = false }: { block: any; inner?: boolean }) => {
+  const context = useContext(BlockCompactContext);
+  let compact = false;
+  if (context) {
+    compact = context.compact;
+  }
+  const outsideClass = classNames({
+    [styles.outsiderectcompact]: compact,
+    [styles.outsiderect]: !compact,
+  });
   // 防止echarts 在切换tabs后不渲染的问题,需要弄一个tabs转换的计数器，现在没有加
   if (block.xtype) {
     const xtype = (block.xtype as string).toLowerCase();
-    if (xtype === 'tabpanel') {
+    if (xtype === 'tabpanel' && !compact) {
       return (
         <Tabs tabPosition={block.tabPosition || 'top'} className="blocktabs">
           {block.items.map((tab: any, index: number) => (
             <TabPane tab={getTitle(tab)} tabKey={`block-${index}`} key={tab.detailid}>
-              <div className={styles.outsiderect}>
+              <div className={outsideClass}>
                 <BlockDetail key={tab.detailid} block={tab} />
               </div>
             </TabPane>
@@ -116,7 +152,7 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
         </Tabs>
       );
     }
-    if (xtype === 'collapse') {
+    if (xtype === 'collapse' || (xtype === 'tabpanel' && compact)) {
       return (
         <Collapse
           className="blockcollapse"
@@ -128,7 +164,7 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
         >
           {block.items.map((tab: any) => (
             <Collapse.Panel header={getTitle(tab)} key={tab.detailid}>
-              <div className={styles.outsiderect}>
+              <div className={outsideClass}>
                 <BlockDetail key={tab.detailid} block={tab} />
               </div>
             </Collapse.Panel>
@@ -141,7 +177,7 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
         <List className="blocklist" bordered header={getTitle(block)}>
           {block.items.map((tab: any) => (
             <List.Item key={tab.detailid}>
-              <div className={styles.outsiderect}>
+              <div className={outsideClass}>
                 <BlockDetail key={tab.detailid} block={tab} />
               </div>
             </List.Item>
@@ -153,7 +189,7 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
   // 如果当前的块级有子块
   if (block.items && block.items.length) {
     return (
-      <Row gutter={[12, 12]} className={styles.blockrow}>
+      <Row gutter={compact ? [0, 1] : [12, 12]} className={styles.blockrow}>
         {block.items.map((item: any) => {
           // 如果在附加设置中设置了response,如果没设置，就用内置的
           let { response } = item;
@@ -183,9 +219,7 @@ export const BlockSchemes: React.FC = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
   // 如果宽度小于480，设置xtype=collapse,则tabpanel作为 collapse
-  const [xtype, setXtype] = useState<any>(null);
-  // 防止echarts 在切换tabs后不渲染的问题
-  // eslint-disable-next-line
+  const [compact, setCompact] = useState<boolean>(false);
   useEffect(() => {
     if (blockSchemes.length === 0) {
       request(`${API_HEAD}/platform/homepage/getinfo.do`, {
@@ -202,34 +236,37 @@ export const BlockSchemes: React.FC = () => {
     }
   }, []);
   let schemeWidget: any = null;
+  const outsideClass = classNames({
+    [styles.outsiderectcompact]: compact,
+    [styles.outsiderect]: !compact,
+  });
   if (schemes.length > 0) {
     if (schemes.length > 1) {
-      schemeWidget =
-        xtype === 'collapse' ? (
-          <Collapse
-            className="blockcollapse"
-            bordered
-            defaultActiveKey={schemes.map((b: any) => b.homepageschemeid)}
-          >
-            {schemes.map((block: any) => (
-              <Collapse.Panel header={getTitle(block)} key={block.homepageschemeid}>
-                <div className={styles.outsiderect}>
-                  <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
-                </div>
-              </Collapse.Panel>
-            ))}
-          </Collapse>
-        ) : (
-          <Tabs tabPosition="top" className="blocktabs">
-            {schemes.map((block, index) => (
-              <TabPane tab={getTitle(block)} tabKey={`block-${index}`} key={block.homepageschemeid}>
-                <div className={styles.outsiderect}>
-                  <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
-                </div>
-              </TabPane>
-            ))}
-          </Tabs>
-        );
+      schemeWidget = compact ? (
+        <Collapse
+          className="blockcollapse"
+          bordered
+          defaultActiveKey={schemes.map((b: any) => b.homepageschemeid)}
+        >
+          {schemes.map((block: any) => (
+            <Collapse.Panel header={getTitle(block)} key={block.homepageschemeid}>
+              <div className={outsideClass}>
+                <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
+              </div>
+            </Collapse.Panel>
+          ))}
+        </Collapse>
+      ) : (
+        <Tabs tabPosition="top" className="blocktabs">
+          {schemes.map((block, index) => (
+            <TabPane tab={getTitle(block)} tabKey={`block-${index}`} key={block.homepageschemeid}>
+              <div className={outsideClass}>
+                <BlockDetail key={block.items[0].detailid} block={block.items[0]} />
+              </div>
+            </TabPane>
+          ))}
+        </Tabs>
+      );
     } else
       schemeWidget = (
         <div className="innercard">
@@ -250,12 +287,14 @@ export const BlockSchemes: React.FC = () => {
       key="resize-observer"
       onResize={(offset) => {
         console.log(offset.width);
-        if (offset.width < 480) {
-          if (xtype !== 'collapse') setXtype('collapse');
-        } else if (xtype) setXtype(null);
+        if (offset.width <= 576) {
+          if (!compact) setCompact(true);
+        } else if (compact) setCompact(false);
       }}
     >
-      {schemeWidget}
+      <BlockCompactContext.Provider value={{ compact }}>
+        <div className={outsideClass}>{schemeWidget}</div>
+      </BlockCompactContext.Provider>
     </RcResizeObserver>
   );
 };

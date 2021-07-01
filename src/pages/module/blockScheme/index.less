@@ -6,6 +6,19 @@
   background: @layout-body-background;
 }
 
+// 手机端或宽度小于576时，边框变细
+.outsiderectcompact {
+  padding: 0;
+  background: @layout-body-background;
+
+  :global {
+    // collspae内边设置
+    .blockcollapse > div > .ant-collapse-content > .ant-collapse-content-box {
+      padding: 8px;
+    }
+  }
+}
+
 .blockrow {
   background: @layout-body-background;
 }

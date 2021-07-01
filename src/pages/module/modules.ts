@@ -57,6 +57,7 @@ export const generateModuleInfo = (module: any): ModuleModal => {
     formschemes: obj.fovFormschemes,
     viewschemes: obj.viewSchemes,
     userdefinedsorts: [],
+    tableWidgets: obj.tableWidgets || [],
     navigateSchemes: obj.navigateSchemes || [],
     filterSchemes: obj.filterSchemes || {},
     sortSchemes: obj.sortSchemes || {},

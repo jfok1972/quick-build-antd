@@ -293,6 +293,7 @@ export interface ModuleModal {
   viewschemes: any;
   userdefinedsorts: any[];
   navigateSchemes: any[];
+  tableWidgets: any[]; // 显示在Table上面的自定义组件组
   filterSchemes: any;
   sortSchemes: any;
   excelSchemes: ExcelSchemeState[]; // excel 或 word 的导出方案

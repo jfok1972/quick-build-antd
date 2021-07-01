@@ -22,6 +22,7 @@ import PinStatus from './widget/pinStatus';
 import ModuleForm from './form';
 import StartEndDateSectionSelect from './grid/sqlparams';
 import { moduleStaticCards } from './staticCard/system';
+import { TableBlockDetails } from './blockScheme';
 
 interface ModuleProps {
   dispatch: Dispatch<any>;
@@ -201,6 +202,11 @@ const ModuleUrlEntry: React.FC<ModuleProps> = (params) => {
         <GridContent>
           {moduleStaticCards[moduleName] ? (
             <Layout style={{ marginBottom: '16px' }}>{moduleStaticCards[moduleName]}</Layout>
+          ) : null}
+          {moduleInfo.tableWidgets.length ? (
+            <Layout style={{ marginBottom: '16px' }}>
+              {<TableBlockDetails tableWidgets={moduleInfo.tableWidgets} />}
+            </Layout>
           ) : null}
           <Layout>
             <NavigateSider moduleState={moduleState} dispatch={dispatch} />

@@ -8,7 +8,7 @@ import { BlockSchemes } from '@/pages/module/blockScheme';
 
 const Monitor: React.FC = () => {
   return (
-    <div style={{ margin: '-8px' }}>
+    <div style={{ margin: '-24px' }}>
       <BlockSchemes />
       {/* <UserOperator /> */}
     </div>
