@@ -200,10 +200,10 @@ const ModuleUrlEntry: React.FC<ModuleProps> = (params) => {
         // extraContent={<span id={spanid}> </span>}
       >
         <GridContent>
-          {moduleStaticCards[moduleName] ? (
+          {moduleStaticCards[moduleName] && moduleState.currSetting.tableWidgetsVisible ? (
             <Layout style={{ marginBottom: '16px' }}>{moduleStaticCards[moduleName]}</Layout>
           ) : null}
-          {moduleInfo.tableWidgets.length ? (
+          {moduleInfo.tableWidgets.length && moduleState.currSetting.tableWidgetsVisible ? (
             <Layout style={{ marginBottom: '16px' }}>
               {<TableBlockDetails tableWidgets={moduleInfo.tableWidgets} />}
             </Layout>

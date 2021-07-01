@@ -59,6 +59,7 @@ export interface ModuleModelType {
     toggleUserFilter: Reducer<ModalState>;
     toggleUserFilterRestHidden: Reducer<ModalState>;
     toggleNavigate: Reducer<ModalState>;
+    toggleTableWidgets: Reducer<ModalState>;
     removeAttachment: Reducer<ModalState>;
 
     selectedRowKeysChanged: Reducer<ModalState>;
@@ -561,6 +562,22 @@ const Model: ModuleModelType = {
       const newCurrSetting = {
         ...moduleState.currSetting,
         userFilterRegionVisible: !moduleState.currSetting.userFilterRegionVisible,
+      };
+      result[moduleName] = {
+        ...moduleState,
+        currSetting: newCurrSetting,
+      };
+      return result;
+    },
+
+    toggleTableWidgets(state = {}, action) {
+      // console.log('toggleTableWidgets visible.....')
+      const { moduleName } = action.payload;
+      const moduleState: ModuleState = state[moduleName] as ModuleState;
+      const result = { ...state };
+      const newCurrSetting = {
+        ...moduleState.currSetting,
+        tableWidgetsVisible: !moduleState.currSetting.tableWidgetsVisible,
       };
       result[moduleName] = {
         ...moduleState,

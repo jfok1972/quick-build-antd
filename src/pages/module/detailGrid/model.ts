@@ -82,15 +82,13 @@ const updateDateList = (moduleState: ModuleState, action: ActionProps) => {
     dataSource,
     selectedRowKeys,
     recordOrderChanged: false,
-    selectedTextValue: selectedRowKeys.map(
-      (key: string): TextValue => {
-        const rec = dataSource.find((record: any) => record[primarykey] === key) || {};
-        return {
-          text: rec[namefield],
-          value: key,
-        };
-      },
-    ),
+    selectedTextValue: selectedRowKeys.map((key: string): TextValue => {
+      const rec = dataSource.find((record: any) => record[primarykey] === key) || {};
+      return {
+        text: rec[namefield],
+        value: key,
+      };
+    }),
   };
 };
 
@@ -148,15 +146,13 @@ const fetchData = (moduleState: ModuleState) => {
     gridParams: { curpage, limit, start, total, totalpage },
     dataSource,
     selectedRowKeys,
-    selectedTextValue: selectedRowKeys.map(
-      (key: string): TextValue => {
-        const rec = dataSource.find((record: any) => record[moduleInfo.primarykey] === key) || {};
-        return {
-          text: rec[moduleInfo.namefield],
-          value: key,
-        };
-      },
-    ),
+    selectedTextValue: selectedRowKeys.map((key: string): TextValue => {
+      const rec = dataSource.find((record: any) => record[moduleInfo.primarykey] === key) || {};
+      return {
+        text: rec[moduleInfo.namefield],
+        value: key,
+      };
+    }),
   };
 };
 
@@ -421,15 +417,13 @@ const selectedRowKeysChanged = (moduleState: ModuleState, action: ActionProps): 
     (key: any) => selectedTextValue.find((value: TextValue) => value.value === key) === undefined,
   );
   selectedTextValue.push(
-    ...outKeys.map(
-      (key: string): TextValue => {
-        const rec = dataSource.find((record: any) => record[primarykey] === key) || {};
-        return {
-          text: rec[namefield],
-          value: key,
-        };
-      },
-    ),
+    ...outKeys.map((key: string): TextValue => {
+      const rec = dataSource.find((record: any) => record[primarykey] === key) || {};
+      return {
+        text: rec[namefield],
+        value: key,
+      };
+    }),
   );
   return {
     ...moduleState,
@@ -534,6 +528,14 @@ export const moduleStateReducer = (moduleState: ModuleState, action: ActionProps
             ...moduleState.currSetting.navigate,
             visible: !moduleState.currSetting.navigate.visible,
           },
+        },
+      };
+    case 'toggleTableWidgets':
+      return {
+        ...moduleState,
+        currSetting: {
+          ...moduleState.currSetting,
+          tableWidgetsVisible: !moduleState.currSetting.tableWidgetsVisible,
         },
       };
     // DetailGrid没有此功能

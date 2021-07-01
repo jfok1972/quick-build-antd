@@ -1,9 +1,9 @@
-import React from 'react';
 import type { ModuleModal, ModuleState } from '../data';
 import NavigateButton from './NavigateButton';
 import ViewSchemeButton from './ViewSchemeButton';
 import UserDefineFilterButton from './UserDefineFilterButton';
-import { getFilterScheme } from '../modules';
+import { getFilterScheme, hasTableWidgets } from '../modules';
+import TableWidgetsButton from './TableWidgetsButton';
 
 const PageHeaderToolbar = ({
   moduleState,
@@ -24,6 +24,9 @@ const PageHeaderToolbar = ({
       ) : null}
       {getFilterScheme(moduleInfo) ? (
         <UserDefineFilterButton moduleState={moduleState} dispatch={dispatch} />
+      ) : null}
+      {hasTableWidgets(moduleInfo) ? (
+        <TableWidgetsButton moduleState={moduleState} dispatch={dispatch} />
       ) : null}
       <span />
       <span />

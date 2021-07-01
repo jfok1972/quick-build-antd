@@ -187,6 +187,7 @@ interface ModuleSetting {
   userFilterRegionVisible: boolean; // regionVisible 初始显示还是隐藏
   userFilterRestNumber: number; // 筛选字段隐藏个数   restNumber : 3, 从第三个开始隐藏 ，设置在筛选分组里面
   userFilterRestHidden: boolean; // 筛选字段是否隐藏 展开，收起 restHidden : false ，默认隐藏
+  tableWidgetsVisible: boolean; // 组件是否显示
   gridSize: 'default' | 'middle' | 'small';
   canDragToNavigate: boolean;
   canDragChangeRecno: boolean; // 可以拖动记录改变顺序

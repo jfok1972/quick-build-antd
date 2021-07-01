@@ -16,6 +16,7 @@ import {
 } from './service';
 import { initUserFilterFieldInitValues } from './UserDefineFilter';
 import { getDefaultMonetaryPosition, getDefaultMonetaryType, getMonetary } from './grid/monetary';
+import { moduleStaticCards } from './staticCard/system';
 
 const modules: Record<string, ModuleModal> = {};
 const moduleComboDataSource: Record<string, TextValue[]> = {};
@@ -112,6 +113,11 @@ export const generateModuleInfo = (module: any): ModuleModal => {
 };
 
 export const hasModuleInfo = (moduleName: string): boolean => !!modules[moduleName];
+
+export const hasTableWidgets = (moduleInfo: ModuleModal) => {
+  const { modulename: moduleName } = moduleInfo;
+  return moduleStaticCards[moduleName] || moduleInfo.tableWidgets.length;
+};
 
 /**
  * 返回一个自定义筛选方案，如果有多个，那么先选一个，一般只有一个
@@ -702,6 +708,7 @@ export const getDefaultModuleState = ({
       userFilterRegionVisible: getFilterRegionVisible(moduleInfo),
       userFilterRestNumber: getFilterRestNumber(moduleInfo), // 筛选字段从第几个开始隐藏，-1表示不隐藏
       userFilterRestHidden: getFilterRestHidden(moduleInfo), // 筛选字段是否隐藏 展开，收起
+      tableWidgetsVisible: true,
       gridSize: parentFilter ? 'small' : 'middle',
       canDragToNavigate: false,
       canDragChangeRecno: false,
