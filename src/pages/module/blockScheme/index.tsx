@@ -9,7 +9,9 @@ import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils
 import { DataobjectWidget } from './DataobjectWidget';
 
 const { TabPane } = Tabs;
-const blockSchemes: any[] = [];
+
+// 01 分析页，02 数据页
+const blockTypeSchemes: Record<string, any[]> = {};
 
 export const quarterBlockColSpan: any = {
   xs: 24,
@@ -215,26 +217,32 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
   return <Empty description="未设置实体对象组件"></Empty>;
 };
 
-export const BlockSchemes: React.FC = () => {
+export const BlockSchemes: React.FC<any> = ({ type }: { type: string }) => {
   const [schemes, setSchemes] = useState<any[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
   // 如果宽度小于480，设置xtype=collapse,则tabpanel作为 collapse
   const [compact, setCompact] = useState<boolean>(false);
   useEffect(() => {
-    if (blockSchemes.length === 0) {
+    if (!blockTypeSchemes[type]) {
       request(`${API_HEAD}/platform/homepage/getinfo.do`, {
         method: 'POST',
+        params: {
+          type,
+        },
       }).then((response: any[]) => {
-        blockSchemes.push(...response);
-        replaceRef(blockSchemes, blockSchemes);
-        applyAllOtherSetting(blockSchemes);
-        setSchemes(blockSchemes);
+        const typeSchemes = [];
+        typeSchemes.push(...response);
+        replaceRef(typeSchemes, typeSchemes);
+        applyAllOtherSetting(typeSchemes);
+        blockTypeSchemes[type] = typeSchemes;
+        setSchemes(typeSchemes);
         setLoaded(true);
       });
     } else {
-      setSchemes(blockSchemes);
+      setSchemes(blockTypeSchemes[type]);
+      setLoaded(true);
     }
-  }, []);
+  }, [type]);
   let schemeWidget: any = null;
   const outsideClass = classNames({
     [styles.outsiderectcompact]: compact,

@@ -53,31 +53,36 @@ export default defineConfig({
           routes: [
             {
               path: '/',
-              redirect: '/dashboard/charts',
+              redirect: '/dashboard/analysis',
             },
             {
               path: '/dashboard',
               name: 'menu.dashboard',
               routes: [
                 {
-                  name: 'menu.dashboard.charts',
-                  path: '/dashboard/charts',
-                  component: './dashboard/charts',
-                },
-                {
                   name: 'menu.dashboard.analysis',
                   path: '/dashboard/analysis',
                   component: './dashboard/analysis',
                 },
                 {
-                  name: 'menu.dashboard.monitor',
-                  path: '/dashboard/monitor',
-                  component: './dashboard/monitor',
+                  name: 'menu.dashboard.datamining',
+                  path: '/dashboard/datamining',
+                  component: './dashboard/datamining',
                 },
                 {
                   name: 'menu.dashboard.workplace',
                   path: '/dashboard/workplace',
                   component: './dashboard/workplace',
+                },
+                {
+                  name: 'menu.dashboard.charts',
+                  path: '/dashboard/charts',
+                  component: './dashboard/charts',
+                },
+                {
+                  name: 'menu.dashboard.monitor',
+                  path: '/dashboard/monitor',
+                  component: './dashboard/monitor',
                 },
               ],
             },

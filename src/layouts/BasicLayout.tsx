@@ -29,7 +29,7 @@ import type { ConnectState } from '@/models/connect';
 import { EMPTY_MENU_ICON, getAuthorityFromRouter, getMenuAwesomeIcon } from '@/utils/utils';
 import type { SystemInfo } from '@/models/systeminfo';
 import { getSystemMenu } from '@/services/systeminfo';
-import { dataminingList } from '@/pages/dashboard/analysis';
+import { dataminingList } from '@/pages/dashboard/datamining';
 import { PopoverDescriptionWithId } from '@/pages/module/descriptions';
 import { getModuleInfo } from '@/pages/module/modules';
 import { API_HEAD } from '@/utils/request';
@@ -323,16 +323,16 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
       icon: <DashboardOutlined />,
       children: [
         {
-          name: formatMessage({ id: 'menu.dashboard.charts' }),
-          path: '/dashboard/charts',
-        },
-        {
           name: formatMessage({ id: 'menu.dashboard.analysis' }),
           path: '/dashboard/analysis',
         },
         {
-          name: formatMessage({ id: 'menu.dashboard.monitor' }),
-          path: '/dashboard/monitor',
+          name: formatMessage({ id: 'menu.dashboard.datamining' }),
+          path: '/dashboard/datamining',
+        },
+        {
+          name: formatMessage({ id: 'menu.dashboard.workplace' }),
+          path: '/dashboard/workplace',
         },
       ],
     });
