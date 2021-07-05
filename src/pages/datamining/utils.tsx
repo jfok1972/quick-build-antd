@@ -57,11 +57,15 @@ export const getDefaultDataminingSetting = (): SchemeSettingModal => {
   };
 };
 
-export const getInitDataminingState = (moduleName: string): DataminingModal => {
+export const getInitDataminingState = (
+  moduleName: string,
+  defaultSchemeid?: string,
+): DataminingModal => {
   let moduleInfo: any;
   if (moduleName !== 'undefined') moduleInfo = getModuleInfo(moduleName);
   const result: DataminingModal = {
     moduleName,
+    defaultSchemeid,
     fromCache: false,
     schemes: [],
     refreshAllCount: -1, // 第一次是默认的

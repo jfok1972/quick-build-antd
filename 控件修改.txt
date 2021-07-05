@@ -15,23 +15,6 @@ https://ej2.syncfusion.com/home/   收费的
 
 插件：bracket pair colorizer// 可以把括号泻染成相同的颜色
 
-2020-08-05：修改/node_modules/antd/es/descriptions/Row.js,
-
-在 if (typeof component === 'string') {...}的46行下面加上以下代码
-
-    if (className==='hiddenlabel'){
-      return [/*#__PURE__*/React.createElement(Cell, {
-        key: "content-".concat(key || index),
-        className: className,
-        style: style,
-        span: span * 2 ,
-        component: component[1],
-        itemPrefixCls: itemPrefixCls,
-        bordered: bordered,
-        content: children
-      })];
-    }
-
 如果 className 设置为 hiddenlabel,那么label页将不显示，合并格增加一个，显示content,这样可以嵌套Descriptions。
 
 "moment": "^2.25.3",    这二个都行

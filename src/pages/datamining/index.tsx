@@ -34,9 +34,13 @@ import styles from './index.less';
  *
  */
 
+interface DataminingProps {}
+
 interface DataminingParams {
   moduleName: string;
   inTab?: boolean; // 是否是独立的一页，如果否，则表示在tab页中
+  defaultSchemeid?: string; // 默认的方案
+  dataminingProps?: DataminingProps; // datamining的一些设置
 }
 
 // DataminingContext 中存放的上下文的字段值
@@ -181,13 +185,25 @@ interface DataminingProps {
   match: any;
 }
 
-export const Datamining: React.FC<DataminingParams> = ({ moduleName, inTab }) => {
+export const Datamining: React.FC<DataminingParams> = ({
+  moduleName,
+  inTab,
+  defaultSchemeid,
+  dataminingProps,
+}) => {
   // console.log("初始化DataminingModelProvider");
-  const [state, dispatch] = useReducer(DataminingReducer, getDataminingModal(moduleName));
+  const [state, dispatch] = useReducer(
+    DataminingReducer,
+    getDataminingModal(moduleName, defaultSchemeid),
+  );
   return (
     <HOCDndProvider>
       <DataminingContext.Provider value={{ state, dispatch }}>
-        <DataminingModule inTab={inTab} />
+        <DataminingModule
+          inTab={inTab}
+          defaultSchemeid={defaultSchemeid}
+          dataminingProps={dataminingProps}
+        />
       </DataminingContext.Provider>
     </HOCDndProvider>
   );

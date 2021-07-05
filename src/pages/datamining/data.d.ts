@@ -178,6 +178,7 @@ export interface ExportSettingModal {
 
 export interface DataminingModal {
   moduleName: string;
+  defaultSchemeid?: string; // 默认的方案，如果设置了，初始化的时候先设置为此方案
   fromCache: boolean; // 当前state是否是从cache中调用，如果是，则只渲染，不进行任何操作
   refreshAllCount: number; // 是否需要刷新所有的数据，0不刷新，不为0刷新，+1，则刷新
   refreshFilterDataSourceCount: number; // 是否需要刷新条件列表中的记录数，0不刷新，+1，刷新

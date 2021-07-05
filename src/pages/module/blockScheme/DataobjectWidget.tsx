@@ -37,7 +37,11 @@ export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => 
   if (widget.widgettype === 'datamining') {
     return (
       <Card>
-        <Datamining moduleName={widget.moduleName} inTab />
+        <Datamining
+          moduleName={widget.moduleName}
+          inTab
+          defaultSchemeid={widget.dataminingSchememeid}
+        />
       </Card>
     );
   }

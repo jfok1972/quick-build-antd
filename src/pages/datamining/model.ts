@@ -64,16 +64,19 @@ import {
 
 // 存放每一个数据方案的数据，在下次再进入的时候，可以用这些值。
 const dataminingModalCache: Record<string, DataminingModal> = {};
-export const getDataminingModal = (moduleName: string) => {
-  if (dataminingModalCache[moduleName])
+export const getDataminingModal = (moduleName: string, defaultSchemeid?: string) => {
+  // 每一个schemeid 都有一个实例，所有的模块的不设置defaultSchemeid的，共用同一个实例
+  const schemeid = defaultSchemeid || '';
+  if (dataminingModalCache[moduleName + schemeid])
     return {
-      ...dataminingModalCache[moduleName],
+      ...dataminingModalCache[moduleName + schemeid],
       fromCache: true,
     };
-  return getInitDataminingState(moduleName);
+  return getInitDataminingState(moduleName, defaultSchemeid);
 };
 const setDataminingModal = (state: DataminingModal) => {
-  dataminingModalCache[state.moduleName] = state;
+  const schemeid = state.defaultSchemeid || '';
+  dataminingModalCache[state.moduleName + schemeid] = state;
 };
 
 export const DataminingReducer = (state: DataminingModal, action: ActionProps): DataminingModal => {

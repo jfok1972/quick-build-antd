@@ -154,7 +154,7 @@ export const deleteCurrentScheme = (state: DataminingModal, dispatch: Function) 
  * @param action
  */
 export const fetchDataminingSchemes = (state: DataminingModal): DataminingModal => {
-  const schemes = syncRequest(`${API_HEAD}/platform/datamining/getschemes.do`, {
+  const schemes: any[] = syncRequest(`${API_HEAD}/platform/datamining/getschemes.do`, {
     params: {
       moduleName: state.moduleName,
     },
@@ -169,11 +169,18 @@ export const fetchDataminingSchemes = (state: DataminingModal): DataminingModal 
       moduleName: state.moduleName,
     },
   });
+
+  let currentScheme = schemes.length === 0 ? state.currentScheme : schemes[0];
+  if (state.defaultSchemeid) {
+    currentScheme =
+      schemes.find((scheme) => scheme.schemeid === state.defaultSchemeid) || currentScheme;
+  }
+
   return {
     ...state,
     schemes,
     refreshAllCount: schemes.length === 0 ? state.refreshAllCount + 1 : state.refreshAllCount, // 如果一个方案都没有，则+1，读取默认数据
-    currentScheme: schemes.length === 0 ? state.currentScheme : schemes[0],
+    currentScheme,
     aggregateFields: fields,
     expandGroupFields: group.list,
     expandGroupFieldsTree: group.tree,

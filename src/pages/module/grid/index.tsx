@@ -378,23 +378,22 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
       const dragRow = data[dragIndex];
       data.splice(dragIndex, 1);
       let hoverData: any[] = moduleState.dataSource;
-      apply(dragRecord, {
-        [PARENT_RECORD]: hoverRecord[PARENT_RECORD],
-      });
-      let parentkey = hoverRecord[PARENT_RECORD]
-        ? hoverRecord[PARENT_RECORD][moduleInfo.primarykey]
-        : null;
-      if (hoverRecord[PARENT_RECORD]) {
+      let parentkey = null;
+      if (moduleState.currSetting.canDragToLeafNode && !Array.isArray(hoverRecord.children)) {
+        // 可以拖动到叶节点之下
+        apply(hoverRecord, { children: [] });
+        hoverData = hoverRecord.children;
+        parentkey = hoverRecord[moduleInfo.primarykey];
+        apply(dragRecord, {
+          [PARENT_RECORD]: hoverRecord,
+        });
+      } else if (hoverRecord[PARENT_RECORD]) {
         // 如果是树形结构的移动
-        if (moduleState.currSetting.canDragToLeafNode && !Array.isArray(hoverRecord.children)) {
-          // 可以拖动到叶节点之下
-          parentkey = hoverRecord[moduleInfo.primarykey];
-          apply(dragRecord, {
-            [PARENT_RECORD]: hoverRecord,
-          });
-          apply(hoverRecord, { children: [] });
-          hoverData = hoverRecord.children;
-        } else hoverData = hoverRecord[PARENT_RECORD].children;
+        apply(dragRecord, {
+          [PARENT_RECORD]: hoverRecord[PARENT_RECORD],
+        });
+        parentkey = hoverRecord[PARENT_RECORD][moduleInfo.primarykey];
+        hoverData = hoverRecord[PARENT_RECORD].children;
       }
       hoverData.splice(hoverIndex + 1, 0, dragRow);
       dispatch({
