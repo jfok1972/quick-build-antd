@@ -78,7 +78,6 @@ const setDataminingModal = (state: DataminingModal) => {
   const schemeid = state.defaultSchemeid || '';
   dataminingModalCache[state.moduleName + schemeid] = state;
 };
-
 export const DataminingReducer = (state: DataminingModal, action: ActionProps): DataminingModal => {
   const { type, payload } = action;
   let newState: DataminingModal = state;
@@ -744,6 +743,21 @@ export const DataminingReducer = (state: DataminingModal, action: ActionProps): 
       break;
   }
   newState.fromCache = false; // 有过操作以后，就解除fromCache,否则在useState中不进行更新
+  // 如果有分组字段没有加入field,则重新加入一下
+  if (
+    newState.schemeState.fieldGroup.find((group, index) => group[ROWID] !== `field-${101 + index}`)
+  ) {
+    newState = update(state, {
+      schemeState: {
+        fieldGroup: {
+          $set: newState.schemeState.fieldGroup.map((group, index) => ({
+            ...group,
+            [ROWID]: `field-${101 + index}`,
+          })),
+        },
+      },
+    });
+  }
   setDataminingModal(newState);
   return newState;
 };

@@ -170,7 +170,7 @@ const DataminingModule: React.FC<any> = ({ inTab }: { inTab?: boolean }) => {
   return inTab ? (
     <div>
       <PageHeader title={title} extra={<Toolbar state={state} dispatch={dispatch} />} />
-      <div className={styles.dataminingcard}>{dataminingComponent}</div>
+      <div className={styles.dataminingcardintab}>{dataminingComponent}</div>
     </div>
   ) : (
     <PageHeaderWrapper title={title} extra={<Toolbar state={state} dispatch={dispatch} />}>

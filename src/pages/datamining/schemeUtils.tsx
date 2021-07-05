@@ -1,4 +1,3 @@
-import React from 'react';
 import request, { API_HEAD, syncRequest } from '@/utils/request';
 import { Form, Input, message, Modal } from 'antd';
 import { serialize } from 'object-to-formdata';
@@ -211,7 +210,10 @@ export const currentSchemeChanged = async (state: DataminingModal, dispatch: Fun
     });
     schemeState = {
       columnGroup: response.columnGroup,
-      fieldGroup: response.fieldGroup,
+      fieldGroup: (response.fieldGroup as any[]).map((group, index) => ({
+        ...group,
+        [ROWID]: `field-${101 + index}`,
+      })),
       isMultFieldGroup: !!((response.fieldGroup as any[]) || []).find((f) => f.columns),
       rowGroup: response.rowGroup,
       setting: JSON.parse(response.setting),

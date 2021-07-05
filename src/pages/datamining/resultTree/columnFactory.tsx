@@ -1,4 +1,3 @@
-import React from 'react';
 import { apply } from '@/utils/utils';
 import {
   dateRender,

@@ -61,6 +61,7 @@ export interface FieldModal {
   subconditionid?: string | null;
   hiddenInColumnGroup?: boolean; // 是否在分组里面隐藏，只显示总计
   columns?: fieldModal[]; // 嵌套的情况很少用到extjs里可用，这里先不加了
+  rowid?: string;
 }
 
 // 每一个行展开的属性

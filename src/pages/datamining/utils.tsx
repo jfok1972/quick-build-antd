@@ -93,6 +93,7 @@ export const getInitDataminingState = (
           fieldtype: 'String',
           leaf: true,
           text: '记录数',
+          rowid: 'field-101',
         },
       ],
       isMultFieldGroup: false,

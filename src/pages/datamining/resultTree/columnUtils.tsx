@@ -1,4 +1,3 @@
-import React from 'react';
 import { Badge, Button, message, Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { DoubleLeftOutlined, DoubleRightOutlined, ToTopOutlined } from '@ant-design/icons';
@@ -107,7 +106,7 @@ export const adjustColumnGroupToggleButton = (columns: any[], dispatch: Function
                   <Badge
                     count={columns.length - i - 1}
                     size="small"
-                    offset={[-5, -2]}
+                    offset={[2, -2]}
                     style={{ backgroundColor: '#69c0ff', boxShadow: '0 0 0 1px #1890ff' }}
                   />
                 </Tooltip>
