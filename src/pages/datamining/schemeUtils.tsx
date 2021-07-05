@@ -210,10 +210,7 @@ export const currentSchemeChanged = async (state: DataminingModal, dispatch: Fun
     });
     schemeState = {
       columnGroup: response.columnGroup,
-      fieldGroup: (response.fieldGroup as any[]).map((group, index) => ({
-        ...group,
-        [ROWID]: `field-${101 + index}`,
-      })),
+      fieldGroup: response.fieldGroup,
       isMultFieldGroup: !!((response.fieldGroup as any[]) || []).find((f) => f.columns),
       rowGroup: response.rowGroup,
       setting: JSON.parse(response.setting),

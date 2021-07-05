@@ -742,12 +742,11 @@ export const DataminingReducer = (state: DataminingModal, action: ActionProps): 
     default:
       break;
   }
-  newState.fromCache = false; // 有过操作以后，就解除fromCache,否则在useState中不进行更新
-  // 如果有分组字段没有加入field,则重新加入一下
+  // 如果有分组字段没有加入field,或者分组字段改变了顺序或个数，则重新更新一下
   if (
     newState.schemeState.fieldGroup.find((group, index) => group[ROWID] !== `field-${101 + index}`)
   ) {
-    newState = update(state, {
+    newState = update(newState, {
       schemeState: {
         fieldGroup: {
           $set: newState.schemeState.fieldGroup.map((group, index) => ({
@@ -758,6 +757,7 @@ export const DataminingReducer = (state: DataminingModal, action: ActionProps): 
       },
     });
   }
+  newState.fromCache = false; // 有过操作以后，就解除fromCache,否则在useState中不进行更新
   setDataminingModal(newState);
   return newState;
 };
