@@ -199,11 +199,7 @@ export const Datamining: React.FC<DataminingParams> = ({
   return (
     <HOCDndProvider>
       <DataminingContext.Provider value={{ state, dispatch }}>
-        <DataminingModule
-          inTab={inTab}
-          defaultSchemeid={defaultSchemeid}
-          dataminingProps={dataminingProps}
-        />
+        <DataminingModule inTab={inTab} dataminingProps={dataminingProps} />
       </DataminingContext.Provider>
     </HOCDndProvider>
   );
