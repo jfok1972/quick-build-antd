@@ -1,6 +1,11 @@
 import React, { useContext, useEffect } from 'react';
 import { Space } from 'antd';
-import type { ParentFilterModal, ModuleState, ParentFormModal } from '../data';
+import type {
+  ParentFilterModal,
+  ModuleState,
+  ParentFormModal,
+  DataminingFilterModal,
+} from '../data';
 import { DetailModelContext } from './model';
 import ModuleGrid from '../grid';
 import { getModuleInfo, getDefaultModuleState, getFilterScheme } from '../modules';
@@ -36,7 +41,8 @@ import { getModuleIcon } from '../moduleUtils';
 export interface DetailGridPrpos {
   moduleName: string; // 子模块的模块名称
   parentOperateType: string; // 父模块的当前操作类型
-  parentFilter: ParentFilterModal; //
+  parentFilter?: ParentFilterModal; //
+  dataminingFilter?: DataminingFilterModal;
   readOnly?: boolean; // grid是否是只读的
   enableUserFilter?: boolean; // 允许使用用户自定义条件
   parentForm?: ParentFormModal; // 父模块记录的信息
@@ -45,11 +51,13 @@ export interface DetailGridPrpos {
 
 const DetailTable = ({
   pFilter,
+  dataminingFilter,
   readOnly,
   enableUserFilter,
   displayTitle,
 }: {
-  pFilter: ParentFilterModal;
+  pFilter?: ParentFilterModal;
+  dataminingFilter?: DataminingFilterModal;
   readOnly: boolean;
   enableUserFilter: boolean;
   displayTitle?: boolean;
@@ -59,26 +67,38 @@ const DetailTable = ({
   const moduleState = context.moduleState as ModuleState;
   const {
     moduleName,
-    filters: { parentfilter: parentFilter },
+    filters: { parentfilter: parentFilter, dataminingFilter: dataminingF },
   } = moduleState;
   const moduleInfo = getModuleInfo(moduleState.moduleName);
 
   useEffect(() => {
-    if (parentFilter && pFilter.fieldvalue !== parentFilter.fieldvalue) {
+    if (
+      (parentFilter && pFilter && pFilter.fieldvalue !== parentFilter.fieldvalue) ||
+      JSON.stringify(dataminingFilter) !== JSON.stringify(dataminingF)
+    ) {
       dispatch({
         type: 'modules/init',
         payload: {
-          initState: getDefaultModuleState({ moduleName, parentFilter: pFilter }),
+          initState: getDefaultModuleState({ moduleName, parentFilter: pFilter, dataminingFilter }),
         },
       });
     }
-  }, [pFilter]);
+  }, [pFilter, dataminingFilter]);
 
   // 对于新建的记录，在看看combo中有没有记录，如果有，就把刚新建的加进去。不然马上新建detailgrid的时候显示不对
   return (
     <>
-      <div style={{ marginBottom: '16px', display: parentFilter?.fieldvalue ? 'flex' : 'none' }}>
-        {displayTitle ? <span style={{ fontSize: '16px' }}>{getModuleIcon(moduleInfo)} {moduleInfo.title}</span> : null}
+      <div
+        style={{
+          marginBottom: '16px',
+          display: parentFilter?.fieldvalue || dataminingFilter ? 'flex' : 'none',
+        }}
+      >
+        {displayTitle ? (
+          <span style={{ fontSize: '16px', padding: '8px 12px 0' }}>
+            {getModuleIcon(moduleInfo)} {moduleInfo.title}
+          </span>
+        ) : null}
         <span style={{ flex: 1 }} />
         <Space>
           <ModuleToolbar
@@ -119,6 +139,7 @@ const DetailTable = ({
 const DetailGrid: React.FC<DetailGridPrpos> = ({
   moduleName,
   parentFilter,
+  dataminingFilter,
   readOnly,
   enableUserFilter = false,
   parentForm,
@@ -128,10 +149,12 @@ const DetailGrid: React.FC<DetailGridPrpos> = ({
     <DetailModelProvider
       moduleName={moduleName}
       parentFilter={parentFilter}
+      dataminingFilter={dataminingFilter}
       parentForm={parentForm}
     >
       <DetailTable
         pFilter={parentFilter}
+        dataminingFilter={dataminingFilter}
         readOnly={readOnly || false}
         enableUserFilter={enableUserFilter}
         displayTitle={displayTitle}

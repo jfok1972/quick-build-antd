@@ -78,6 +78,9 @@ export const getAllFilterAjaxParam = (filters: ModuleFilters) => {
   if (filters.parentfilter) {
     payload.parentFilter = JSON.stringify(filters.parentfilter);
   }
+  if (filters.dataminingFilter) {
+    payload.dataminingFilter = JSON.stringify(filters.dataminingFilter);
+  }
   if (filters.sqlparam) {
     payload.sqlparamstr = JSON.stringify(getSqlparamFilter(filters.sqlparam));
   }

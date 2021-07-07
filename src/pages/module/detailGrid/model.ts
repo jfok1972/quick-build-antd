@@ -51,7 +51,7 @@ export const wrapperDispatch = (moduleState: ModuleState, dispatch: any) => {
     const type = action.type.split('/')[action.type.split('/').length - 1];
     // message.info('wrapperDispatch:' + type);
     if (type === 'fetchData') {
-      if (moduleState.filters.parentfilter?.fieldvalue) {
+      if (moduleState.filters.parentfilter?.fieldvalue || moduleState.filters.dataminingFilter) {
         dispatch({ type: 'loadingStart' });
         fetchDataAsync(moduleState)
           .then((response: any) => {
@@ -120,7 +120,7 @@ export const wrapperSelectDispatch = (moduleState: ModuleState, dispatch: any) =
 
 const fetchData = (moduleState: ModuleState) => {
   const { moduleName, gridParams, sorts, sortschemeid, filters } = moduleState;
-  if (!filters.parentfilter?.fieldvalue)
+  if (!filters.parentfilter?.fieldvalue && !filters.dataminingFilter)
     // 如果没有parentFilter的值，那么不用去后台取数据了，应该是空的
     return moduleState;
   const moduleInfo = getModuleInfo(moduleName);

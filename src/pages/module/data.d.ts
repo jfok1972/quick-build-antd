@@ -330,6 +330,20 @@ export interface ParentFormModal {
   currRecord: any;
 }
 
+export interface DataminingFilterCondition {
+  property_: string;
+  operator: string;
+  value: string;
+}
+
+export interface DataminingFilterModal {
+  conditions?: DataminingFilterCondition[];
+  userfilters?: any[];
+  navigatefilters?: any[];
+  viewschemeid?: string;
+  sqlparamstr: any;
+}
+
 export interface ModuleFilters {
   parentfilter?: ParentFilterModal; // 父模块的限定条件
   viewscheme: ViewSchemeType; // 当前生效的视图方案
@@ -338,6 +352,7 @@ export interface ModuleFilters {
   columnfilter?: ColumnFilter[]; // 当前生效的列筛选条件
   userfilter?: any[]; // 用户自定义的筛选条件
   sqlparam?: any; // sql语句的参数 {"startDate":"2020-01-01","endDate":"2020-12-31"}
+  dataminingFilter?: DataminingFilterModal; //  在显示datamining的汇总单元格的记录时加入
 }
 
 export interface ModuleState {

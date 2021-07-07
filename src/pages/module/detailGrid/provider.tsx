@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import type { ParentFilterModal, ParentFormModal } from '../data';
+import type { DataminingFilterModal, ParentFilterModal, ParentFormModal } from '../data';
 import { getDefaultModuleState } from '../modules';
 import {
   moduleStateReducer,
@@ -11,6 +11,7 @@ import {
 interface DetailModelProviderProps {
   moduleName: string;
   parentFilter?: ParentFilterModal;
+  dataminingFilter?: DataminingFilterModal;
   parentForm?: ParentFormModal;
   children: any;
 }
@@ -18,12 +19,13 @@ interface DetailModelProviderProps {
 export const DetailModelProvider: React.FC<DetailModelProviderProps> = ({
   moduleName,
   parentFilter,
+  dataminingFilter,
   parentForm,
   children,
 }) => {
   const [moduleState, dispatch] = useReducer(
     moduleStateReducer,
-    getDefaultModuleState({ moduleName, parentFilter, parentForm }),
+    getDefaultModuleState({ moduleName, parentFilter, dataminingFilter, parentForm }),
   );
   return (
     <DetailModelContext.Provider

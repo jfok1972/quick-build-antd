@@ -7,6 +7,7 @@ import type {
   ParentFilterModal,
   ParentFormModal,
   ViewSchemeType,
+  DataminingFilterModal,
 } from './data';
 import {
   querySyncModuleInfo,
@@ -659,10 +660,12 @@ export const getSqlParamDefaultValue = (moduleInfo: ModuleModal) => {
 export const getDefaultModuleState = ({
   moduleName,
   parentFilter,
+  dataminingFilter,
   parentForm,
 }: {
   moduleName: string;
   parentFilter?: ParentFilterModal;
+  dataminingFilter?: DataminingFilterModal;
   parentForm?: ParentFormModal;
 }): ModuleState => {
   const moduleInfo = getModuleInfo(moduleName);
@@ -690,13 +693,15 @@ export const getDefaultModuleState = ({
       viewscheme: { title: undefined, viewschemeid: undefined },
       parentfilter: parentFilter,
       sqlparam: getSqlParamDefaultValue(moduleInfo),
+      dataminingFilter,
     },
     sorts: [],
     sortschemeid: null,
     sortMultiple: {},
     gridParams: {
       curpage: 1,
-      limit: 20,
+      // 数据分析单元格的明细，是弹出式窗口，记录为10
+      limit: dataminingFilter ? 10 : 20,
       start: 0,
       total: 0,
       totalpage: 0,
@@ -709,7 +714,7 @@ export const getDefaultModuleState = ({
       userFilterRestNumber: getFilterRestNumber(moduleInfo), // 筛选字段从第几个开始隐藏，-1表示不隐藏
       userFilterRestHidden: getFilterRestHidden(moduleInfo), // 筛选字段是否隐藏 展开，收起
       tableWidgetsVisible: true,
-      gridSize: parentFilter ? 'small' : 'middle',
+      gridSize: parentFilter || dataminingFilter ? 'small' : 'middle',
       canDragToNavigate: false,
       canDragChangeRecno: false,
       canDragToLeafNode: false,

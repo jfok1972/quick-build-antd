@@ -20,6 +20,7 @@ import {
 import { getAllFilterExportString } from './condition/conditionUtils';
 import { rebuildColumns } from './resultTree/columnFactory';
 import { getSqlparamExportStr } from './resultTree/sqlparams';
+import type { DataminingFilterCondition } from '../module/data';
 
 // 读取数据之前和之后设置fetchLoading的值
 export const setFetchLoading = ({
@@ -158,6 +159,30 @@ export const getColumnDataIndex = (
 ): string => {
   const md5str = fieldname + (condition || '');
   return `jf${MD5(md5str).substr(0, 27)}`;
+};
+
+/**
+ * 将数据分析的行条件和列条件转换为userfilter
+ * FUser|8a53b78262ea6e6d0162ea6ea59a02eb=8a53b78262ea6e6d0162ea6e8ccd00f4 转换成
+ * property_:'FUser|8a53b78262ea6e6d0162ea6ea59a02eb';
+ * operator : 'in';
+ * value : 'value';
+ * @param conditions
+ */
+export const changeDataminingConditionsToUserFilters = (conditions: string[]) => {
+  const result: DataminingFilterCondition[] = [];
+  conditions.forEach((condition) => {
+    const conds = condition.split('|||');
+    conds.forEach((cond) => {
+      const equesPos = cond.indexOf('=');
+      result.push({
+        property_: cond.substring(0, equesPos),
+        operator: 'in',
+        value: cond.substring(equesPos + 1, cond.length),
+      });
+    });
+  });
+  return result;
 };
 
 /**
