@@ -65,6 +65,16 @@
   .dataminingtable tbody tr td:not(:first-child).ant-table-cell {
     min-width: 86px;
   }
+
+  // 紧凑格式
+  .ant-table.ant-table-small .ant-table-title,
+  .ant-table.ant-table-small .ant-table-footer,
+  .ant-table.ant-table-small .ant-table-thead > tr > th,
+  .ant-table.ant-table-small .ant-table-tbody > tr > td,
+  .ant-table.ant-table-small tfoot > tr > th,
+  .ant-table.ant-table-small tfoot > tr > td {
+    padding: 6px 6px;
+  }
 }
 
 // header里面的分组不包括小计，在文字后面有一个眼睛的图标，鼠标移过去显示，可以隐藏

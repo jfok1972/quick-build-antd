@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { Card, Table } from 'antd';
+import React, { useState, useCallback, useMemo, createContext } from 'react';
+import { Card, Drawer, Table } from 'antd';
 import type { Key, SorterResult, TableCurrentDataSource } from 'antd/lib/table/interface';
 import { getModuleInfo } from '@/pages/module/modules';
 import type { DataminingModal } from '../data';
@@ -15,13 +15,24 @@ import { DragDropHeaderCell } from './headCellDragDrop';
 import { rebuildColumns } from './columnFactory';
 import { DragableBodyRow } from './bodyRowDragDrop';
 import StartEndDateSectionSelect from './sqlparams';
+import { DataminingDataCell } from './DataCell';
+import DetailGrid from '@/pages/module/detailGrid';
+import { changeUserFilterToParam } from '@/pages/module/UserDefineFilter';
+import { getSqlparamFilter } from '@/pages/module/grid/filterUtils';
+import { changeDataminingConditionsToUserFilters } from '../utils';
 
 interface ResultTreeParams {
   state: DataminingModal;
   dispatch: Function;
 }
 
+export const DetailDrawerContext = createContext<any>({});
+
 const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
+  const [detailDrawerProps, setDetailDrawerProps] = useState<any>({
+    visible: false,
+    setDetailDrawerProps: () => {},
+  });
   const { moduleName, schemeState } = state;
   const { dataSource } = schemeState;
   const moduleInfo = getModuleInfo(moduleName);
@@ -100,6 +111,7 @@ const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
   const components: any = {
     body: {
       row: (props: any) => <DragableBodyRow {...props} />,
+      cell: (props: any) => <DataminingDataCell {...props} />,
     },
     header: {
       cell: (props: any) => <DragDropHeaderCell {...props} />,
@@ -145,6 +157,7 @@ const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
       state.monetaryPosition,
       state.schemeState.sorts,
       state.currSetting.fieldGroupFixedLeft,
+      state.schemeState.dataSource,
     ],
   );
 
@@ -154,57 +167,92 @@ const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
         <StartEndDateSectionSelect state={state} dispatch={dispatch} />
       ) : null}
       <Card className="dataminingcard">
-        <Table
-          className="dataminingtable"
-          size="small"
-          bordered
-          sticky={{ offsetHeader: 48 }} // 设置粘性表头
-          tableLayout="auto" // 'auto','fixed'
-          loading={state.fetchLoading}
-          pagination={false}
-          columns={columns}
-          dataSource={dataSource}
-          scroll={{ x: true }} // y，加了y表头可以固定,可以加一个配置项来确定y是不是固定，固定的话sticky可以不用配置了
-          indentSize={15}
-          rowKey={ROWID}
-          onChange={handleTableChange}
-          showSorterTooltip={false}
-          expandable={{
-            defaultExpandAllRows: true,
-          }}
-          rowSelection={{
-            type: 'checkbox',
-            selectedRowKeys: state.selectedRowKeys,
-            onChange: handlerSelectedRowKeys,
-            selections: selectionsMenu(state, dispatch),
-          }}
-          components={components}
-          onRow={(record, index) => ({
-            index,
-            record,
-            moveRow,
-            onClick: (e) => {
-              // 如果选择的时候，按住了shift,或者ctrl，会切换选中状态
-              if (e.shiftKey || e.ctrlKey) selectRow(record, e.shiftKey || e.ctrlKey);
-            },
-            onDoubleClick: () => {},
-            onContextMenu: () => {
-              // 右键是否选择当前记录
-              // selectRowIf(record);
-            },
-          })}
-          expandedRowKeys={state.expandedRowKeys}
-          onExpand={(expanded: boolean, record: any) => {
-            dispatch({
-              type: ACT_DATAMINING_EXPAND_CHANGED,
-              payload: {
-                expanded,
-                key: record[ROWID],
+        <DetailDrawerContext.Provider value={{ setDetailDrawerProps }}>
+          <Table
+            className="dataminingtable"
+            size="small"
+            bordered
+            sticky={{ offsetHeader: 48 }} // 设置粘性表头
+            tableLayout="auto" // 'auto','fixed'
+            loading={state.fetchLoading}
+            pagination={false}
+            columns={columns}
+            dataSource={dataSource}
+            scroll={{ x: true }} // y，加了y表头可以固定,可以加一个配置项来确定y是不是固定，固定的话sticky可以不用配置了
+            indentSize={15}
+            rowKey={ROWID}
+            onChange={handleTableChange}
+            showSorterTooltip={false}
+            expandable={{
+              defaultExpandAllRows: true,
+            }}
+            rowSelection={{
+              type: 'checkbox',
+              selectedRowKeys: state.selectedRowKeys,
+              onChange: handlerSelectedRowKeys,
+              selections: selectionsMenu(state, dispatch),
+            }}
+            components={components}
+            onRow={(record, index) => ({
+              index,
+              record,
+              moveRow,
+              onClick: (e) => {
+                // 如果选择的时候，按住了shift,或者ctrl，会切换选中状态
+                if (e.shiftKey || e.ctrlKey) selectRow(record, e.shiftKey || e.ctrlKey);
               },
-            });
-          }}
-        />
+              onDoubleClick: () => {
+                selectRow(record, true);
+              },
+              onContextMenu: () => {
+                // 右键是否选择当前记录
+                // selectRowIf(record);
+              },
+            })}
+            expandedRowKeys={state.expandedRowKeys}
+            onExpand={(expanded: boolean, record: any) => {
+              dispatch({
+                type: ACT_DATAMINING_EXPAND_CHANGED,
+                payload: {
+                  expanded,
+                  key: record[ROWID],
+                },
+              });
+            }}
+          />
+        </DetailDrawerContext.Provider>
       </Card>
+      <Drawer
+        placement="bottom"
+        height={600}
+        visible={detailDrawerProps.visible}
+        destroyOnClose
+        closeIcon={null}
+        onClose={() => {
+          setDetailDrawerProps({ visible: false });
+        }}
+      >
+        {detailDrawerProps.visible ? (
+          <DetailGrid
+            moduleName={state.moduleName}
+            parentOperateType="display"
+            displayTitle
+            readOnly
+            parentFilter={undefined}
+            dataminingFilter={{
+              conditions: changeDataminingConditionsToUserFilters(
+                detailDrawerProps.conditions || [],
+              ),
+              navigatefilters: state.filters.navigatefilters,
+              viewschemeid: state.filters.viewscheme.viewschemeid,
+              userfilters: changeUserFilterToParam(state.filters.userfilter),
+              sqlparamstr: state.filters.sqlparam
+                ? getSqlparamFilter(state.filters.sqlparam)
+                : null,
+            }}
+          />
+        ) : null}
+      </Drawer>
     </>
   );
 };

@@ -22,7 +22,7 @@ const Toolbar: React.FC<ToolbarParams> = ({ state, dispatch }) => {
   const { moduleName } = state;
   const moduleInfo = getModuleInfo(moduleName);
   return (
-    <Space size={[2, 0]} wrap>
+    <Space size={[2, 0]} wrap style={{ paddingTop: '6px' }}>
       <SelectScheme />
       {getViewSchemes(moduleInfo.viewschemes).length ? <ViewSchemeButton /> : null}
       <NavigateButton state={state} dispatch={dispatch} />

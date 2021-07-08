@@ -67,6 +67,12 @@ const setColumnXtypeAndDataIndex = (acolumn: any, state: DataminingModal) => {
   }
   // 生成列的字段名称
   column.dataIndex = getColumnDataIndex(column.aggregatefieldname, column.condition);
+  // 当生成 cell的时候的附加属性，用于显示该单元格的明细数据，见 resultTree--index.tsx中的 components--body--cell
+  column.onCell = (record: any) => ({
+    record,
+    column,
+    isDataCell: true,
+  });
   column.sorter = true;
   column.sortDirections = ['ascend', 'descend', 'ascend'];
   column.sortOrder = getSortOrder(state.schemeState.sorts, column.dataIndex);
@@ -127,6 +133,12 @@ const setColumnXtypeAndDataIndex = (acolumn: any, state: DataminingModal) => {
         align: 'right',
         // renderer: column.ismonetary ? Ext.util.Format.monetaryRenderer : Ext.util.Format.floatRenderer,
         filter: 'number',
+      });
+    }
+    if (column.fieldtype && (column.fieldtype as string).toLowerCase() === 'integer') {
+      apply(column, {
+        // 整数平均值会有小数部分
+        render: (value: number) => integerRender(Math.round(value || 0)),
       });
     }
     if (column.ismonetary) {
@@ -209,6 +221,7 @@ export const rebuildColumns = (
       rowid: 'category',
       // 传递参数给 DragDropHeaderCell
       onHeaderCell: () => ({ isCategoryField: true }),
+      onCell: () => ({ isCategoryField: true }),
     },
   ];
   // 如果有多层表头的，只展示此多层表头，不可以展开和进行操作
