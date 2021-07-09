@@ -1,5 +1,9 @@
 @import '~antd/es/style/themes/default.less';
 
+.filtericon {
+  cursor: pointer;
+}
+
 // 包围在tabs,collapse,list之外的一圈边框
 .outsiderect {
   padding: 16px;
@@ -88,116 +92,3 @@
     height: 100%;
   }
 }
-
-// .subrow {
-//   background: @layout-body-background;
-// }
-
-// // 分析页上内部块之中的Tabs
-// .innertabs {
-//   height: 100%;
-
-//   :global {
-//     .ant-tabs-content {
-//       height: 100%;
-//       // padding-bottom: 12px;
-//     }
-
-//     .ant-tabs-nav {
-//       margin: 0 0 8px !important;
-//     }
-
-//     .ant-tabs-content.ant-tabs-content-top,
-//     .ant-tabs-content.ant-tabs-content-left {
-//       padding: 12px;
-//       background-color: @layout-body-background;
-//     }
-//   }
-// }
-
-// // 在分析页上的Collapse中
-// .innercollapse {
-//   :global {
-//     .ant-collapse-content {
-//       background-color: @layout-body-background;
-//       border: 0;
-//     }
-
-//     .ant-collapse-content>.ant-collapse-content-box {
-//       padding: 12px;
-//     }
-
-//   }
-// }
-
-// :global {
-
-//   // 分析页上最外层的 Card
-//   .globalcard>.ant-card-body {
-//     // margin: 0;
-//     // padding: 0;
-//     margin: 0 16px;
-//     padding: 0 0 16px 0;
-//   }
-
-//   .globalcard .ant-tabs-nav {
-//     margin: 0 0 8px !important;
-//   }
-
-//   .globalcard .ant-tabs.ant-tabs-left {
-//     margin: 12px 0 0;
-//   }
-
-//   .globalcard .ant-tabs-content.ant-tabs-content-left {
-//     background-color: @layout-body-background;
-//   }
-
-//   .globalcard .ant-tabs.ant-tabs-left>.ant-tabs-content-holder {
-//     padding-left: 12px;
-//     padding-right: 12px;
-//   }
-
-//   .globalcard .ant-tabs-left>.ant-tabs-content-holder>.ant-tabs-content>.ant-tabs-tabpane,
-//   .globalcard .ant-tabs-left>div>.ant-tabs-content-holder>.ant-tabs-content>.ant-tabs-tabpane {
-//     padding-left: 0px;
-//     margin-left: 12px;
-//   }
-
-//   .ant-card.blocktabscard .ant-card-body {
-//     margin: 0;
-//     padding: 0 12px 8px;
-//   }
-
-//   .ant-card.blockcollapsecard .ant-card-body {
-//     margin: 0;
-//     padding: 0;
-//     background-color: @component-background;
-//   }
-
-//   .ant-card.blocklistcard .ant-card-body {
-//     margin: 0;
-//     padding: 0;
-//     background-color: @component-background;
-//   }
-
-//   .ant-card.blocklistcard .ant-list-item {
-//     display: block;
-//     padding-right: 12px;
-//     padding-left: 12px;
-//     background-color: @layout-body-background;
-//     border-bottom: 1px solid @component-background;
-//   }
-
-//   // 组件的第一个格子
-//   .innercard {
-//     height: 100%;
-//     min-height: 50px;
-//     background-color: @component-background;
-//   }
-
-//   // 组件的每一个格子的第一个card子节点
-//   .innercard .ant-card:first-child,
-//   .innercard .ant-card .ant-card-body:first-child {
-//     height: 100%;
-//   }
-// }

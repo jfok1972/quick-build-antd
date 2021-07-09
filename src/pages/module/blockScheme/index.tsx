@@ -196,23 +196,25 @@ const PopoverFilterButton: React.FC<any> = ({
         />
       }
     >
-      {userfilters.length ? (
-        <Badge
-          count={userfilters.length}
-          dot={false}
-          offset={[-6, 6]}
-          style={{ backgroundColor: '#108ee9' }}
-        >
-          <FilterOutlined
-            style={{
-              paddingRight: '20px',
-            }}
-            className={styles.filtericon}
-          />
-        </Badge>
-      ) : (
-        <FilterOutlined className={styles.filtericon} />
-      )}
+      <span style={{ paddingRight: '16px' }}>
+        {userfilters.length ? (
+          <Badge
+            count={userfilters.length}
+            dot={false}
+            offset={[-6, 6]}
+            style={{ backgroundColor: '#108ee9' }}
+          >
+            <FilterOutlined
+              style={{
+                paddingRight: '20px',
+              }}
+              className={styles.filtericon}
+            />
+          </Badge>
+        ) : (
+          <FilterOutlined className={styles.filtericon} />
+        )}
+      </span>
     </Popover>
   );
 };
