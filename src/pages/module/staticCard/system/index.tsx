@@ -1,5 +1,6 @@
-import { VActFinishTask } from './VActFinishTask';
+// import { VActFinishTask } from './VActFinishTask';
 
 export const moduleStaticCards = {
-  VActFinishTask: <VActFinishTask />,
+  // 此处加了会出错，useContext 不能执行
+  // VActFinishTask: <VActFinishTask />,
 };

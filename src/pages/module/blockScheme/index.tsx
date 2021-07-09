@@ -1,12 +1,19 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
-import { Col, List, Row, Tabs, Result, Empty, Collapse } from 'antd';
+import { Col, Row, Tabs, Result, Empty, Collapse, Popover, Badge } from 'antd';
 import RcResizeObserver from 'rc-resize-observer';
 import classNames from 'classnames';
 import request, { API_HEAD } from '@/utils/request';
 import styles from './index.less';
 import { apply, applyAllOtherSetting, getAwesomeIcon, replaceRef } from '@/utils/utils';
 import { DataobjectWidget } from './DataobjectWidget';
+import UserDefineFilter, {
+  changeUserFilterToParam,
+  UserInlineDefineFilter,
+} from '../UserDefineFilter';
+import { getDefaultModuleState } from '../modules';
+import type { ModuleState } from '../data';
+import { FilterOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs;
 
@@ -106,6 +113,199 @@ const BlockCompactContext = createContext<Record<string, any>>({
   compact: false,
 });
 
+// 记录组件的筛选条件
+const detailIdFilterModuleState: Record<string, ModuleState> = {};
+const getDetailFilterModuleState = (detailid: string, moduleName: string) => {
+  if (!detailIdFilterModuleState[detailid]) {
+    detailIdFilterModuleState[detailid] = getDefaultModuleState({ moduleName });
+  }
+  return detailIdFilterModuleState[detailid];
+};
+
+// 父容器筛选Context
+export const WidgetParentUserFiltersContext = createContext<any>({ parnetUserFilters: [] });
+
+// 父容器中直接加入筛选界面
+const UserInlineDefineFilterArea: React.FC<any> = ({
+  tab,
+  states,
+  setStates,
+}: {
+  tab: any;
+  states: Record<string, ModuleState>;
+  setStates: Function;
+}) => {
+  return (
+    <UserInlineDefineFilter
+      moduleState={states[tab.detailid]}
+      dispatch={(params: any) => {
+        // 在重置的时候，需要把UserDefineFilter中的记录都清空，因此加了这一个moduleState
+        if (params.type === 'modules/filterChanged') {
+          const state = states[tab.detailid];
+          state.filters.userfilter = params.payload.userfilter;
+          setStates({ ...states });
+        }
+      }}
+      filterSchemeid={tab.filterSchemeid}
+    />
+  );
+};
+
+/**
+ * 放在分组组件的后面的条件按钮，放在 Collapse, list , 和 Tabs 上面
+ * @param param0
+ * @returns
+ */
+const PopoverFilterButton: React.FC<any> = ({
+  tab,
+  states,
+  setStates,
+}: {
+  tab: any;
+  states: Record<string, ModuleState>;
+  setStates: Function;
+}) => {
+  const [filterVisible, setFilterVisible] = useState<boolean>(false);
+  const {
+    filters: { userfilter },
+  } = states[tab.detailid];
+  const userfilters = changeUserFilterToParam(userfilter);
+  return (
+    <Popover
+      visible={filterVisible}
+      onVisibleChange={(v) => {
+        setFilterVisible(v);
+      }}
+      trigger={['click']}
+      title="设置筛选条件"
+      content={
+        <UserDefineFilter
+          visible={true}
+          moduleState={states[tab.detailid]}
+          dispatch={(params: any) => {
+            // 在重置的时候，需要把UserDefineFilter中的记录都清空，因此加了这一个moduleState
+            if (params.type === 'modules/filterChanged') {
+              const state = states[tab.detailid];
+              state.filters.userfilter = params.payload.userfilter;
+              setStates({ ...states });
+            }
+            setFilterVisible(false);
+          }}
+          filterSchemeid={tab.filterSchemeid}
+          inPopover
+        />
+      }
+    >
+      {userfilters.length ? (
+        <Badge
+          count={userfilters.length}
+          dot={false}
+          offset={[-6, 6]}
+          style={{ backgroundColor: '#108ee9' }}
+        >
+          <FilterOutlined
+            style={{
+              paddingRight: '20px',
+            }}
+            className={styles.filtericon}
+          />
+        </Badge>
+      ) : (
+        <FilterOutlined className={styles.filtericon} />
+      )}
+    </Popover>
+  );
+};
+
+/**
+ * 如果某一个定义的容器组件有 filterSchemeid , 则可以把筛选条件加在组件上，其所有子组件都可以响应用户自定义条件的事件
+ * @param param0
+ * @returns
+ */
+const DetailCollapse = ({
+  block,
+  outsideClass,
+  list = false,
+}: {
+  block: any;
+  outsideClass: string;
+  list?: boolean;
+}) => {
+  const getInitStates = () => {
+    const result: Record<string, ModuleState> = {};
+    block.items.forEach((tab: any) => {
+      if (tab.filterSchemeid && tab.moduleName) {
+        result[tab.detailid] = getDetailFilterModuleState(tab.detailid, tab.moduleName);
+      }
+    });
+    return result;
+  };
+  const [states, setStates] = useState<Record<string, ModuleState>>(getInitStates());
+  const keySet = list
+    ? {
+        // list 全部展开，不允许折叠
+        activeKey: block.items.map((b: any) => b.detailid),
+      }
+    : {
+        // 设置 active: false ,默认折叠
+        defaultActiveKey: block.items.map((b: any) => (b.active === false ? null : b.detailid)),
+      };
+  return (
+    <Collapse
+      className="blockcollapse"
+      collapsible="header"
+      bordered
+      // 是否是手风琴模式，只多只能展开一个
+      accordion={block.accordion && !list}
+      {...keySet}
+    >
+      {block.items.map((tab: any) => {
+        let filter = null;
+        if (tab.filterSchemeid) {
+          filter =
+            tab.filterPosition === 'inline' ? (
+              <UserInlineDefineFilterArea tab={tab} states={states} setStates={setStates} />
+            ) : (
+              <PopoverFilterButton tab={tab} states={states} setStates={setStates} />
+            );
+        }
+        /* eslint-disable */
+        const tabChildren = (
+          <div className={outsideClass}>
+            <BlockDetail key={tab.detailid} block={tab} />
+          </div>
+        );
+        /* eslint-enable */
+        return (
+          <Collapse.Panel
+            showArrow={!list}
+            className={classNames({
+              [styles.filtercollapsepanel]: tab.filterPosition === 'inline',
+            })}
+            header={getTitle(tab)}
+            key={tab.detailid}
+            extra={filter}
+          >
+            {tab.filterSchemeid ? (
+              <WidgetParentUserFiltersContext.Provider
+                value={{
+                  parnetUserFilters: changeUserFilterToParam(
+                    states[tab.detailid].filters.userfilter,
+                  ),
+                }}
+              >
+                {tabChildren}
+              </WidgetParentUserFiltersContext.Provider>
+            ) : (
+              tabChildren
+            )}
+          </Collapse.Panel>
+        );
+      })}
+    </Collapse>
+  );
+};
+
 // 生成table 上面自定义的组件
 export const TableBlockDetails = ({ tableWidgets }: { tableWidgets: any[] }) => {
   return (
@@ -129,11 +329,7 @@ export const TableBlockDetails = ({ tableWidgets }: { tableWidgets: any[] }) => 
 };
 
 export const BlockDetail = ({ block, inner = false }: { block: any; inner?: boolean }) => {
-  const context = useContext(BlockCompactContext);
-  let compact = false;
-  if (context) {
-    compact = context.compact;
-  }
+  const { compact } = useContext(BlockCompactContext);
   const outsideClass = classNames({
     [styles.outsiderectcompact]: compact,
     [styles.outsiderect]: !compact,
@@ -155,37 +351,10 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
       );
     }
     if (xtype === 'collapse' || (xtype === 'tabpanel' && compact)) {
-      return (
-        <Collapse
-          className="blockcollapse"
-          bordered
-          // 是否是手风琴模式，只多只能展开一个
-          accordion={block.accordion}
-          // 设置 active: false ,默认折叠
-          defaultActiveKey={block.items.map((b: any) => (b.active === false ? null : b.detailid))}
-        >
-          {block.items.map((tab: any) => (
-            <Collapse.Panel header={getTitle(tab)} key={tab.detailid}>
-              <div className={outsideClass}>
-                <BlockDetail key={tab.detailid} block={tab} />
-              </div>
-            </Collapse.Panel>
-          ))}
-        </Collapse>
-      );
+      return <DetailCollapse block={block} outsideClass={outsideClass} />;
     }
     if (xtype === 'list') {
-      return (
-        <List className="blocklist" bordered header={getTitle(block)}>
-          {block.items.map((tab: any) => (
-            <List.Item key={tab.detailid}>
-              <div className={outsideClass}>
-                <BlockDetail key={tab.detailid} block={tab} />
-              </div>
-            </List.Item>
-          ))}
-        </List>
-      );
+      return <DetailCollapse block={block} outsideClass={outsideClass} list />;
     }
   }
   // 如果当前的块级有子块

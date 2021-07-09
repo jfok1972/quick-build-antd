@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getAwesomeIcon, uuid } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
@@ -17,6 +17,7 @@ import UserDefineFilter, { changeUserFilterToParam } from '../UserDefineFilter';
 import type { ModuleState } from '../data';
 import { getDefaultModuleState } from '../modules';
 import { useMemo } from 'react';
+import { WidgetParentUserFiltersContext } from '../blockScheme';
 
 const numeral = require('numeral');
 
@@ -120,6 +121,8 @@ export const StaticCard: React.FC<StaticCardProps> = ({
   const [moduleState, setModuleState] = useState<ModuleState>(
     getDefaultModuleState({ moduleName }),
   );
+  // 父容器上面的用户筛选条件
+  const { parnetUserFilters } = useContext(WidgetParentUserFiltersContext);
   const aggregateField = `${aggregate}.${fieldName}`;
   const aggregateFieldName = 'jf001';
   const userFilter = filterSchemeid ? (
@@ -250,13 +253,16 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         moduleName,
         fields: [aggregateField],
         navigatefilters: filters,
+        // 对比的时候，对于选择的条件和当前日期相同的，就不加入了，否则就没法比了。
         userfilters: [
           {
             property: dateFieldName,
             operator: 'daysection',
             value: `${start.format(DateFormat)}--${end.format(DateFormat)}`,
           },
-        ].concat(...userfilters),
+        ].concat(
+          ...userfilters.concat(parnetUserFilters).filter((f) => f.property !== dateFieldName),
+        ),
         isnumberordername: true,
       });
     };
@@ -358,7 +364,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         moduleName,
         fields: [aggregateField],
         navigatefilters: filters,
-        userfilters,
+        userfilters: userfilters.concat(parnetUserFilters),
         groupfieldid: { fieldname: dateFieldName, function: groupFunction[sectionType] },
         isnumberordername: true,
       }).then((response: any) => {
@@ -378,7 +384,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
           .filter((value, index, array) => array.length - index <= maxCount);
         setData(detailArray);
       });
-    }, [userfilters]);
+    }, [userfilters, parnetUserFilters]);
 
     const config: any = {
       height: chartHeight,
@@ -422,7 +428,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       moduleName,
       fields: [aggregateField],
       navigatefilters: filters,
-      userfilters,
+      userfilters: userfilters.concat(parnetUserFilters),
       isnumberordername: true,
     }).then(async (response: any) => {
       setTotal(response[0][aggregateFieldName]);
@@ -437,7 +443,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       }
       setLoading(false);
     });
-  }, [userfilters]);
+  }, [userfilters, parnetUserFilters]);
 
   const getStaticFieldsRegion = () => {
     let hasRatio = false;
@@ -448,7 +454,12 @@ export const StaticCard: React.FC<StaticCardProps> = ({
       // 如果要显示比率，则把这一行撑足
       <Space key={uuid()} size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
         {staticFields?.map((staticField) => (
-          <StaticField key={uuid()} {...staticField} userfilters={userfilters} total={total} />
+          <StaticField
+            key={uuid()}
+            {...staticField}
+            userfilters={userfilters.concat(parnetUserFilters)}
+            total={total}
+          />
         ))}
       </Space>
     );

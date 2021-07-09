@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { apply, uuid } from '@/utils/utils';
 import { StatisticCard } from '@ant-design/pro-card';
 import RcResizeObserver from 'rc-resize-observer';
@@ -11,6 +11,7 @@ import { fetchDataminingDataWithCache } from './antdCharts/dataset';
 import UserDefineFilter, { changeUserFilterToParam } from '../UserDefineFilter';
 import type { ModuleState } from '../data';
 import { getDefaultModuleState } from '../modules';
+import { WidgetParentUserFiltersContext } from '../blockScheme';
 
 const numeral = require('numeral');
 
@@ -77,7 +78,8 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
   const [moduleState, setModuleState] = useState<ModuleState>(
     getDefaultModuleState({ moduleName }),
   );
-
+  // 父容器上面的用户筛选条件
+  const { parnetUserFilters } = useContext(WidgetParentUserFiltersContext);
   const getValueText = (value: number) => {
     return (
       numeral(value / monetaryUnit).format(formatPattern) +
@@ -92,7 +94,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       fields: [aggregateField],
       groupfieldid: items[itemIndex].groupField,
       navigatefilters: filters,
-      userfilters,
+      userfilters: userfilters.concat(parnetUserFilters),
       isnumberordername: true,
     }).then((response: any) => {
       // 生成 detailData , 根据结果排序，生成后取前count-1个，其他的全部加在一起
@@ -144,7 +146,7 @@ export const StaticMasterDetailCard: React.FC<StaticMasterDetailCardProps> = ({
       setLoading(false);
       setFirstloading(false);
     });
-  }, [itemIndex, userfilters]);
+  }, [itemIndex, userfilters, parnetUserFilters]);
 
   const getRingProgress = (value: number, color: string) => {
     return (

@@ -23,6 +23,15 @@
   background: @layout-body-background;
 }
 
+// 可折叠的控件，后面加入筛选条件时，边框太宽
+.filtercollapsepanel {
+  :global {
+    .ant-collapse-header .ant-collapse-extra {
+      margin: -5px 0 -5px 0;
+    }
+  }
+}
+
 :global {
   // tabs
   .blocktabs.ant-tabs-left {

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { Card, Tooltip, Popover, Badge, Radio } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
 import { Area, Bar, BidirectionalBar, Column, DualAxes, Line, Pie, Rose } from '@ant-design/charts';
@@ -13,6 +13,7 @@ import UserDefineFilter, {
   UserInlineDefineFilter,
 } from '../../../module/UserDefineFilter';
 import type { ModuleState } from '../../data';
+import { WidgetParentUserFiltersContext } from '../../blockScheme';
 
 const numeral = require('numeral');
 
@@ -56,13 +57,15 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   const [moduleState, setModuleState] = useState<ModuleState>(
     getDefaultModuleState({ moduleName }),
   );
+  // 父容器上面的用户筛选条件
+  const { parnetUserFilters } = useContext(WidgetParentUserFiltersContext);
   useEffect(() => {
     setLoading(true);
-    getDataSet(datasetProperty, userfilters).then((response: any) => {
+    getDataSet(datasetProperty, userfilters.concat(parnetUserFilters)).then((response: any) => {
       setLoading(false);
       setDataSet(response);
     });
-  }, [userfilters, datasetProperty]);
+  }, [userfilters, datasetProperty, parnetUserFilters]);
 
   const chartConfig = useMemo(() => {
     let cConfig: any = { type, ...config };
