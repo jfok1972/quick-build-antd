@@ -217,6 +217,16 @@ const PopoverFilterButton: React.FC<any> = ({
   );
 };
 
+const getInitStates = (block: any) => {
+  const result: Record<string, ModuleState> = {};
+  block.items.forEach((tab: any) => {
+    if (tab.filterSchemeid && tab.moduleName) {
+      result[tab.detailid] = getDetailFilterModuleState(tab.detailid, tab.moduleName);
+    }
+  });
+  return result;
+};
+
 /**
  * 如果某一个定义的容器组件有 filterSchemeid , 则可以把筛选条件加在组件上，其所有子组件都可以响应用户自定义条件的事件
  * @param param0
@@ -231,16 +241,7 @@ const DetailCollapse = ({
   outsideClass: string;
   list?: boolean;
 }) => {
-  const getInitStates = () => {
-    const result: Record<string, ModuleState> = {};
-    block.items.forEach((tab: any) => {
-      if (tab.filterSchemeid && tab.moduleName) {
-        result[tab.detailid] = getDetailFilterModuleState(tab.detailid, tab.moduleName);
-      }
-    });
-    return result;
-  };
-  const [states, setStates] = useState<Record<string, ModuleState>>(getInitStates());
+  const [states, setStates] = useState<Record<string, ModuleState>>(getInitStates(block));
   const keySet = list
     ? {
         // list 全部展开，不允许折叠
@@ -306,6 +307,62 @@ const DetailCollapse = ({
   );
 };
 
+/**
+ * 如果Tabs下的tab有 filterSchemeid , 则可以把筛选条件加在组件上，其所有子组件都可以响应用户自定义条件的事件
+ * @param param0
+ * @returns
+ */
+const DetailTabs = ({ block, outsideClass }: { block: any; outsideClass: string }) => {
+  const [states, setStates] = useState<Record<string, ModuleState>>(getInitStates(block));
+  const [activeKey, setActiveKey] = useState<string>(block.items[0].detailid);
+  const currTab: any = (block.items as []).find((item: any) => item.detailid === activeKey);
+  let filter = null;
+  if (currTab && currTab.filterSchemeid) {
+    filter =
+      currTab.filterPosition === 'inline' ? (
+        <UserInlineDefineFilterArea tab={currTab} states={states} setStates={setStates} />
+      ) : (
+        <PopoverFilterButton tab={currTab} states={states} setStates={setStates} />
+      );
+  }
+  return (
+    <Tabs
+      tabPosition={block.tabPosition || 'top'}
+      className="blocktabs"
+      tabBarExtraContent={filter}
+      activeKey={activeKey}
+      onChange={(key) => setActiveKey(key)}
+    >
+      {block.items.map((tab: any, index: number) => {
+        /* eslint-disable */
+        const tabChildren = (
+          <div className={outsideClass}>
+            <BlockDetail key={tab.detailid} block={tab} />
+          </div>
+        );
+        /* eslint-enable */
+        return (
+          <TabPane tab={getTitle(tab)} tabKey={`block-${index}`} key={tab.detailid}>
+            {tab.filterSchemeid ? (
+              <WidgetParentUserFiltersContext.Provider
+                value={{
+                  parnetUserFilters: changeUserFilterToParam(
+                    states[tab.detailid].filters.userfilter,
+                  ),
+                }}
+              >
+                {tabChildren}
+              </WidgetParentUserFiltersContext.Provider>
+            ) : (
+              tabChildren
+            )}
+          </TabPane>
+        );
+      })}
+    </Tabs>
+  );
+};
+
 // 生成table 上面自定义的组件
 export const TableBlockDetails = ({ tableWidgets }: { tableWidgets: any[] }) => {
   return (
@@ -338,17 +395,7 @@ export const BlockDetail = ({ block, inner = false }: { block: any; inner?: bool
   if (block.xtype) {
     const xtype = (block.xtype as string).toLowerCase();
     if (xtype === 'tabpanel' && !compact) {
-      return (
-        <Tabs tabPosition={block.tabPosition || 'top'} className="blocktabs">
-          {block.items.map((tab: any, index: number) => (
-            <TabPane tab={getTitle(tab)} tabKey={`block-${index}`} key={tab.detailid}>
-              <div className={outsideClass}>
-                <BlockDetail key={tab.detailid} block={tab} />
-              </div>
-            </TabPane>
-          ))}
-        </Tabs>
-      );
+      return <DetailTabs block={block} outsideClass={outsideClass} />;
     }
     if (xtype === 'collapse' || (xtype === 'tabpanel' && compact)) {
       return <DetailCollapse block={block} outsideClass={outsideClass} />;
