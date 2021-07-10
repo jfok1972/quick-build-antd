@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Button, Menu, Tooltip } from 'antd';
 import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { apply } from '@/utils/utils';

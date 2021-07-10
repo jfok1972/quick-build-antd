@@ -1,5 +1,5 @@
 import request, { API_HEAD } from '@/utils/request';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, message, Form, Select, Input, Button } from 'antd';
 import { setGlobalModalProps } from '@/layouts/BasicLayout';
 import { serialize } from 'object-to-formdata';

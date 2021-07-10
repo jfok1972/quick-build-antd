@@ -1,6 +1,4 @@
 import { Button, message, notification } from 'antd';
-
-import React from 'react';
 import { useIntl } from 'umi';
 import defaultSettings from '../config/defaultSettings';
 
@@ -74,7 +72,7 @@ if (pwa) {
   });
 
   // remove all caches
-  if (window.caches && window.caches.keys) {
+  if (window.caches && (window.caches.keys as any)) {
     caches.keys().then((keys) => {
       keys.forEach((key) => {
         caches.delete(key);

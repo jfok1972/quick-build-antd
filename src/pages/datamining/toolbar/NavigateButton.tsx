@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip, Button } from 'antd';
 import { BsCursor, BsCursorFill } from 'react-icons/bs';
 import type { DataminingModal } from '../data';

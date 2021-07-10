@@ -1,7 +1,7 @@
+import React, { useEffect, useRef, useState } from 'react';
 import { apply } from '@/utils/utils';
 import { FileOutlined, SelectOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Popover, Row, Tree } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
 import { getModuleInfo } from '../modules';
 import { fetchModuleFields } from '../service';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';

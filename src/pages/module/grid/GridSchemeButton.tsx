@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip, Radio } from 'antd';
 import type { Dispatch } from 'redux';
 import type { RadioChangeEvent } from 'antd/lib/radio';

@@ -1,5 +1,5 @@
 import { Dropdown, Menu, Tooltip, Modal, Input, Form, message } from 'antd';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   ClearOutlined,
   DeleteRowOutlined,

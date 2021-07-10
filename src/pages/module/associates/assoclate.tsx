@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Tabs } from 'antd';
 import type { ModuleModal } from '../data';
 import { getAssociatesSouth, getModuleInfo } from '../modules';

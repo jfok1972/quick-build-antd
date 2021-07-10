@@ -1,5 +1,5 @@
-import { BarChartOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import React from 'react';
+import { BarChartOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
 interface ToggleTableChartButtonProps {
   showGrid: boolean;

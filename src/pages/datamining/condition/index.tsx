@@ -1,8 +1,8 @@
+import React, { useCallback, useContext } from 'react';
 import { integerRender, stringRenderer } from '@/pages/module/grid/columnRender';
 import { DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Card, Table, Tooltip } from 'antd';
 import update from 'immutability-helper';
-import React, { useCallback, useContext } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import type { DataminingStateContext } from '..';
 import { DataminingContext } from '..';

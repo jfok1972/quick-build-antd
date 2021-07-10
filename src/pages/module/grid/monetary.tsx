@@ -1,6 +1,4 @@
 import { getLocalMonetaryPosition, getLocalMonetaryType } from '@/utils/utils';
-import React from 'react';
-
 import type { TextValue } from '../data';
 
 export type MonetaryUnit = 100000000 | 1000000 | 10000 | 1000 | 1;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip, Button } from 'antd';
 import { NodeExpandOutlined } from '@ant-design/icons';
 import type { DataminingModal } from '../data';

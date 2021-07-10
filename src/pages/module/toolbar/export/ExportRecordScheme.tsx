@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Menu, message, Tooltip } from 'antd';
 import { FilePdfOutlined, FileTextOutlined, SelectOutlined } from '@ant-design/icons';
 import { getPdfjsUrl, onOpenInNewWindow, urlEncode } from '@/utils/utils';
@@ -63,6 +62,7 @@ const ExportRecordScheme = ({
       <Menu.Item
         key={`${RECOREXPORT}||${scheme.schemeid}||${scheme.title}`}
         title={scheme.title}
+        icon={scheme.onlypdf ? <FilePdfOutlined /> : <FileTextOutlined />}
         onClick={() => {
           recordExport({
             schemeid: scheme.schemeid,
@@ -72,7 +72,6 @@ const ExportRecordScheme = ({
           });
         }}
       >
-        {scheme.onlypdf ? <FilePdfOutlined /> : <FileTextOutlined />}
         {scheme.title}
         <Tooltip title="下载pdf文件" placement="topRight">
           <Button

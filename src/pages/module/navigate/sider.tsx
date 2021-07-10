@@ -1,4 +1,3 @@
-import React from 'react';
 import { Layout } from 'antd';
 import type { Dispatch } from 'redux';
 import type { ResizableProps } from 're-resizable';

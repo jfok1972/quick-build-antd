@@ -1,5 +1,5 @@
-import type { ReactChild } from 'react';
 import React, { useContext } from 'react';
+import type { ReactChild } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import type { ModuleStateContext } from '../index';
 import { ModuleContext } from '../index';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Table } from 'antd';
 import { BorderOutlined, CheckSquareOutlined, SwapOutlined } from '@ant-design/icons';
 import { EMPTY_MENU_ICON } from '@/utils/utils';

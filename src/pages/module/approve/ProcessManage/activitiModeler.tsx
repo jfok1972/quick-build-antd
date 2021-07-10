@@ -1,4 +1,3 @@
-import React from 'react';
 import { notification, message, Modal } from 'antd';
 import type { Dispatch } from 'redux';
 import { setGlobalModalProps } from '@/layouts/BasicLayout';

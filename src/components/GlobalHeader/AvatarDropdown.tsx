@@ -1,6 +1,6 @@
+import React from 'react';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Menu, notification, Spin } from 'antd';
-import React from 'react';
 import type { ConnectProps } from 'umi';
 import { history, connect } from 'umi';
 import type { ConnectState } from '@/models/connect';

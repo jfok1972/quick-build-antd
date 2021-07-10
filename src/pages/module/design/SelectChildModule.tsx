@@ -1,6 +1,6 @@
+import React, { useRef, useState } from 'react';
 import { SelectOutlined } from '@ant-design/icons';
 import { Popover } from 'antd';
-import React, { useRef, useState } from 'react';
 import { ModuleHierarchyChart } from '../widget/ModuleHierarchyChart';
 
 interface SelectChildModuleProps {

@@ -1,8 +1,8 @@
+import { useContext, useState } from 'react';
 import { integerRender, stringRenderer } from '@/pages/module/grid/columnRender';
 import { uuid } from '@/utils/utils';
 import { BlockOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Drawer, Table, Tooltip } from 'antd';
-import React, { useContext, useState } from 'react';
 import type { DataminingStateContext } from '..';
 import { DataminingContext } from '..';
 import { ACT_DELETE_ROWGROUP_FROM_INDEX, ROWID } from '../constants';

@@ -1,5 +1,5 @@
 import type { Key } from 'react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { DrawerProps } from 'antd/lib/drawer';
 import {
   Button,

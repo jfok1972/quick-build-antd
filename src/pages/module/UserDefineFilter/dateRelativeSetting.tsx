@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Popover, Button, Form, InputNumber, Checkbox, Row, Col, Space, Alert } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import type { TextValue } from '../data';

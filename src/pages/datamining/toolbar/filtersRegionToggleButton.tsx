@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip, Button, Badge } from 'antd';
 import { LinkOutlined } from '@ant-design/icons';
 import type { DataminingModal } from '../data';

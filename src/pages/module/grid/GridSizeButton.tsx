@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dropdown, Menu } from 'antd';
 import type { Dispatch } from 'redux';
 import { CheckOutlined, ColumnHeightOutlined } from '@ant-design/icons';

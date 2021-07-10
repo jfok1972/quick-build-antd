@@ -1,4 +1,3 @@
-import React from 'react';
 import request, { API_HEAD } from '@/utils/request';
 import { Alert, message, Modal, Space } from 'antd';
 import type { ActionParamsModal } from '../systemAction';

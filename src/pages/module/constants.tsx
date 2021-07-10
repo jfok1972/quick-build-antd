@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tag } from 'antd';
 import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { API_HEAD } from '@/utils/request';

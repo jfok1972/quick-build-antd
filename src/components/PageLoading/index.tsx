@@ -1,4 +1,3 @@
-import React from 'react';
 import { Spin } from 'antd';
 // import { PageLoading } from '@ant-design/pro-layout';
 
@@ -10,7 +9,11 @@ import { Spin } from 'antd';
  */
 
 const Loading = () => {
-    return <div style={{ textAlign: 'center', paddingTop: '250px' }}><Spin size="large" /></div>
-}
+  return (
+    <div style={{ textAlign: 'center', paddingTop: '250px' }}>
+      <Spin size="large" />
+    </div>
+  );
+};
 
-export default Loading;     //  PageLoading;
+export default Loading; //  PageLoading;

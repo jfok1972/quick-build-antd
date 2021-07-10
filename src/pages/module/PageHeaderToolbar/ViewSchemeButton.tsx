@@ -1,4 +1,3 @@
-import React from 'react';
 import { Menu, Dropdown, Button } from 'antd';
 import { ApiOutlined, CheckOutlined } from '@ant-design/icons';
 import type { ModuleModal, TextValue, ModuleState } from '../data';

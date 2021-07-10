@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip, Button } from 'antd';
 import { FilterOutlined, FilterFilled } from '@ant-design/icons';
 import type { ModuleState } from '../data';

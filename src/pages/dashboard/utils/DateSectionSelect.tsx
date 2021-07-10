@@ -1,7 +1,7 @@
+import React from 'react';
 import { DateFormat } from '@/pages/module/moduleUtils';
 import { DateSectionQuickSelect } from '@/pages/module/UserDefineFilter/dateSectionQuickSelect';
 import { DatePicker, Form, Input } from 'antd';
-import React from 'react';
 
 const { RangePicker } = DatePicker;
 

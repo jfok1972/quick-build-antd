@@ -83,7 +83,7 @@ const Settings: React.FC<SettingProps> = ({ currentUser, dispatch, location, set
         }}
       >
         <Card>
-          <Tabs tabPosition={tabPosition} defaultActiveKey={state ? state[TYPE] : 'base'}>
+          <Tabs tabPosition={tabPosition} defaultActiveKey={state ? (state as any)[TYPE] : 'base'}>
             {SettingsStateKeys.map((key) => (
               <TabPane key={key} tab={menuMap[key]}>
                 {renderChildren(key)}

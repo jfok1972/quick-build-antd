@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Card, Menu, message, Space } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { API_HEAD } from '@/utils/request';

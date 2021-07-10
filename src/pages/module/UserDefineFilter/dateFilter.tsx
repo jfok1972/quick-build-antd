@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Form, Select, Input, DatePicker } from 'antd';
 import { CloseCircleFilled } from '@ant-design/icons';
 import moment from 'moment';

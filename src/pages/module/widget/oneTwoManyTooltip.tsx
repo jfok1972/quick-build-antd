@@ -1,5 +1,5 @@
+import { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
-import React, { useState, useEffect } from 'react';
 import { Table, Tooltip } from 'antd';
 import { BarsOutlined } from '@ant-design/icons';
 import type { Dispatch } from 'redux';

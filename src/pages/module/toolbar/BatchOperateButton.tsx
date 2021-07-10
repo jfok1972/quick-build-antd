@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dropdown, Menu, Button, Modal, notification, Badge, Tooltip, message } from 'antd';
 import {
   DeleteOutlined,
@@ -180,11 +180,11 @@ const BatchOperateButton = ({
       {!readOnly ? getAdditionFunctionItems() : null}
       <Menu.Item
         key="toExcel"
+        icon={<FileExcelOutlined />}
         onClick={() => {
           downloadGridSchemeFile({ moduleState, key: 'toExcel', topdf: false, onlyselected: true });
         }}
       >
-        <FileExcelOutlined />
         选中记录导出Excel文档
         <Tooltip title="导出Pdf文件" placement="topRight">
           <Button

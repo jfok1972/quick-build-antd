@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dropdown, Menu, Button } from 'antd';
 import type { Dispatch } from 'redux';
 import {

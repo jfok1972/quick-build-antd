@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import { Card, Dropdown, Empty, Layout, Menu, message, Space, Tabs } from 'antd';
 import type { ResizableProps } from 're-resizable';

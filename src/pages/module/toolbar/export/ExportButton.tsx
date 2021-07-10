@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Dropdown, Button, Menu, Tooltip } from 'antd';
 import {
@@ -29,6 +29,7 @@ const ExportButton = ({
     <Menu key="exportButton">
       <Menu.Item
         key="toExcel"
+        icon={<FileExcelOutlined />}
         onClick={() => {
           downloadGridSchemeFile({
             moduleState,
@@ -38,8 +39,7 @@ const ExportButton = ({
           });
         }}
       >
-        <FileExcelOutlined />
-        列表导出Excel文档
+        {`列表导出Excel文档`}
         <Tooltip title="导出pdf文件" placement="topRight">
           <Button
             style={{ float: 'right', paddingRight: '5px' }}

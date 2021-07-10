@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import { getColumnDataIndex, getColumnsDataIndex } from '@/pages/datamining/utils';
 import request, { API_HEAD } from '@/utils/request';
 import { stringifyObjectField } from '@/utils/utils';
@@ -7,7 +8,6 @@ import { Card, Col, Row } from 'antd';
 import type { CardProps } from 'antd/lib/card';
 import moment from 'moment';
 import { serialize } from 'object-to-formdata';
-import React, { useEffect, useState } from 'react';
 
 const numeral = require('numeral');
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { history } from 'umi';
 import { Popover, Tag, Tooltip, Space, Image, Rate, Typography, Progress } from 'antd';
 import {

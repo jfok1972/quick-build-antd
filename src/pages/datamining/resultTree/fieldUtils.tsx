@@ -1,5 +1,4 @@
 import { Menu } from 'antd';
-import React from 'react';
 import type { DataminingModal } from '../data';
 
 /**

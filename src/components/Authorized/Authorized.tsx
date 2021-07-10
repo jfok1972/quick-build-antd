@@ -1,4 +1,3 @@
-import React from 'react';
 import { Result } from 'antd';
 import type { IAuthorityType } from './CheckPermissions';
 import check from './CheckPermissions';

@@ -1,5 +1,4 @@
 import { Tabs } from 'antd';
-import React from 'react';
 import AbcEmployee from './AbcEmployee';
 import styles from '../index.less';
 
