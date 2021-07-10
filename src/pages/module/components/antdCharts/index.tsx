@@ -111,6 +111,25 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
         };
       }
     }
+    // 在允许显示滚动条的情况，显示多少个，sliderVisibleCount = 正数，从头开始， = 负数，从尾开始
+    if (cConfig.slider && cConfig.sliderVisibleCount) {
+      const count = Math.abs(cConfig.sliderVisibleCount);
+      const slider = {
+        start: 0,
+        end: 1,
+      };
+      if (dataSet.length > count) {
+        if (cConfig.sliderVisibleCount > 0)
+          apply(slider, {
+            end: Math.min(1, dataSet.length > 0 ? count / dataSet.length : 1),
+          });
+        else
+          apply(slider, {
+            start: 1 - Math.min(1, dataSet.length > 0 ? count / dataSet.length : 1),
+          });
+        apply(cConfig.slider, slider);
+      } else delete cConfig.slider;
+    }
     return cConfig;
   }, [loading, dataSet]);
 
