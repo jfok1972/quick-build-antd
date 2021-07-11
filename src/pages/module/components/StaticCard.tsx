@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getAwesomeIcon, uuid } from '@/utils/utils';
+import { getAwesomeIcon } from '@/utils/utils';
 import { Area, Column, Line } from '@ant-design/charts';
 import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { StatisticCard } from '@ant-design/pro-card';
@@ -31,7 +31,7 @@ interface TextValue {
 interface ChartProps {
   type: 'line' | 'area' | 'column'; // 迷你折线图，迷你面积图，迷你柱状图
   sectionType?: 'day' | 'month' | 'year'; // 分组类型
-  maxCount?: number; // 迷你图最大的记录个数
+  maxCount?: number; // 迷你图最大的记录个数,如果是负数，返回最后的count个，如果是正数，返回最前的count个
   orderby?: 'text' | 'value' | 'code'; // 按什么排序,对于有序的如数据字典，可以按code排序
   orderDesc?: boolean; // 排序顺序
 }
@@ -381,7 +381,11 @@ export const StaticCard: React.FC<StaticCardProps> = ({
             if (rec1[orderby] < rec2[orderby]) return orderDesc ? 1 : -1;
             return 0;
           })
-          .filter((value, index, array) => array.length - index <= maxCount);
+          .filter((value, index, array) => {
+            if (maxCount > 0) return index < maxCount; // 前面的count项
+            if (maxCount < 0) return array.length - index <= -maxCount; // 后面的count项
+            return true;
+          });
         setData(detailArray);
       });
     }, [userfilters, parnetUserFilters]);
@@ -433,13 +437,13 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     }).then(async (response: any) => {
       setTotal(response[0][aggregateFieldName]);
       if (relatives && relatives.length) {
-        relativeDatas.splice(0, relativeDatas.length);
+        const relaDatas = [];
         for (let i = 0; i < relatives.length; i += 1) {
           // eslint-disable-next-line
           const value = await getRelativeDate(relatives[i]);
-          relativeDatas.push(value);
+          relaDatas.push(value);
         }
-        setRelativeDatas([...relativeDatas]);
+        setRelativeDatas(relaDatas);
       }
       setLoading(false);
     });
@@ -452,10 +456,10 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     });
     return (
       // 如果要显示比率，则把这一行撑足
-      <Space key={uuid()} size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
-        {staticFields?.map((staticField) => (
+      <Space key="spacekey" size={[8, 4]} wrap className={hasRatio ? styles.staticspace : ''}>
+        {staticFields?.map((staticField, index) => (
           <StaticField
-            key={uuid()}
+            key={`staticfieldkey-${index}`}
             {...staticField}
             userfilters={userfilters.concat(parnetUserFilters)}
             total={total}
@@ -467,9 +471,9 @@ export const StaticCard: React.FC<StaticCardProps> = ({
 
   const getRelativeRegion = () => {
     return (
-      <Row key={uuid()} gutter={8}>
-        {relativeDatas.map((relative) => (
-          <Col key={uuid()} span={12}>
+      <Row key="rowkey" gutter={8}>
+        {relativeDatas.map((relative, index) => (
+          <Col key={`colkey-${index}`} span={12}>
             {getRelativeSection(relative)}
           </Col>
         ))}{' '}
@@ -477,7 +481,7 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     );
   };
 
-  const getFooterRegion = () => {
+  const footer = useMemo(() => {
     const result: any[] = [];
     if (chart) {
       if (staticFields) result.push(getStaticFieldsRegion());
@@ -487,9 +491,9 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     if (footerRegion === 'staticfield' && staticFields) return getStaticFieldsRegion();
     if (footerRegion === 'relative' && relativeDatas.length) return getRelativeRegion();
     return null;
-  };
+  }, [relativeDatas, userfilters, parnetUserFilters]);
 
-  const getDescriptionRegion = () => {
+  const descriptionRegion = useMemo(() => {
     const style: React.CSSProperties = {
       height: `${chartHeight}px`,
       marginTop: '6px',
@@ -501,11 +505,11 @@ export const StaticCard: React.FC<StaticCardProps> = ({
     if (chartRegion === 'relative' && relativeDatas.length)
       return <div style={style}>{getRelativeRegion()}</div>;
     return null;
-  };
+  }, [relativeDatas, userfilters, parnetUserFilters]);
 
   const miniChart = useMemo(() => {
     return chart ? <MiniChart chartDefine={chart} /> : null;
-  }, [userfilters]);
+  }, [userfilters, parnetUserFilters]);
 
   return (
     <StatisticCard
@@ -520,9 +524,9 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         prefix,
         suffix: [getMonetaryUnitText(monetaryUnit, unitText), suffix],
         icon: typeof icon === 'string' ? getAwesomeIcon(icon) : icon,
-        description: getDescriptionRegion(),
+        description: descriptionRegion,
       }}
-      footer={getFooterRegion()}
+      footer={footer}
     />
   );
 };
