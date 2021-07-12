@@ -1,12 +1,20 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
-import { Card, Tooltip, Popover, Badge, Radio } from 'antd';
+import { Card, Tooltip, Popover, Badge, Radio, Table } from 'antd';
 import { getMonetaryUnitText } from '../../grid/monetary';
 import { Area, Bar, BidirectionalBar, Column, DualAxes, Line, Pie, Rose } from '@ant-design/charts';
 import { apply, uuid } from '@/utils/utils';
 import type { DataSetProps } from './dataset';
 import { getDataSet } from './dataset';
 import styles from './index.less';
-import { FilterOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  AreaChartOutlined,
+  BarChartOutlined,
+  FilterOutlined,
+  InfoCircleOutlined,
+  LineChartOutlined,
+  OrderedListOutlined,
+  PieChartOutlined,
+} from '@ant-design/icons';
 import { getDefaultModuleState } from '../../modules';
 import UserDefineFilter, {
   changeUserFilterToParam,
@@ -57,15 +65,48 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
   const [moduleState, setModuleState] = useState<ModuleState>(
     getDefaultModuleState({ moduleName }),
   );
+  const [showTable, setShowTable] = useState<boolean>(false); // 是否显示数据页
+  const [gridColumns, setGridColumns] = useState<any[]>([]); // table的column列表
+  const [icon, setIcon] = useState<any>(null);
   // 父容器上面的用户筛选条件
   const { parnetUserFilters } = useContext(WidgetParentUserFiltersContext);
+  // 获得数据
   useEffect(() => {
     setLoading(true);
     getDataSet(datasetProperty, userfilters.concat(parnetUserFilters)).then((response: any) => {
       setLoading(false);
       setDataSet(response);
     });
-  }, [userfilters, datasetProperty, parnetUserFilters]);
+  }, [datasetProperty, userfilters, parnetUserFilters]);
+  // 获得table columns
+  useEffect(() => {
+    const {
+      categoryName = 'text',
+      groupfieldid2,
+      categoryName2 = 'text2',
+      fields,
+    } = datasetProperty;
+    const columns = [];
+    columns.push({
+      dataIndex: categoryName,
+      title: categoryName,
+    });
+    if (groupfieldid2) {
+      columns.push({
+        dataIndex: categoryName2,
+        title: categoryName2,
+      });
+    }
+    fields.forEach((field) => {
+      columns.push({
+        dataIndex: field.title,
+        title: field.title,
+        align: 'right',
+        render: (value: any) => numeral(value).format(field.formatPattern || '0,0'),
+      });
+    });
+    setGridColumns(columns);
+  }, [datasetProperty]);
 
   const chartConfig = useMemo(() => {
     let cConfig: any = { type, ...config };
@@ -230,16 +271,46 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     if (sepa.length > 1) titleComponent.push(sepa[1]);
   } else titleComponent.push(title);
 
+  const table = (
+    <Table
+      size="small"
+      bordered
+      columns={gridColumns}
+      dataSource={dataSet}
+      style={{ height: '100%' }}
+      pagination={false}
+      scroll={{ y: '300px' }}
+      rowSelection={{}}
+    />
+  );
+
   const chart = useMemo(() => {
     const t = chartConfig.type;
-    if (t === 'column') return <Column key={uuid()} {...chartConfig} />;
-    if (t === 'bar') return <Bar key={uuid()} {...chartConfig} />;
-    if (t === 'line') return <Line key={uuid()} {...chartConfig} />;
-    if (t === 'area') return <Area key={uuid()} {...chartConfig} />;
-    if (t === 'pie') return <Pie key={uuid()} {...chartConfig} />;
-    if (t === 'rose') return <Rose key={uuid()} {...chartConfig} />;
-    if (t === 'dualAxes') return <DualAxes key={uuid()} {...chartConfig} />;
-    if (t === 'bidirectionalBar') return <BidirectionalBar key={uuid()} {...chartConfig} />;
+    setIcon(<BarChartOutlined />);
+    if (t === 'column') {
+      return <Column key={uuid()} {...chartConfig} />; // 柱形图
+    }
+    if (t === 'bar') {
+      return <Bar key={uuid()} {...chartConfig} />; // 条形图
+    }
+    if (t === 'line') {
+      setIcon(<LineChartOutlined />);
+      return <Line key={uuid()} {...chartConfig} />; // 折线图
+    }
+    if (t === 'area') {
+      setIcon(<AreaChartOutlined />);
+      return <Area key={uuid()} {...chartConfig} />; // 面积图
+    }
+    if (t === 'pie') {
+      setIcon(<PieChartOutlined />);
+      return <Pie key={uuid()} {...chartConfig} />; // 饼图
+    }
+    if (t === 'rose') {
+      setIcon(<PieChartOutlined />);
+      return <Rose key={uuid()} {...chartConfig} />; // 玫瑰图
+    }
+    if (t === 'dualAxes') return <DualAxes key={uuid()} {...chartConfig} />; // 双轴图
+    if (t === 'bidirectionalBar') return <BidirectionalBar key={uuid()} {...chartConfig} />; // 对称条形图
     return null;
   }, [chartConfig]);
 
@@ -249,6 +320,14 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
       title={
         <span>
           {[
+            <span
+              style={{ marginRight: '4px', cursor: 'pointer' }}
+              onClick={() => {
+                setShowTable((value) => !value);
+              }}
+            >
+              {showTable ? <OrderedListOutlined /> : icon}
+            </span>,
             titleComponent,
             description ? (
               <Tooltip key={uuid()} title={description} trigger={['click']}>
@@ -263,7 +342,7 @@ export const AntdCharts: React.FC<AntdChartsProps> = ({
     >
       {/* 加这个 Card 是为了 loading 的时候标题正常显示 */}
       <Card className="spacecard" bordered={false}>
-        {chart}
+        {showTable ? table : chart}
       </Card>
     </Card>
   );

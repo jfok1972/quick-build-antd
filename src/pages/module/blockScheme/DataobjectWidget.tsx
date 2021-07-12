@@ -6,8 +6,11 @@ import { StaticMasterDetailCard } from '../components/StaticMasterDetailCard';
 import { AntdCharts } from '../components/antdCharts';
 import { Datamining } from '@/pages/datamining';
 
+const numeral = require('numeral');
+
 // 设置一些常用的函数
 window.moment = moment;
+(window as any).numeral = numeral;
 
 export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => {
   const params: any = {};
