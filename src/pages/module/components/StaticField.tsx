@@ -24,6 +24,7 @@ export interface StaticFieldProps {
   addRatio?: boolean; // 是否加入和总计的比例
   total?: number; // 如果要加入比例，这是总计数
   value?: number; // 传入的已经计算好的数据，直接显示即可
+  callback?: Function; // 生成数据后的回调函数
 }
 
 export const StaticField: React.FC<StaticFieldProps> = ({
@@ -41,6 +42,7 @@ export const StaticField: React.FC<StaticFieldProps> = ({
   addRatio,
   value,
   total,
+  callback,
 }) => {
   const [data, setData] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,6 +61,7 @@ export const StaticField: React.FC<StaticFieldProps> = ({
       userfilters,
       isnumberordername: true,
     }).then(async (response: any) => {
+      if (callback) callback(response);
       setData(response[0].jf001);
       setLoading(false);
     });

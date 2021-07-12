@@ -99,6 +99,7 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
     maxCount,
     restHead,
     otherTitle,
+    callback,
   } = dataSet;
   return fetchDataminingDataWithCache({
     moduleName,
@@ -109,6 +110,7 @@ export const getDataSet = (dataSet: DataSetProps, userfilters?: any[]) => {
     groupfieldid2,
     isnumberordername: true,
   }).then((response: any) => {
+    if (callback) callback(response);
     const data: any[] = response.map((rec: any) => {
       const record: any = {
         code: rec.value,
