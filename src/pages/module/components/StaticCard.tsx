@@ -416,13 +416,14 @@ export const StaticCard: React.FC<StaticCardProps> = ({
         },
       },
     };
+    const meta = { text: { range: [0, 1] } };
     switch (type) {
       case 'column':
         return <Column {...config} />;
       case 'line':
-        return <Line {...config} />;
+        return <Line {...config} meta={meta} />;
       default:
-        return <Area {...config} />;
+        return <Area {...config} meta={meta} />;
     }
   };
 
