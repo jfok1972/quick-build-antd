@@ -24,11 +24,12 @@ import { changeDataminingConditionsToUserFilters } from '../utils';
 interface ResultTreeParams {
   state: DataminingModal;
   dispatch: Function;
+  disableOperate?: boolean; // 不允许进行操作,不可以进行展开合同操作
 }
 
 export const DetailDrawerContext = createContext<any>({});
 
-const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
+const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch, disableOperate }) => {
   const [detailDrawerProps, setDetailDrawerProps] = useState<any>({
     visible: false,
     setDetailDrawerProps: () => {},
@@ -117,6 +118,11 @@ const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
       cell: (props: any) => <DragDropHeaderCell {...props} />,
     },
   };
+  // 不允许做行和列的各种操作
+  if (disableOperate) {
+    delete components.body.row;
+    delete components.header;
+  }
   // 如果聚合字段有分组，则不允许对头部进行操作，这种方案只能在extjs的界面中进行配置
   if (state.schemeState.isMultFieldGroup) {
     delete components.header;
@@ -149,6 +155,7 @@ const ResultTree: React.FC<ResultTreeParams> = ({ state, dispatch }) => {
         schemeState.columnGroup,
         state,
         dispatch,
+        disableOperate,
       ),
     [
       schemeState.fieldGroup,

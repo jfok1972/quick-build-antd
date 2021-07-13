@@ -201,6 +201,7 @@ export const rebuildColumns = (
   groupColumns: ColumnGroupModal[],
   state: DataminingModal,
   dispatch: Function,
+  disableOperate?: boolean,
 ): any[] => {
   // message.warn('rebuild  -- columns');
   let allColumns: any[] = [
@@ -212,7 +213,7 @@ export const rebuildColumns = (
       dataIndex: 'text',
       key: 'text',
       className: styles.categorycolumn,
-      render: categoryFieldRender,
+      render: disableOperate ? undefined : categoryFieldRender,
       sorter: true,
       sortDirections: ['ascend', 'descend', 'ascend'],
       sortOrder:

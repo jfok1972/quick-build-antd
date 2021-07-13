@@ -34,13 +34,17 @@ import styles from './index.less';
  *
  */
 
-interface DataminingProps {}
+interface DataminingModuleProps {
+  inContainer?: boolean; // 是否是独立的一页，如果否，则表示在tab页中
+  onlyTable?: boolean; // 仅显示一个table,无任何其他组件
+  disableOperate?: boolean; // 不允许进行操作,不可以进行展开合同操作
+  disableSchemeButton?: boolean; // 禁用分析方案按钮，不允许修改和新建方案
+}
 
 interface DataminingParams {
   moduleName: string;
-  inTab?: boolean; // 是否是独立的一页，如果否，则表示在tab页中
   defaultSchemeid?: string; // 默认的方案
-  dataminingProps?: DataminingProps; // datamining的一些设置
+  dataminingProps?: DataminingModuleProps; // datamining的一些设置
 }
 
 // DataminingContext 中存放的上下文的字段值
@@ -55,7 +59,12 @@ export const DataminingContext = createContext<DataminingStateContext>({
   dispatch: () => {},
 });
 
-const DataminingModule: React.FC<any> = ({ inTab }: { inTab?: boolean }) => {
+const DataminingModule: React.FC<DataminingModuleProps> = ({
+  inContainer,
+  onlyTable,
+  disableOperate,
+  disableSchemeButton,
+}) => {
   const context = useContext<DataminingStateContext>(DataminingContext);
   const { state, dispatch } = context;
   const { moduleName, currentScheme } = state;
@@ -121,7 +130,7 @@ const DataminingModule: React.FC<any> = ({ inTab }: { inTab?: boolean }) => {
   }, [state.currSetting.filtersRegionVisible]);
 
   const resultTree = useMemo(
-    () => <ResultTree state={state} dispatch={dispatch} />,
+    () => <ResultTree state={state} dispatch={dispatch} disableOperate={disableOperate} />,
     [
       state.schemeState.dataSource,
       state.selectedRowKeys,
@@ -167,10 +176,19 @@ const DataminingModule: React.FC<any> = ({ inTab }: { inTab?: boolean }) => {
       </Layout>
     </React.Fragment>
   );
-  return inTab ? (
+  return inContainer ? (
     <div>
-      <PageHeader title={title} extra={<Toolbar state={state} dispatch={dispatch} />} />
-      <div className={styles.dataminingcardintab}>{dataminingComponent}</div>
+      {onlyTable ? null : (
+        <PageHeader
+          title={title}
+          extra={
+            <Toolbar state={state} dispatch={dispatch} disableSchemeButton={disableSchemeButton} />
+          }
+        />
+      )}
+      <div className={onlyTable ? styles.dataminingcardintabonlytable : styles.dataminingcardintab}>
+        {dataminingComponent}
+      </div>
     </div>
   ) : (
     <PageHeaderWrapper title={title} extra={<Toolbar state={state} dispatch={dispatch} />}>
@@ -187,7 +205,6 @@ interface DataminingProps {
 
 export const Datamining: React.FC<DataminingParams> = ({
   moduleName,
-  inTab,
   defaultSchemeid,
   dataminingProps,
 }) => {
@@ -196,10 +213,16 @@ export const Datamining: React.FC<DataminingParams> = ({
     DataminingReducer,
     getDataminingModal(moduleName, defaultSchemeid),
   );
+  const { inContainer, onlyTable, disableOperate, disableSchemeButton } = dataminingProps || {};
   return (
     <HOCDndProvider>
       <DataminingContext.Provider value={{ state, dispatch }}>
-        <DataminingModule inTab={inTab} dataminingProps={dataminingProps} />
+        <DataminingModule
+          inContainer={inContainer}
+          onlyTable={onlyTable}
+          disableOperate={disableOperate}
+          disableSchemeButton={disableSchemeButton}
+        />
       </DataminingContext.Provider>
     </HOCDndProvider>
   );

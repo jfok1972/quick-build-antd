@@ -37,12 +37,19 @@ export const DataobjectWidget: React.FC<any> = ({ widget }: { widget: any }) => 
     return <AntdCharts {...params} />;
   }
   if (widget.widgettype === 'datamining') {
+    if (!params.dataminingProps)
+      params.dataminingProps = {
+        inContainer: true,
+        onlyTable: false,
+        disableOperate: false,
+        disableSchemeButton: false,
+      };
     return (
       <div className="blocklist">
         <Datamining
           moduleName={widget.moduleName}
-          inTab
           defaultSchemeid={widget.dataminingSchememeid}
+          dataminingProps={params.dataminingProps}
         />
       </div>
     );
