@@ -1,6 +1,10 @@
-import { Table } from 'antd';
-import { BorderOutlined, CheckSquareOutlined, SwapOutlined } from '@ant-design/icons';
-import { EMPTY_MENU_ICON } from '@/utils/utils';
+import { Space, Table } from 'antd';
+import {
+  BorderOutlined,
+  CheckSquareOutlined,
+  EllipsisOutlined,
+  SwapOutlined,
+} from '@ant-design/icons';
 import type { DataminingModal } from '../data';
 import { ACT_SELECTED_ROWKEYS_CHANGED } from '../constants';
 import { getAllChildRowids, getAllhasChildrenRowids, getAllleafRowids } from '../utils';
@@ -19,10 +23,10 @@ export const selectionsMenu = (state: DataminingModal, dispatch: Function) => {
     {
       key: Table.SELECTION_ALL,
       text: (
-        <>
+        <Space>
           <CheckSquareOutlined />
           全选所有记录
-        </>
+        </Space>
       ),
       onSelect: () => {
         updateSelections(getAllChildRowids({ children: dataSource }));
@@ -31,10 +35,10 @@ export const selectionsMenu = (state: DataminingModal, dispatch: Function) => {
     {
       key: 'selected_clear',
       text: (
-        <>
+        <Space>
           <BorderOutlined />
           取消所有选中记录
-        </>
+        </Space>
       ),
       onSelect: () => {
         updateSelections([]);
@@ -43,10 +47,10 @@ export const selectionsMenu = (state: DataminingModal, dispatch: Function) => {
     {
       key: Table.SELECTION_INVERT,
       text: (
-        <>
+        <Space>
           <SwapOutlined />
           反选所有记录
-        </>
+        </Space>
       ),
       onSelect: () => {
         updateSelections(
@@ -58,14 +62,24 @@ export const selectionsMenu = (state: DataminingModal, dispatch: Function) => {
     },
     {
       key: 'select_allleaf',
-      text: <>{EMPTY_MENU_ICON}选择所有末级节点</>,
+      text: (
+        <Space>
+          <EllipsisOutlined style={{ visibility: 'hidden' }} />
+          选择所有末级节点
+        </Space>
+      ),
       onSelect: () => {
         updateSelections(getAllleafRowids(dataSource));
       },
     },
     {
       key: 'select_allnotleaf',
-      text: <>{EMPTY_MENU_ICON}选择所有非末级节点</>,
+      text: (
+        <Space>
+          <EllipsisOutlined style={{ visibility: 'hidden' }} />
+          选择所有非末级节点
+        </Space>
+      ),
       onSelect: () => {
         updateSelections(getAllhasChildrenRowids(dataSource));
       },
