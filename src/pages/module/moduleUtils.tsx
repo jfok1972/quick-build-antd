@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apply } from '@/utils/utils';
-import { CloseOutlined, PushpinOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { CloseOutlined, LinkOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Card, Input, message, Popover, Tabs, Tooltip } from 'antd';
 import { history } from 'umi';
 import request, { API_HEAD } from '@/utils/request';
@@ -266,7 +266,7 @@ export const isParentFilterChanged = ({
 export const getParentFilterTitle = (pf: ParentFilterModal | undefined) => {
   return pf ? (
     <span className={styles.headerparenttext}>
-      <PushpinOutlined />
+      <LinkOutlined style={{ paddingRight: '2px' }} />
       {`${pf.fieldtitle}${pf.text ? `『${pf.text}』` : ''}`}
       <Tooltip title="取消限定条件">
         <span>

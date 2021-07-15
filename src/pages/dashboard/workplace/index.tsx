@@ -7,9 +7,12 @@ import { connect } from 'dva';
 import type { CurrentUser } from '@/pages/account/center/data';
 import type { ModalState } from '@/models/accountCenter';
 import { useEffect } from 'react';
-import { Result, Skeleton, Statistic, Card } from 'antd';
+import { Result, Skeleton, Statistic, Card, Space } from 'antd';
 import type { UserModelState } from '@/models/user';
 import DetailGrid from '@/pages/module/detailGrid';
+import type { GlobalModelState } from '@/models/connect';
+import type { NoticeItem } from '@/models/global';
+import type { ParentFilterModal } from '@/pages/module/data';
 
 interface WorkplaceProps {
   dispatch: Dispatch<any>;
@@ -19,12 +22,22 @@ interface WorkplaceProps {
   currentUser: Partial<CurrentUser>;
   currentUserLoading: boolean;
   user: any;
+  global: GlobalModelState;
 }
 
-const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, dispatch }) => {
+const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, global, dispatch }) => {
   const { personnel } = currentUser;
   const { unreadCount } = user;
-  const approveCount: number = (user.notifyCount || 0) - (unreadCount || 0);
+  let approveCount = 0;
+  let auditCount = 0;
+  let otherCount = 0;
+  global.notices.forEach((item) => {
+    if (item.type === 'event') {
+      if (item.action === 'approve' || item.action === 'claim') approveCount += item.count || 0;
+      else if (item.action === 'audit') auditCount += item.count || 0;
+      else otherCount += item.count || 0;
+    }
+  });
   useEffect(() => {
     if (!(personnel && personnel.name)) {
       dispatch({
@@ -65,6 +78,16 @@ const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, dispatch }) =>
         <div className={styles.statItem}>
           <Statistic title="待办事项" value={approveCount ? `${approveCount}个` : '无'} />
         </div>
+        {auditCount ? (
+          <div className={styles.statItem}>
+            <Statistic title="待审核" value={`${auditCount}个`} />
+          </div>
+        ) : null}
+        {otherCount ? (
+          <div className={styles.statItem}>
+            <Statistic title="待处任务" value={`${otherCount}个`} />
+          </div>
+        ) : null}
         <div className={styles.statItem}>
           <Statistic title="待阅通知" value={unreadCount ? `${unreadCount}条` : '无'} />
         </div>
@@ -85,16 +108,53 @@ const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, dispatch }) =>
     );
   }, []);
 
+  /**
+   * 除了审核，审批的之外的其他需要处理的模块
+   */
+  const needActionModule = ({ notices }: { notices: NoticeItem[] }) => {
+    const result: any[] = [];
+    notices.forEach((item) => {
+      if (item.type === 'event' && !item.action) {
+        const { moduleName = '' } = item;
+        const parentFilter: ParentFilterModal = {
+          moduleName,
+          fieldahead: null,
+          fieldName: item.filterFieldName || '',
+          fieldtitle: item.filterText || '',
+          operator: item.filterFieldOperator || '',
+          fieldvalue: item.filterFieldValue || '',
+          text: '',
+        };
+        result.push(
+          <Card>
+            <DetailGrid
+              moduleName={moduleName}
+              parentFilter={parentFilter}
+              parentOperateType="display"
+              // readOnly
+              displayTitle
+              displayParentTitle
+            />
+          </Card>,
+        );
+      }
+    });
+    return result.length ? result : null;
+  };
+
   return (
     <PageHeaderWrapper title={<UserRegion />} extra={<ExtraContent />}>
-      {approveCount ? <Card>{detailGrid}</Card> : null}
-      {approveCount || unreadCount ? null : (
-        <Result
-          status="success"
-          title="您所有的工作都完成了"
-          subTitle="所有待办和待阅工作都完成了，有新的工作将会显示在此处！"
-        />
-      )}
+      <Space direction="vertical" style={{ width: '100%' }} size={[16, 16]}>
+        {approveCount ? <Card>{detailGrid}</Card> : null}
+        {needActionModule({ notices: global.notices })}
+        {approveCount || unreadCount ? null : (
+          <Result
+            status="success"
+            title="您所有的工作都完成了"
+            subTitle="所有待办和待阅工作都完成了，有新的工作将会显示在此处！"
+          />
+        )}
+      </Space>
     </PageHeaderWrapper>
   );
 };
@@ -104,12 +164,15 @@ export default connect(
     loading,
     accountCenter,
     user,
+    global,
   }: {
     loading: { effects: Record<string, boolean> };
     accountCenter: ModalState;
     user: UserModelState;
+    global: GlobalModelState;
   }) => ({
     user: user.currentUser,
+    global,
     currentUser: accountCenter.currentUser,
     currentUserLoading: loading.effects['accountCenter/fetchCurrent'],
   }),

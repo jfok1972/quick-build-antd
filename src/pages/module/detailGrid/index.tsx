@@ -15,6 +15,7 @@ import ModuleToolbar from '../toolbar';
 import UserDefineFilter from '../UserDefineFilter';
 import { DetailGridPageHeaderToolbar } from '../PageHeaderToolbar';
 import { getModuleIcon } from '../moduleUtils';
+import { LinkOutlined } from '@ant-design/icons';
 
 /**
  * 在masterdetail的form中显示的从表的grid，或者主表记录展开后的从表grid
@@ -47,6 +48,7 @@ export interface DetailGridPrpos {
   enableUserFilter?: boolean; // 允许使用用户自定义条件
   parentForm?: ParentFormModal; // 父模块记录的信息
   displayTitle?: boolean; // 是否在按钮最前面显示模块名称
+  displayParentTitle?: boolean; // 是否显示父模块筛选信息
 }
 
 const DetailTable = ({
@@ -55,12 +57,14 @@ const DetailTable = ({
   readOnly,
   enableUserFilter,
   displayTitle,
+  displayParentTitle,
 }: {
   pFilter?: ParentFilterModal;
   dataminingFilter?: DataminingFilterModal;
   readOnly: boolean;
   enableUserFilter: boolean;
   displayTitle?: boolean;
+  displayParentTitle?: boolean;
 }) => {
   const context = useContext(DetailModelContext);
   const { dispatch } = context;
@@ -95,8 +99,14 @@ const DetailTable = ({
         }}
       >
         {displayTitle ? (
-          <span style={{ fontSize: '16px', padding: '8px 12px 0' }}>
+          <span style={{ fontSize: '18px', padding: '8px 12px 0' }}>
             {getModuleIcon(moduleInfo)} {moduleInfo.title}
+            {displayParentTitle && parentFilter ? (
+              <span style={{ fontSize: '14px', paddingLeft: '24px' }}>
+                <LinkOutlined style={{ paddingRight: '2px' }} />
+                {parentFilter.fieldtitle}
+              </span>
+            ) : null}
           </span>
         ) : null}
         <span style={{ flex: 1 }} />
@@ -144,6 +154,7 @@ const DetailGrid: React.FC<DetailGridPrpos> = ({
   enableUserFilter = false,
   parentForm,
   displayTitle,
+  displayParentTitle,
 }) => {
   return (
     <DetailModelProvider
@@ -158,6 +169,7 @@ const DetailGrid: React.FC<DetailGridPrpos> = ({
         readOnly={readOnly || false}
         enableUserFilter={enableUserFilter}
         displayTitle={displayTitle}
+        displayParentTitle={displayParentTitle}
       />
     </DetailModelProvider>
   );

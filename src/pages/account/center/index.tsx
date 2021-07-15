@@ -293,7 +293,7 @@ class Center extends Component<CenterProps, CenterState> {
             </Card>
           </Col>
           <Col lg={18} md={24}>
-            <Card>
+            <Card bodyStyle={{ paddingTop: 0 }}>
               <Tabs>
                 {operationTabList.map((tab) => (
                   <TabPane key={tab.key} tab={tab.tab}>

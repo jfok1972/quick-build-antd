@@ -8,6 +8,7 @@ import type {
   ParentFormModal,
   ViewSchemeType,
   DataminingFilterModal,
+  FormShowType,
 } from './data';
 import {
   querySyncModuleInfo,
@@ -669,6 +670,9 @@ export const getDefaultModuleState = ({
   parentForm?: ParentFormModal;
 }): ModuleState => {
   const moduleInfo = getModuleInfo(moduleName);
+  let showType: FormShowType = moduleInfo.formschemes[0].showType || 'modal';
+  // 如果有parentFilter或者dataminingFilter，则form窗口不能用mainregion
+  if ((parentFilter || dataminingFilter) && showType === 'mainregion') showType = 'drawer';
   const moduleState: ModuleState = {
     moduleName,
     // moduleInfo,
@@ -684,7 +688,7 @@ export const getDefaultModuleState = ({
     formState: {
       visible: false,
       formType: 'display',
-      showType: moduleInfo.formschemes[0].showType || 'modal',
+      showType,
       currRecord: {},
     },
     pinkey: '',
