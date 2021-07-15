@@ -17,7 +17,7 @@ import type { IStaticSetParams } from 'react-zmage';
 import Zmage from 'react-zmage';
 import type { UploadListType } from 'antd/lib/upload/interface';
 import { API_HEAD } from '@/utils/request';
-import { AttachmentModal, ModuleModal } from '@/pages/module/data';
+import type { AttachmentModal, ModuleModal } from '@/pages/module/data';
 import { attachmentPdfOpenPreview } from '@/pages/module/attachment/preview';
 
 const ImageMime = {
