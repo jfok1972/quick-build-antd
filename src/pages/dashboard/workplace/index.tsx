@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { API_HEAD } from '@/utils/request';
 import type { Dispatch } from 'redux';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
@@ -7,8 +7,9 @@ import { connect } from 'dva';
 import type { CurrentUser } from '@/pages/account/center/data';
 import type { ModalState } from '@/models/accountCenter';
 import { useEffect } from 'react';
-import { Result, Skeleton, Statistic } from 'antd';
+import { Result, Skeleton, Statistic, Card } from 'antd';
 import type { UserModelState } from '@/models/user';
+import DetailGrid from '@/pages/module/detailGrid';
 
 interface WorkplaceProps {
   dispatch: Dispatch<any>;
@@ -22,7 +23,8 @@ interface WorkplaceProps {
 
 const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, dispatch }) => {
   const { personnel } = currentUser;
-
+  const { unreadCount } = user;
+  const approveCount: number = (user.notifyCount || 0) - (unreadCount || 0);
   useEffect(() => {
     if (!(personnel && personnel.name)) {
       dispatch({
@@ -58,12 +60,10 @@ const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, dispatch }) =>
   };
 
   const ExtraContent: React.FC<{}> = () => {
-    const { unreadCount } = user;
-    const count: number = (user.notifyCount || 0) - (unreadCount || 0);
     return (
       <div className={styles.extraContent}>
         <div className={styles.statItem}>
-          <Statistic title="待办事项" value={count ? `${count}个` : '无'} />
+          <Statistic title="待办事项" value={approveCount ? `${approveCount}个` : '无'} />
         </div>
         <div className={styles.statItem}>
           <Statistic title="待阅通知" value={unreadCount ? `${unreadCount}条` : '无'} />
@@ -72,13 +72,29 @@ const Workplace: React.FC<WorkplaceProps> = ({ user, currentUser, dispatch }) =>
     );
   };
 
+  // 使用useMemo防止审批过后重新计算待办事项时刷新此控件，刷新时打开的审批窗口会有一个闪烁，关闭了再打开的动作。
+  const detailGrid = useMemo(() => {
+    return (
+      <DetailGrid
+        moduleName="VActRuTask"
+        parentOperateType="edit"
+        displayTitle
+        parentFilter={undefined}
+        dataminingFilter={{}}
+      />
+    );
+  }, []);
+
   return (
     <PageHeaderWrapper title={<UserRegion />} extra={<ExtraContent />}>
-      <Result
-        status="success"
-        title="您所有的工作都完成了"
-        subTitle="所有待办和待阅工作都完成了，有新的工作将会显示在此处！"
-      />
+      {approveCount ? <Card>{detailGrid}</Card> : null}
+      {approveCount || unreadCount ? null : (
+        <Result
+          status="success"
+          title="您所有的工作都完成了"
+          subTitle="所有待办和待阅工作都完成了，有新的工作将会显示在此处！"
+        />
+      )}
     </PageHeaderWrapper>
   );
 };

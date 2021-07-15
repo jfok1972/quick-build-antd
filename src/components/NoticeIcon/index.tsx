@@ -16,6 +16,7 @@ export interface NoticeIconData {
   avatar?: string | React.ReactNode;
   title?: React.ReactNode;
   description?: React.ReactNode;
+  record?: any; // 通知事项的原来记录，里面包括了附件信息
   datetime?: React.ReactNode;
   extra?: React.ReactNode;
   style?: React.CSSProperties;

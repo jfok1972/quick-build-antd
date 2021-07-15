@@ -20,7 +20,7 @@ const GridSizeButton = ({
     <Menu.Item key={key}>
       <span style={{ paddingRight: '48px' }}>
         {gridSize === key ? <CheckOutlined /> : hiddenIcon}
-        {title}
+        {` ${title}`}
       </span>
     </Menu.Item>
   );

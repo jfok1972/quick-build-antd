@@ -12,6 +12,8 @@ import {
 } from '@ant-design/icons';
 import type { NoticeIconData } from './index';
 import styles from './NoticeList.less';
+import { getModuleInfo } from '@/pages/module/modules';
+import { AttachemntDisplayButton } from './AttachmentDisplayButton';
 
 export interface NoticeIconTabProps {
   hidden?: boolean;
@@ -107,6 +109,12 @@ const NoticeList: React.FC<NoticeIconTabProps> = ({
                 avatar={leftIcon}
                 title={
                   <div className={styles.title}>
+                    {item.record && item.record.attachmentcount ? (
+                      <AttachemntDisplayButton
+                        record={item.record}
+                        moduleInfo={getModuleInfo('FNotification')}
+                      />
+                    ) : null}
                     {item.title}
                     <div className={styles.extra}>{item.extra}</div>
                     {item.read ? (

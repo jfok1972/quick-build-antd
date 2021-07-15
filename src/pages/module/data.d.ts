@@ -341,7 +341,7 @@ export interface DataminingFilterModal {
   userfilters?: any[];
   navigatefilters?: any[];
   viewschemeid?: string;
-  sqlparamstr: any;
+  sqlparamstr?: any;
 }
 
 export interface ModuleFilters {
