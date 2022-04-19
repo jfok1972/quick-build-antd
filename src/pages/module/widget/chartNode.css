@@ -1,0 +1,90 @@
+.orgchart-container {
+  border: 0;
+  height: 100%;
+}
+
+.orgchart.moduleChart {
+  height: 100%;
+  background-image: linear-gradient( 90deg, rgba(33, 90, 136, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(33, 90, 136, 0.15) 10%, rgba(0, 0, 0, 0) 10%) !important;
+}
+
+.orgchart.moduleChart>ul>li>ul li::before {
+  border-top-color: #215a88;
+}
+
+.orgchart.moduleChart>ul>li>ul li .oc-node::before, .orgchart.moduleChart ul li .oc-node:not(:only-child)::after {
+  background-color: #215a88;
+}
+
+.orgchart.moduleChart .oc-node .base {
+  box-sizing: border-box;
+  background-color: #0050b3;
+  color: #fff;
+  min-width: 120px;
+  height: 26px;
+  padding: 2px;
+}
+
+.orgchart.moduleChart .oc-node .disabled {
+  box-sizing: border-box;
+  background-color: gray;
+  color: #fff;
+  min-width: 120px;
+  height: 26px;
+  padding: 2px;
+}
+
+.orgchart.moduleChart .oc-node .parent {
+  box-sizing: border-box;
+  background-color: #096dd9;
+  color: #fff;
+  min-width: 120px;
+  height: 26px;
+  padding: 2px;
+}
+
+.orgchart.moduleChart .oc-node .child {
+  box-sizing: border-box;
+  background-color: #096dd9;
+  color: #fff;
+  min-width: 64px;
+  /* //width: 130px; */
+  /* height: 26px; */
+  padding: 2px;
+}
+
+.orgchart.moduleChart .oc-node .base.current, .orgchart.moduleChart .oc-node .parent.current, .orgchart.moduleChart .oc-node .child.current {
+  background-color: #ff4d4f !important;
+}
+
+.orgchart.moduleChart .oc-node .type {
+  box-sizing: border-box;
+  color: #215a88;
+  background-color: #fff;
+  min-width: 120px;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid #215a88;
+}
+
+.manytomanycolor {
+  color: #726930;
+  /* 	font-style: italic;
+ */
+}
+
+.datecolor {
+  color: #a40;
+}
+
+.numbercolor {
+  color: #00C;
+}
+
+.intcolor {
+  color: #00C;
+}
+
+.booleancolor {
+  color: #005831;
+}

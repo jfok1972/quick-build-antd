@@ -1,0 +1,44 @@
+@import '~antd/es/style/themes/default.less';
+
+.tooltiptable tr th,
+.tooltiptable tr td {
+  padding: 8px;
+  border: 1px solid @table-border-color;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.tooltiptable th {
+  text-align: center;
+}
+
+.tooltiptable .tdvalue {
+  text-align: right;
+}
+
+.staticcard {
+  :global {
+    .ant-pro-card-body {
+      padding: 20px 24px 8px;
+    }
+
+    .ant-pro-statistic-card-footer {
+      margin-top: 2px;
+      padding-top: 8px;
+    }
+  }
+}
+
+// staticfield 中 如果有 addRatio 需要显示百分比的，则加入这个类名， 将space 的 item 撑足
+.staticspace {
+  width: 100%;
+  :global {
+    .ant-space-item {
+      width: 100%;
+    }
+  }
+}
+
+.filtericon {
+  cursor: pointer;
+}

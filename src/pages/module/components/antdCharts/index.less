@@ -1,0 +1,37 @@
+@import '~antd/es/style/themes/default.less';
+
+// 图片 Card
+:global {
+  .ant-card.imagecard {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+  }
+
+  // 防止card title 区域被userfilter 撑高
+  .ant-card.imagecard .ant-card-extra {
+    padding: 0;
+  }
+
+  // 图片设置为 100%， 会多出title 的高度，使用flex布局则解决此问题
+  .ant-card.imagecard > div.ant-card-body {
+    flex: 1;
+    padding: 12px 16px !important;
+  }
+
+  .ant-card.spacecard,
+  .ant-card.spacecard > .ant-card-body {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.infoicon {
+  padding-left: 8px;
+  color: @text-color-secondary;
+  font-size: 14px;
+}
+
+.filtericon {
+  cursor: pointer;
+}

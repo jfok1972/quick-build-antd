@@ -1,0 +1,35 @@
+.bpp-properties-header {
+  padding: 15px;
+  padding-bottom: 5px;
+
+  > .label {
+    font-weight: bolder;
+    font-size: 120%;
+  }
+
+  > .search {
+    position: relative;
+    display: none;
+    margin-top: 5px;
+
+    input {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      border-radius: 15px;
+    }
+
+    button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      background-color: transparent;
+      border: none;
+      &::before {
+        content: '\E805';
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+@import '~antd/es/style/themes/default.less';
+
+:global {
+  // 原来的description中每个格子 padding: 8px 16px;
+  .descriptionform .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label,
+  .descriptionform
+    .ant-descriptions-bordered.ant-descriptions-small
+    .ant-descriptions-item-content {
+    padding: 4px 8px;
+  }
+
+  // 记录展开显示description时
+  tr.ant-table-expanded-row .descriptionform .ant-descriptions-view table {
+    width: 100%;
+  }
+
+  // tabs下面的线下不要留空，由里面的控件自己控制
+  .descriptionform .ant-tabs-nav {
+    margin: 0 0 0 0 !important;
+  }
+
+  // tabls的第一个tab项，不要顶住最左面
+  .descriptionform .ant-tabs-top > .ant-tabs-nav {
+    padding-left: 12px;
+  }
+
+  // tabls的第一个tab项，不要顶住最上面
+  .descriptionform .ant-tabs-left > .ant-tabs-nav {
+    padding-top: 12px;
+  }
+
+  .noborder .ant-descriptions-view {
+    border: 0 solid #f0f0f0;
+  }
+
+  .noborder table th,
+  .border table th {
+    width: 120px;
+    //text-align: center;
+  }
+
+  // 加了这个，Descriptions 在 grid 展开的时候，单元格之间才有分隔线
+  .border table,
+  .noborder table {
+    border-collapse: collapse;
+  }
+
+  .desc_card_border_top {
+    margin-top: -1px;
+    border-top: 1px solid @divider-color;
+  }
+
+  .desc_card_border_top .ant-card-head {
+    background-color: @background-color-light;
+  }
+
+  // 单元格行合并时，不显示th，在td里显示另一个Descriptions
+  th.hiddenlabel {
+    display: none;
+  }
+
+  // 记录popover弹出时标题上下居中
+  .ant-popover .descriptionform > .ant-card-head .ant-card-head-title > .ant-space {
+    vertical-align: middle;
+  }
+}
+
+.manytooneinfo {
+  font-size: 12px;
+  cursor: pointer;
+  -moz-opacity: 0.5;
+  opacity: 0.5;
+  filter: alpha(opacity=80);
+}

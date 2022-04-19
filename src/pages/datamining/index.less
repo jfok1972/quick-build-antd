@@ -1,0 +1,208 @@
+@import '~antd/es/style/themes/default.less';
+
+:global {
+  // tabs 的 nav 下面不要留空
+  .dataminingtabs > div.ant-tabs-nav {
+    margin: 0;
+  }
+
+  // table header cell记录拖动时
+  .drop-over-right {
+    border-right: 3px dashed #1890ff !important;
+  }
+
+  .drop-over-left {
+    border-left: 3px dashed #1890ff !important;
+  }
+
+  // 当分组字段在表头的可drop的cell经过时
+  thead th.groupexpandoverheadercell {
+    background-color: #e6f7ff !important;
+  }
+
+  // table 中的记录拖动时
+  .dataminingtable tr.drop-over-downward td {
+    border-bottom: 2px dashed #1890ff !important;
+  }
+
+  .dataminingtable tr.drop-over-upward td {
+    border-top: 2px dashed #1890ff !important;
+  }
+
+  .dataminingconditiontable tr.drop-over-downward td {
+    border-bottom: 2px dashed #1890ff !important;
+  }
+
+  .dataminingconditiontable tr.drop-over-upward td {
+    border-top: 2px dashed #1890ff !important;
+  }
+
+  // 如果没有筛选记录，下面的empty图标不要显示
+  .dataminingconditiontable .ant-table-empty tbody.ant-table-tbody {
+    display: none !important;
+  }
+
+  // 综合查询的各个控件都在card中，边框小一些
+  .dataminingcard .ant-card-body {
+    padding: 16px;
+  }
+
+  // 导航tabs的样式
+  .datamininglayout .ant-tabs-card.ant-tabs-small > .ant-tabs-nav .ant-tabs-tab {
+    padding: 6px 6px;
+  }
+
+  .datamininglayout .ant-tabs-tab-remove {
+    margin-left: 0;
+  }
+
+  // 排序的表头控件padding值减小,原为 8px 8px
+  .dataminingtable .ant-table.ant-table-small .ant-table-thead .ant-table-column-sorters {
+    padding: 2px 4px;
+  }
+
+  // 每列内容的宽度至少86px,这样表头上有4个汉字和一个排序的图标
+  .dataminingtable tbody tr td:not(:first-child).ant-table-cell {
+    min-width: 86px;
+  }
+
+  // 紧凑格式
+  .ant-table.ant-table-small .ant-table-title,
+  .ant-table.ant-table-small .ant-table-footer,
+  .ant-table.ant-table-small .ant-table-thead > tr > th,
+  .ant-table.ant-table-small .ant-table-tbody > tr > td,
+  .ant-table.ant-table-small tfoot > tr > th,
+  .ant-table.ant-table-small tfoot > tr > td {
+    padding: 6px 6px;
+  }
+}
+
+// header里面的分组不包括小计，在文字后面有一个眼睛的图标，鼠标移过去显示，可以隐藏
+.celltypegroup .eye {
+  margin-left: 8px;
+  visibility: hidden;
+}
+
+.celltypegroup:hover .eye {
+  visibility: visible;
+}
+
+// 树形节点在被拖动的源经过时
+.dragover {
+  // transition: all 0.5s;
+  // color: @highlight-color;
+  background-color: #bae7ff;
+}
+
+// 当前所有筛选列表grid的title字段
+.filtertitle {
+  color: @primary-7;
+}
+
+// 数据分析表格的多层表头的css
+thead .parentcolumnheader {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  //white-space: nowrap !important;
+  color: @text-color-secondary !important;
+  text-align: left !important;
+  background-color: @background-color-base !important;
+}
+
+// 显示或隐藏剩余分组的按钮的文字颜色
+thead .parentcolumnheader button {
+  color: @text-color-secondary !important;
+}
+
+thead .rowcellselected {
+  background-color: #bae7ff !important;
+}
+
+thead .parentcolumnheader .selected {
+  background-color: red !important;
+}
+
+// 隐藏的字段有21个像素宽
+tbody tr .parentcolumnheader {
+  min-width: 21px !important;
+}
+
+// 左侧列头的设置
+thead .leafcolumnheader {
+  //white-space: nowrap !important;
+  width: 100px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  font-weight: 400 !important;
+  text-align: center !important;
+}
+
+thead .categorycolumn {
+  font-weight: 500;
+  //white-space: nowrap !important;
+}
+
+tbody .categorycolumn {
+  position: relative;
+  //white-space: nowrap !important;
+  display: flex;
+  font-weight: 500;
+}
+
+// 可展开分组字段的区域
+.groupregion {
+  position: fixed;
+  z-index: 10;
+  width: 240px;
+  background-color: @background-color-base;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.5s ease;
+}
+
+// 可展开分组字段的区域title
+.groupregiontitle {
+  margin-left: 12px;
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 12px;
+}
+
+// 可展开分组的窗品的一个被拖动之后的显示的在下面的标题
+.groupregindeephead {
+  top: 0;
+  left: 0;
+  clear: both;
+  width: 100%;
+  height: 24px;
+  background-color: @background-color-base;
+}
+
+//可展开分组字段的区域内容
+.groupregionbody {
+  max-height: 600px;
+  padding: 18px;
+  overflow-y: auto;
+  background-color: @background-color-light;
+}
+
+// 可展开分组字段的区域title上面的标题
+.tool {
+  float: right;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.dataminingcard {
+  padding: 16px;
+  background: @layout-body-background !important;
+}
+
+.dataminingcardintab {
+  padding: 16px 0 0;
+  background: @layout-body-background !important;
+}
+
+.dataminingcardintabonlytable {
+  padding: 0;
+  background: @layout-body-background !important;
+}

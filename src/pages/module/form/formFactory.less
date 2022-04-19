@@ -1,0 +1,108 @@
+@import '~antd/es/style/themes/default.less';
+
+:global {
+  .collapsed .ant-card-body {
+    padding: 0;
+  }
+
+  // tabs下面的线下不要留空，由里面的控件自己控制
+  .moduleform .ant-tabs-nav {
+    margin: 0 0 0 0 !important;
+  }
+
+  // tabls的第一个tab项，不要顶住最左面
+  .moduleform .ant-tabs-top > .ant-tabs-nav {
+    padding-left: 12px;
+  }
+
+  // tabls的第一个tab项，不要顶住最上面
+  .moduleform .ant-tabs-left > .ant-tabs-nav {
+    padding-top: 12px;
+  }
+
+  .mainregion-fieldset > .ant-card-body {
+    padding-right: 64px;
+    padding-left: 64px;
+  }
+
+  // form 下面的字段的上下margin的设置
+  .moduleform .ant-row .ant-form-item {
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+
+  .moduleform
+    .ant-select-disabled.ant-select-single:not(.ant-select-customize-input)
+    .ant-select-selector {
+    cursor: default !important;
+  }
+
+  .moduleform .ant-checkbox-group .ant-checkbox-wrapper {
+    padding-right: 16px;
+  }
+
+  // 在窗口显示到主区域时，会用space vertical 显示，要设置宽度为100%，否则有些模块form就撑不满
+  .moduleform > .ant-space.ant-space-vertical {
+    width: 100%;
+  }
+
+  // form 显示在主区域时上下不要留空，否则空位是二倍
+  .pageheaderformwrapper .ant-pro-page-container-children-content {
+    margin: 0 16px 0 !important;
+  }
+
+  // form 显示在主区域时，最下面固定的快捷栏
+  .formfoot .ant-card-body {
+    padding: 0;
+  }
+
+  .card_border_top {
+    border-top: 1px solid @divider-color;
+  }
+
+  .card_border_top .ant-card-head {
+    background-color: @background-color-light;
+  }
+
+  .card_border_top_first .ant-card-head {
+    background-color: @background-color-light;
+  }
+
+  // 有unitText后，FormItem的label中由于没有rules，没有红*
+  .moduleform-item-unittext-required::before {
+    display: inline-block;
+    margin-right: 4px;
+    color: #ff4d4f;
+    font-size: 14px;
+    font-family: SimSun, sans-serif;
+    line-height: 1;
+    content: '*';
+  }
+
+  // 字段在选择manytoone值的时候，弹出的popover加一个外边框
+  .manytoonepopover > .ant-popover-content {
+    margin-right: 8px;
+    border: @primary-color solid 1px;
+  }
+
+  // 浮点数值字段的长度(不包括unitText)
+  .ant-input-number.double {
+    width: 135px;
+  }
+
+  // 整型数值字段的长度(不包括unitText)
+  .ant-input-number.integer {
+    width: 120px;
+  }
+
+  // 百分比数值字段的长度(不包括unitText)
+  .ant-input-number.percent {
+    width: 100px;
+  }
+}
+
+// form 和 Descriptions onetomany字段后面的显示明细的按钮
+.onetomanyfieldinfo {
+  margin-left: 4px;
+  cursor: pointer;
+}

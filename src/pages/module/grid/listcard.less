@@ -1,0 +1,42 @@
+@import '~antd/es/style/themes/default.less';
+
+:global {
+  // 去掉图标上的显示预览的小眼睛
+  .hiddedeyes img.ant-image-img {
+    cursor: pointer;
+  }
+  // 去掉图标上的显示预览的小眼睛
+  .hiddedeyes > div > div.ant-image-mask {
+    display: none;
+  }
+}
+
+.listcard {
+  :global {
+    // 选中的记录背景色
+    .selected .ant-card-actions-1,
+    .selected .ant-card-body {
+      background-color: @select-item-selected-bg;
+    }
+
+    // 未选中的记录的背景色
+    .notselected .ant-card-actions,
+    .notselected .ant-card-body {
+      background-color: @background-color-light;
+    }
+
+    .ant-card-grid {
+      width: 100%;
+      padding: 1px 0 0 1px;
+    }
+
+    // type:small 的动作按钮矮一点
+    .ant-card-small .ant-card-actions > li {
+      margin: 6px 0;
+    }
+
+    .ant-card-meta-title .title {
+      cursor: pointer;
+    }
+  }
+}

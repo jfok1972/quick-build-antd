@@ -1,0 +1,26 @@
+.staticcard {
+  // 底部太空，原来是24px
+  :global .ant-pro-card-body {
+    padding-bottom: 12px;
+  }
+
+  // Card Loading 太高，隐藏最后一行
+  :global .ant-pro-card-loading-content .ant-row:last-child {
+    display: none;
+  }
+
+  :global .ant-pro-card-loading-content .ant-row:first-child {
+    margin-top: -4px;
+  }
+}
+
+.staticcardgroup {
+  // Card Group Loading 太高，隐藏最后一行
+  :global .ant-pro-card-loading-content .ant-row:last-child {
+    display: none;
+  }
+}
+
+.filtericon {
+  cursor: pointer;
+}

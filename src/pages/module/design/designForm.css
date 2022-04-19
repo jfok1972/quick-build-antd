@@ -1,0 +1,17 @@
+/* 选中的表单字段 */
+
+.selectedgroupandfield .ant-tree-treenode {
+  width: 100%;
+}
+
+.selectedgroupandfield .ant-tree-node-content-wrapper {
+  flex: 1;
+}
+
+/* 选中的表单字段后面的修改按钮 */
+
+.selectedgroupandfield .ant-tree-node-content-wrapper .editbutton {
+  float: right;
+  padding-top: 4px;
+  padding-right: 12px;
+}

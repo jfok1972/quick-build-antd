@@ -1,0 +1,107 @@
+@import '~antd/es/style/themes/default.less';
+
+// manytomany 作为 tag 显示时的样式，显示在table中弹出式的明细中
+.manytomanytag {
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+th.numberalignright,
+td.numberalignright {
+  color: steelblue;
+  text-align: right !important;
+}
+
+.progresspercent {
+  width: 100px;
+}
+
+.percent_border {
+  width: 90px;
+  height: 22px;
+  border: 1px solid @border-color-base;
+}
+
+.percent_text {
+  float: left;
+  width: 100%;
+}
+
+.percent_area {
+  height: 100%;
+  background: @border-color-base;
+}
+
+.namefield {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.manytoonefield {
+  display: flex;
+  white-space: nowrap;
+}
+
+.manytoonefieldvalue {
+  flex: 1;
+}
+
+.manytoonefieldicon {
+  margin-left: 4px;
+}
+
+.onetomanyfield {
+  color: @primary-7;
+  white-space: nowrap;
+}
+
+.onetomanyfieldinfo {
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.directionaryfield,
+.ratefield,
+.monetaryfield {
+  white-space: nowrap;
+}
+
+.totalfield {
+  display: block;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.summarycell {
+  background-color: @background-color-light;
+}
+
+.totalcell {
+  background-color: @background-color-base;
+}
+
+// 正数
+.numberpositive {
+  //color: blue;
+  color: @primary-7;
+}
+
+.nubmerzero {
+  color: @text-color-secondary;
+}
+
+//负数
+.numbernegative {
+  color: @error-color;
+}
+
+.datefield {
+  color: #a40;
+  white-space: nowrap;
+}
+
+.attachmentfield {
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+}
